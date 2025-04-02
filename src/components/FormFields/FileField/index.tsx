@@ -160,7 +160,7 @@ function View(props: FileFieldProps & { files: string[] }) {
     const field = useFieldContext<string>();
     const { form } = useWfgFormContext();
     const fileUploads = files.map(f => new URLSearchParams(f));
-    const required = requiredFields.has(fileUploads[0].get('Key')!);
+    const required = requiredFields.has(field.name.replace('Table1[0].', ''));
     const fileInput = useRef<HTMLInputElement | null>(null);
     const uploadForm = useForm({
         defaultValues: {
@@ -215,7 +215,7 @@ function View(props: FileFieldProps & { files: string[] }) {
         }
         const formData = new FormData();
         if (mode === 'zip') {
-            formData.append("field", field.name);//.name.split('Table1[0].')[1]);
+            formData.append("field", field.name);
         }
         else {
             const availableFields = fileUploads.length < 2 ? fileUploads.map(f => f.get('Key')!) : fileUploads.filter(f => !f.has('Name')).map(f => f.get('Key')!);

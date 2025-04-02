@@ -5,15 +5,13 @@ const DataSet = type("Record<string, Record<string, string | number | boolean | 
 const DataRow = type("Record<string, string | number | boolean | null | undefined>");
 export type DataRow = typeof DataRow.infer;
 const Table1 = DataRow.merge({
-    FORM_APPROVAL_ROLE: "string?",
-    FORM_ACTION: "string?",
-    FORM_VALIDATORS: "string.json?",
-    FORM_FIELDS_REQUIRED: "string?",
-    FORM_FIELDS_READONLY: "string?",
-    FORM_FIELDS_HIDDEN: "string?",
-    FORM_FIELDS_COMMANDS: "string?",
-    FORM_FIELDS_COMMANDS_FAR: "string?",
-    FORM_FIELDS_COMMANDS_MORE: "string?",
+    FORM_APPROVAL_ROLE: "null | string?",
+    FORM_ARCHIVE: "null | string",
+    FORM_ACTION: "null | string",
+    FORM_FIELDS_REQUIRED: "null | string",
+    FORM_FIELDS_COMMANDS: "null | string",
+    FORM_FIELDS_COMMANDS_FAR: "null | string",
+    FORM_FIELDS_COMMANDS_MORE: "null | string",
 });
 const Configuration = DataRow.merge({
     WF_ACTIVITY_DESC: "string",
@@ -25,14 +23,14 @@ const Configuration = DataRow.merge({
     WF_PROCESS_NAME: "string",
     WF_PROCESS_VERSION: "number.integer",
     WF_ABS_URL: "string.url",
-    WF_MODIFIED: "string.date.iso",
+    WF_MODIFIED: "null | string.date.iso",
     WF_SERVER_VERSION: "string.semver",
     WF_CLIENT_VERSION: "string.semver",
 });
 export type Configuration = typeof Configuration.infer;
 const Comment = DataRow.merge({
     Type: "'COMMENT' | 'REJECTION' | 'APPROVAL'",
-    Role: "string?",
+    Role: "null | string?",
     Author: "string",
     UserName: "string",
     Directory: "string",
@@ -46,7 +44,7 @@ const Comment = DataRow.merge({
 export type Comment = typeof Comment.infer;
 const Approval = DataRow.merge({
     Role: "string",
-    Approval: "'APPROVED' | 'REJECTED' | 'PENDING' | 'DISABLED'",
+    Approval: "null | 'APPROVED' | 'REJECTED' | 'PENDING' | 'DISABLED'",
     ProcessInstId: "null | number.integer?",
     ActivityInstId: "null | number.integer?",
     ApproverUserName: "null | string?",
@@ -63,17 +61,17 @@ const Approval = DataRow.merge({
 });
 export type Approval = typeof Approval.infer;
 const User = DataRow.merge({
-    Id: "number.integer",
-    UserName: "string",
-    EmployeeNumber: "string",
-    CommonName: "string",
-    FirstName: "string",
-    LastName: "string",
-    Email: "string.email",
-    JobTitle: "string",
-    Directory: "string",
-    Locale: "0 < string < 6",
-    TimeZoneId: "number.integer",
+    Id: "null | number.integer",
+    UserName: "null | string",
+    EmployeeNumber: "null | string",
+    CommonName: "null | string",
+    FirstName: "null | string",
+    LastName: "null | string",
+    Email: "null | string.email",
+    JobTitle: "null | string",
+    Directory: "null | string",
+    Locale: "null | 0 < string < 6",
+    TimeZoneId: "null | number.integer",
     IsActive: "boolean",
 });
 export type User = typeof User.infer;

@@ -32,9 +32,9 @@ export const NewCommentForm = () => {
                     if (validationErrors.length < 1) {
                         comments.insertValue(0, {
                             Type: "COMMENT",
-                            Author: currentUser.CommonName,
-                            UserName: currentUser.UserName,
-                            Directory: currentUser.Directory,
+                            Author: currentUser.CommonName!,
+                            UserName: currentUser.UserName!,
+                            Directory: currentUser.Directory!,
                             Created: dayjs().toISOString(),
                             ProcessInstId: configuration.WF_PROCESS_INST_ID,
                             ProcessName: configuration.WF_PROCESS_NAME,

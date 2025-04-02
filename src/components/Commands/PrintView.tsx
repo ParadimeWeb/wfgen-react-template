@@ -64,7 +64,7 @@ const PrintViewMenu = () => {
                     />
                     <form.Subscribe 
                         selector={(state) => [state.canSubmit, state.values.printPageWidthFormatted]}
-                        children={([canSubmit, newPrintPageWidthFormatted]) => <MenuItem disabled={printPageWidthFormatted === newPrintPageWidthFormatted} icon={<ArrowSyncRegular />} onClick={() => { form.handleSubmit(); }}>{t('Refresh')}</MenuItem>}
+                        children={([_, newPrintPageWidthFormatted]) => <MenuItem disabled={printPageWidthFormatted === newPrintPageWidthFormatted} icon={<ArrowSyncRegular />} onClick={() => { form.handleSubmit(); }}>{t('Refresh')}</MenuItem>}
                     />
                 </MenuGroup>
                 <MenuDivider />

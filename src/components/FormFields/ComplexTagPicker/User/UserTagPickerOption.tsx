@@ -9,10 +9,10 @@ export const UserTagPickerOption = ({ row, rows }: Pick<RowTagProps, 'row' | 'ro
     return (
         <TagPickerOption
             secondaryContent={JobTitle}
-            media={<Avatar shape="square" aria-hidden name={CommonName} color={directoryColors.get(Directory)} active={selected ? 'active' : 'unset'} />}
-            value={selected ? `selected-${UserName}` : UserName}
+            media={<Avatar shape="square" aria-hidden name={CommonName!} color={directoryColors.get(Directory!)} active={selected ? 'active' : 'unset'} />}
+            value={selected ? `selected-${UserName}` : UserName!}
         >
-            {CommonName}
+            {CommonName!}
         </TagPickerOption>
     );
 };

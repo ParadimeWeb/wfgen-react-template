@@ -14,7 +14,7 @@ router.get("/test", (_, res) => {
     });
 });
 
-router.post("/aspx", async (req, res) => {
+router.post("/Default.aspx", async (req, res) => {
     //await new Promise((resolve) => setTimeout(resolve, 5000));
     let json = {};
     

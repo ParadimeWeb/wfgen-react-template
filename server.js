@@ -5,8 +5,10 @@ import express from "express";
 import { createServer as createViteServer } from "vite";
 import multer from "multer";
 import apiRoutes from "./server/api/routes.js";
+import { config } from "./vite.config.js";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
+const relativePath = `wfgen/wfapps/webforms/${config.process}/V${config.processVersion}`;
 
 async function createServer() {
     const app = express();
@@ -28,10 +30,10 @@ async function createServer() {
     app.use(vite.middlewares);
 
     // Setup multer for handling multipart/form-data
-    const upload = multer({ dest: "uploads/" });
+    const upload = multer({ dest: `${relativePath}/uploads/` });
     app.use(upload.any());
 
-    app.use("/api", apiRoutes);
+    app.use(`/${relativePath}`, apiRoutes);
 
     app.use("*", async (req, res, next) => {
         const url = req.originalUrl;
@@ -59,7 +61,7 @@ async function createServer() {
     });
 
     app.listen(5173, () => {
-        console.log('Server running at http://localhost:5173');
+        console.log(`Server running at ${config.url}/${relativePath}`);
     });
 }
 

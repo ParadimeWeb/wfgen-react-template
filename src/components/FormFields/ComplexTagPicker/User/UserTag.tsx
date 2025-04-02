@@ -12,10 +12,8 @@ export const UserTag = (props: Omit<RowTagProps, 'rows'>) => {
             media={
                 <Avatar
                     aria-hidden
-                    name={user.CommonName}
-                    color={directoryColors.get(
-                        user.Directory,
-                    )}
+                    name={user.CommonName!}
+                    color={directoryColors.get(user.Directory!)}
                 />
             }
             {...tagProps}

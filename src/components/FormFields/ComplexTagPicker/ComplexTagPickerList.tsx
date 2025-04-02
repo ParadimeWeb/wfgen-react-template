@@ -25,7 +25,7 @@ export const ComplexTagPickerList = (props: ComplexTagPickerListProps) => {
     const allRows = data?.pages.flatMap(data => data.Rows) ?? [];
     const filteredRows = query === '' ? allRows : allRows.filter(r => {
         const { CommonName } = r as User;
-        return CommonName.toLowerCase().includes(query.toLowerCase());
+        return CommonName!.toLowerCase().includes(query.toLowerCase());
     });
 
     return (

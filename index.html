@@ -7,6 +7,10 @@
     <meta name="theme-color" content="#000000" />
     <link rel="apple-touch-icon" href="/logo192.png" />
     <link rel="manifest" href="/manifest.json" />
+    <script>
+      if (window.CSS === undefined || !CSS.supports('color', 'var(--fake-var)')) window.location.replace('/unsupportedbrowser.html');
+      function __fallbackScript(e) { window.location.replace(e.target.src); }
+    </script>
     <title>WorkflowGen React</title>
   </head>
   <style>
@@ -27,11 +31,19 @@
       }
     }
   </style>
-  <body>
-    <form id="form1" runat="server">
-      <input type="hidden" name="__VIEWSTATE" id="__VIEWSTATE" value="The view state value" />
-      <div id="app"></div>
-    </form>
+  <body dir="ltr">
+    <div id="root">
+      <script>
+        if (location.protocol === 'file:') {
+          document.forms[0].submit();
+        }
+        else {
+          const scriptTags = document.getElementsByTagName('script');
+          for (let scriptTag of scriptTags) scriptTag.addEventListener("error", __fallbackScript);
+        }
+      </script>
+    </div>
+    <form id="form1" runat="server"></form>
     <script type="module" src="/src/main.tsx"></script>
   </body>
 </html>

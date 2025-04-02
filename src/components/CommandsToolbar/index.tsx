@@ -26,6 +26,9 @@ export const CommandsToolbar = () => {
     const styles = useStyles();
     const { printForm: { state: { values: { open: isPrintView } } } } = useWfgFormContext();
     const { commands } = useFormInitQuery();
+    if (commands.MAIN.size < 1 && commands.FAR.size < 1 && commands.MORE.size < 1) {
+        return null;
+    }
     const itemsCommand = Array.from(commands.MAIN);
     return (
         <Toolbar className={styles.toolbar}>
@@ -45,9 +48,10 @@ export const CommandsToolbar = () => {
                 {isPrintView ?
                     commandsMap.get('PRINT')?.button() ?? <UnknownButton command="PRINT" />
                 : <>
-                    {Array.from(commands.FAR).map((command, index) => (
+                    {commands.FAR.size > 0 ? Array.from(commands.FAR).map((command, index) => (
                         <Fragment key={`far-${index}`}>{commandsMap.get(command)?.button() ?? <UnknownButton command={command} />}</Fragment>
-                    ))}
+                    )) : null}
+                    {commands.MORE.size > 0 ?
                     <Menu hasIcons>
                         <MenuTrigger>
                             <ToolbarButton icon={<NavigationRegular />} />
@@ -61,7 +65,7 @@ export const CommandsToolbar = () => {
                                 })}
                             </MenuList>
                         </MenuPopover>
-                    </Menu>
+                    </Menu> : null}
                 </>}
             </ToolbarGroup>
         </Toolbar>

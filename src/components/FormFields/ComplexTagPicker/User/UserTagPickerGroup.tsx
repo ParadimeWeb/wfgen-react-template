@@ -14,11 +14,11 @@ export const UserTagPickerGroup = ({ rows }: Pick<RowTagProps, 'rows'>) => {
                         media={
                             <Avatar
                                 aria-hidden
-                                name={CommonName}
-                                color={directoryColors.get(Directory)}
+                                name={CommonName!}
+                                color={directoryColors.get(Directory!)}
                             />
                         }
-                        value={UserName}
+                        value={UserName!}
                     >
                         {CommonName}
                     </Tag>

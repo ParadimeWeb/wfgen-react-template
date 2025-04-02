@@ -1,5 +1,5 @@
 import { CounterBadge, makeStyles, MenuItem, ToolbarButton, Tooltip } from "@fluentui/react-components";
-import { ApprovalsAppRegular, CommentMultipleRegular } from "@fluentui/react-icons";
+import { ApprovalsAppRegular } from "@fluentui/react-icons";
 import { forwardRef } from "react";
 import { useTranslation } from "react-i18next";
 import { useWfgFormContext } from "../Form/Provider";

@@ -11,25 +11,26 @@
 // Import Routes
 
 import { Route as rootRoute } from './routes/__root'
-import { Route as IndexImport } from './routes/index'
+import { Route as WfgenWfappsWebformsProcessVersionAspxImport } from './routes/wfgen.wfapps.webforms.$process.$version.$aspx'
 
 // Create/Update Routes
 
-const IndexRoute = IndexImport.update({
-  id: '/',
-  path: '/',
-  getParentRoute: () => rootRoute,
-} as any)
+const WfgenWfappsWebformsProcessVersionAspxRoute =
+  WfgenWfappsWebformsProcessVersionAspxImport.update({
+    id: '/wfgen/wfapps/webforms/$process/$version/$aspx',
+    path: '/wfgen/wfapps/webforms/$process/$version/$aspx',
+    getParentRoute: () => rootRoute,
+  } as any)
 
 // Populate the FileRoutesByPath interface
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
-    '/': {
-      id: '/'
-      path: '/'
-      fullPath: '/'
-      preLoaderRoute: typeof IndexImport
+    '/wfgen/wfapps/webforms/$process/$version/$aspx': {
+      id: '/wfgen/wfapps/webforms/$process/$version/$aspx'
+      path: '/wfgen/wfapps/webforms/$process/$version/$aspx'
+      fullPath: '/wfgen/wfapps/webforms/$process/$version/$aspx'
+      preLoaderRoute: typeof WfgenWfappsWebformsProcessVersionAspxImport
       parentRoute: typeof rootRoute
     }
   }
@@ -38,33 +39,34 @@ declare module '@tanstack/react-router' {
 // Create and export the route tree
 
 export interface FileRoutesByFullPath {
-  '/': typeof IndexRoute
+  '/wfgen/wfapps/webforms/$process/$version/$aspx': typeof WfgenWfappsWebformsProcessVersionAspxRoute
 }
 
 export interface FileRoutesByTo {
-  '/': typeof IndexRoute
+  '/wfgen/wfapps/webforms/$process/$version/$aspx': typeof WfgenWfappsWebformsProcessVersionAspxRoute
 }
 
 export interface FileRoutesById {
   __root__: typeof rootRoute
-  '/': typeof IndexRoute
+  '/wfgen/wfapps/webforms/$process/$version/$aspx': typeof WfgenWfappsWebformsProcessVersionAspxRoute
 }
 
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/'
+  fullPaths: '/wfgen/wfapps/webforms/$process/$version/$aspx'
   fileRoutesByTo: FileRoutesByTo
-  to: '/'
-  id: '__root__' | '/'
+  to: '/wfgen/wfapps/webforms/$process/$version/$aspx'
+  id: '__root__' | '/wfgen/wfapps/webforms/$process/$version/$aspx'
   fileRoutesById: FileRoutesById
 }
 
 export interface RootRouteChildren {
-  IndexRoute: typeof IndexRoute
+  WfgenWfappsWebformsProcessVersionAspxRoute: typeof WfgenWfappsWebformsProcessVersionAspxRoute
 }
 
 const rootRouteChildren: RootRouteChildren = {
-  IndexRoute: IndexRoute,
+  WfgenWfappsWebformsProcessVersionAspxRoute:
+    WfgenWfappsWebformsProcessVersionAspxRoute,
 }
 
 export const routeTree = rootRoute
@@ -77,11 +79,11 @@ export const routeTree = rootRoute
     "__root__": {
       "filePath": "__root.tsx",
       "children": [
-        "/"
+        "/wfgen/wfapps/webforms/$process/$version/$aspx"
       ]
     },
-    "/": {
-      "filePath": "index.tsx"
+    "/wfgen/wfapps/webforms/$process/$version/$aspx": {
+      "filePath": "wfgen.wfapps.webforms.$process.$version.$aspx.tsx"
     }
   }
 }

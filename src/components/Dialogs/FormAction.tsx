@@ -62,9 +62,9 @@ function FormActionDialogSurface({ form, field, formAction }: { form: WfgForm, f
                 form.state.values.__Comments.unshift({
                     Type: "APPROVAL",
                     Role: wfgFormData.Table1[0].FORM_APPROVAL_ROLE,
-                    Author: currentUser.CommonName,
-                    UserName: currentUser.UserName,
-                    Directory: currentUser.Directory,
+                    Author: currentUser.CommonName!,
+                    UserName: currentUser.UserName!,
+                    Directory: currentUser.Directory!,
                     Created: dayjs().toISOString(),
                     ProcessInstId: configuration.WF_PROCESS_INST_ID,
                     ProcessName: configuration.WF_PROCESS_NAME,

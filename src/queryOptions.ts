@@ -7,18 +7,20 @@ import { NumberParser } from "./utils";
 export const initQueryOptions = queryOptions({
     queryKey: ["ASYNC_INIT"],
     queryFn: async () => {
-        const { data } = await post<WfgDataSet>("ASYNC_INIT");
+        const fd = new FormData();
+        fd.set('__WFGENDATA', __APP_VERSION__);
+        const { data } = await post<WfgDataSet>("ASYNC_INIT", { data: fd });
         const initData = WfgInitData(data);
         if (initData instanceof type.errors) {
             throw new Error(initData.summary);
         }
         const { __Configuration: [configuration], __Assignee: [assignee], __CurrentUser: [currentUser], ...wfgFormData } = initData.WfgDataSet;
         const commands = {
-            'MAIN': new Set(wfgFormData.Table1[0].FORM_FIELDS_COMMANDS ? wfgFormData.Table1[0].FORM_FIELDS_COMMANDS.split(',') : []),
-            'FAR': new Set(wfgFormData.Table1[0].FORM_FIELDS_COMMANDS_FAR ? wfgFormData.Table1[0].FORM_FIELDS_COMMANDS_FAR.split(',') : []),
-            'MORE': new Set(wfgFormData.Table1[0].FORM_FIELDS_COMMANDS_MORE ? wfgFormData.Table1[0].FORM_FIELDS_COMMANDS_MORE.split(',') : [])
+            'MAIN': new Set(wfgFormData.Table1[0].FORM_FIELDS_COMMANDS ? wfgFormData.Table1[0].FORM_FIELDS_COMMANDS.split(',').filter(o=>o) : []),
+            'FAR': new Set(wfgFormData.Table1[0].FORM_FIELDS_COMMANDS_FAR ? wfgFormData.Table1[0].FORM_FIELDS_COMMANDS_FAR.split(',').filter(o=>o) : []),
+            'MORE': new Set(wfgFormData.Table1[0].FORM_FIELDS_COMMANDS_MORE ? wfgFormData.Table1[0].FORM_FIELDS_COMMANDS_MORE.split(',').filter(o=>o) : [])
         };
-        const requiredFields = new Set(wfgFormData.Table1[0].FORM_FIELDS_REQUIRED ? wfgFormData.Table1[0].FORM_FIELDS_REQUIRED.split(',') : []);
+        const requiredFields = new Set(wfgFormData.Table1[0].FORM_FIELDS_REQUIRED ? wfgFormData.Table1[0].FORM_FIELDS_REQUIRED.split(',').filter(o=>o) : []);
         const numberFormat = new Intl.NumberFormat(initData.Locale);
         const numberParser = new NumberParser(initData.Locale);
         const absoluteBaseUrl = configuration.WF_ABS_URL.substring(0, configuration.WF_ABS_URL.lastIndexOf('/') + 1);
@@ -58,7 +60,7 @@ export const employeesQueryOptions = (query: string, pageSize = 40) =>
             data.set("page", pageParam.toString());
             data.set("pageSize", pageSize.toString());
             data.set("query", queryKey[1] as string);
-            const res = await post<QueryResult>("ASYNC_USERS", {
+            const res = await post<QueryResult>("ASYNC_GetUsers", {
                 data,
                 config: { signal },
             });

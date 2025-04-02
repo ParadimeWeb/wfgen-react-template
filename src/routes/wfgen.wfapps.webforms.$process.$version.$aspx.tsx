@@ -1,0 +1,123 @@
+
+import { createFileRoute } from "@tanstack/react-router";
+import { makeStyles } from "@fluentui/react-components";
+import { styleHelpers } from "../styles";
+import { FormFooter } from "../components/Form/Footer";
+import { employeesQueryOptions } from "../queryOptions";
+import { useWfgPrintForm, useWfgForm } from "../hooks/useWfgForm";
+import { WfgFormProvider } from "../components/Form/Provider";
+import { FormHeader } from "../components/Form/Header";
+import { FormContent } from "../components/Form/Content";
+import { type } from "arktype";
+
+
+export const Route = createFileRoute("/wfgen/wfapps/webforms/$process/$version/$aspx")({
+    component: App
+});
+
+const useStyles = makeStyles({
+    row: styleHelpers.row(),
+});
+
+function App() {
+    const styles = useStyles();
+    const form = useWfgForm();
+    const printForm = useWfgPrintForm();
+    
+    return (
+        <WfgFormProvider ctx={{ form, printForm }} autoSaveInterval={60000}>
+            <FormHeader />
+            <FormContent>
+                <div className={styles.row}>
+                    <form.AppField 
+                        name="Table1[0].FirstName"
+                        validators={{
+                            onSubmit: type("string > 3")
+                        }}
+                        children={(field) => {
+                            return <field.TextField />
+                        }}
+                    />
+                    <form.AppField 
+                        name="Table1[0].LastName"
+                        validators={{
+                            onSubmit: type("string > 0")
+                        }}
+                        children={(field) => {
+                            return <field.TextField />
+                        }}
+                    />
+                </div>
+                <div className={styles.row}>
+                    <form.AppField 
+                        name="Table1[0].Amount"
+                        children={(field) => {
+                            return <field.NumberField style="currency" currency="CAD" />
+                        }}
+                    />
+                    <form.AppField 
+                        name="Table1[0].StartDate"
+                        children={field => <field.DatePicker />}
+                    />
+                </div>
+                <div className={styles.row}>
+                    <form.AppField 
+                        name="AssignedTo"
+                        children={field => <field.ComplexTagPicker queryOptions={employeesQueryOptions} />}
+                    />
+                </div>
+                <div className={styles.row}>
+                    <form.AppField 
+                        name="Table1[0].Fruits"
+                        children={(field) => {
+                            return <field.Dropdown 
+                                dropdownProps={{ multiselect: true }}
+                                options={[
+                                    { Value: 'Orange', Text: 'Orange' },
+                                    { Value: 'Apple', Text: 'Apple' },
+                                    { Value: 'Banana', Text: 'Banana' }
+                                ]}
+                            />
+                        }}
+                    />
+                    <form.AppField 
+                        name="ProgramItems"
+                        children={field => (
+                            <field.Combobox
+                                comboboxProps={{ multiselect: false }}
+                                options={[
+                                    { Value: '741', Text: '741 IT Infrastructure' },
+                                    { Value: '742', Text: '742 Description' },
+                                    { Value: '743', Text: '743 Description' }
+                                ]}
+                            />
+                        )}
+                    />
+                </div>
+                <div className={styles.row}>
+                    <form.AppField 
+                        name="Table1[0].File1"
+                        children={field => <field.FileField otherFields={['File2', 'File3']} />}
+                    />
+                    <form.AppField 
+                        name="Table1[0].File4"
+                        validators={{
+                            onSubmit: ({ value }) => {
+                                const fu = new URLSearchParams(value);
+                                return fu.has('Name') ? undefined : ['is required', 'File 4'];
+                            }
+                        }}
+                        children={field => <field.FileField />}
+                    />
+                    <form.AppField 
+                        name="Table1[0].ZipFile"
+                        children={field => <field.FileField mode="zip" />}
+                    />
+                </div>
+            </FormContent>
+            <FormFooter />
+        </WfgFormProvider>
+    );
+}
+
+

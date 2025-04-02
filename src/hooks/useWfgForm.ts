@@ -40,9 +40,6 @@ export const { useAppForm, withForm } = createFormHook({
 
 export function useWfgForm() {
     const { wfgFormData } = useFormInitQuery();
-    const onChangeValidators = wfgFormData.Table1[0].FORM_VALIDATORS ? 
-        type(JSON.parse(wfgFormData.Table1[0].FORM_VALIDATORS))
-        : undefined;
 
     const { mutateAsync } = useMutation({
         mutationFn: async (value: WfgFormData) => {
@@ -57,7 +54,6 @@ export function useWfgForm() {
     return useAppForm({
         defaultValues: wfgFormData,
         validators: {
-            // onSubmit: onChangeValidators,
             onSubmitAsync: async ({ value }) => {
                 const result = await mutateAsync(value);
     
