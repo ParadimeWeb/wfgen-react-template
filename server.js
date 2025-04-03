@@ -30,7 +30,7 @@ async function createServer() {
     app.use(vite.middlewares);
 
     // Setup multer for handling multipart/form-data
-    const upload = multer({ dest: `${relativePath}/uploads/` });
+    const upload = multer({ dest: `uploads/` });
     app.use(upload.any());
 
     app.use(`/${relativePath}`, apiRoutes);
@@ -61,7 +61,7 @@ async function createServer() {
     });
 
     app.listen(5173, () => {
-        console.log(`Server running at ${config.url}/${relativePath}`);
+        console.log(`Server running at ${config.url}/${relativePath}/${config.aspxFilePaths[0]}`);
     });
 }
 

@@ -4,7 +4,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <link rel="icon" href="http://localhost/favicon.ico" />
+    <link rel="icon" href="http://localhost/wfgen/wfapps/webforms/FLUENTUI_TEMPLATE/V1/build/favicon.png" />
     <meta name="theme-color" content="#000000" />
     <link rel="apple-touch-icon" href="http://localhost/wfgen/wfapps/webforms/FLUENTUI_TEMPLATE/V1/build/logo192.png" />
     <link rel="manifest" href="http://localhost/wfgen/wfapps/webforms/FLUENTUI_TEMPLATE/V1/build/manifest.json" />
@@ -13,7 +13,7 @@
       function __fallbackScript(e) { window.location.replace(e.target.src); }
     </script>
     <title>WorkflowGen React</title>
-    <script type="module" crossorigin="use-credentials" src="http://localhost/wfgen/wfapps/webforms/FLUENTUI_TEMPLATE/V1/build/assets/index-DB0jh-Tw.js"></script>
+    <script type="module" crossorigin="use-credentials" src="http://localhost/wfgen/wfapps/webforms/FLUENTUI_TEMPLATE/V1/build/assets/index-BNdwxhv2.js"></script>
   </head>
   <style>
     :where(body) {

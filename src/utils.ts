@@ -2,8 +2,15 @@ import type { AvatarProps } from "@fluentui/react-components";
 
 export const directoryColors = new Map<string, AvatarProps["color"]>([
     ["WORKFLOWGEN", "red"],
-    ["ACME", "blue"],
+    ["CENTRIC_BRANDS", "blue"]
 ]);
+
+export function csvToSet(value: string | null) {
+    return new Set(value?.split(',').filter(o=>o));
+}
+export function setToCsv(value: Set<string>) {
+    return [...value].join(',');
+}
 
 export class NumberParser {
     private _group: RegExp;

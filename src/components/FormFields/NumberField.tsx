@@ -1,6 +1,6 @@
 import { Field, Input, mergeClasses, Text, type FieldProps, type InputProps, type TextProps } from "@fluentui/react-components";
 import { useFieldContext } from "../../hooks/useWfgForm";
-import { NumberParser } from "../../utils";
+import { csvToSet, NumberParser } from "../../utils";
 import { useForm } from "@tanstack/react-form";
 import { type } from "arktype";
 import { useTranslation } from "react-i18next";
@@ -14,6 +14,8 @@ type NumberFieldProps = {
     inputProps?: InputProps
     printFieldProps?: FieldProps
     printTextProps?: TextProps
+    readonlyFieldProps?: FieldProps
+    readonlyInputProps?: InputProps
     style?: "decimal" | "percent" | "currency" | "unit"
     currency?: 'USD' | 'CAD'
 };
@@ -39,19 +41,57 @@ function PrintView(props: NumberFieldProps) {
         </Field>
     );
 }
+function ReadonlyView(props: NumberFieldProps) {
+    const { readonlyFieldProps = props.fieldProps, readonlyInputProps = {}, style = 'decimal', currency = 'USD' } = props;
+    const styles = usePrintStyles();
+    const { t } = useTranslation();
+    const field = useFieldContext<number | null>();
+    const { locale } = useFormInitQuery();
+    const { form } = useWfgFormContext();
+    const parts = Intl.NumberFormat(locale, { style, currency }).formatToParts();
+    const currencySign = parts.find(p => p.type === 'currency')?.value ?? '';
+    const percentSign = parts.find(p => p.type === 'percentSign')?.value ?? '';
+    const numberFormat = Intl.NumberFormat(locale, { style, currency });
+
+    return (
+        <form.Subscribe 
+            selector={s => s.values.Table1[0].FORM_FIELDS_REQUIRED}
+            children={FORM_FIELDS_REQUIRED => {
+                const requiredFields = csvToSet(FORM_FIELDS_REQUIRED);
+                const required = requiredFields.has(field.name.replace('Table1[0].', ''));
+                return (
+                    <Field
+                        required={required}
+                        label={t(field.name)}
+                        {...readonlyFieldProps}
+                    >
+                        <Input
+                            readOnly
+                            className={styles.readonly}
+                            contentAfter={style === 'currency' ? <Text size={400}>{currencySign}</Text> : style === 'percent' ? <Text size={400}>{percentSign}</Text> : <NumberRowRegular />}
+                            defaultValue={field.state.value === null ? '' : numberFormat.format(field.state.value)}
+                            {...readonlyInputProps}
+                        />
+                    </Field>
+                );
+            }}
+        />
+    );
+    
+}
 function View(props: NumberFieldProps) {
     const { fieldProps = {}, inputProps = {}, style = 'decimal', currency = 'USD' } = props;
     const { t } = useTranslation();
     const field = useFieldContext<number | null>();
-    const { locale, requiredFields } = useFormInitQuery();
-    const required = requiredFields.has(field.name.replace('Table1[0].', ''));
+    const { locale } = useFormInitQuery();
+    const { form } = useWfgFormContext();
     const parts = Intl.NumberFormat(locale, { style, currency }).formatToParts();
     const currencySign = parts.find(p => p.type === 'currency')?.value ?? '';
     const percentSign = parts.find(p => p.type === 'percentSign')?.value ?? '';
     const numberFormat = Intl.NumberFormat(locale, style === 'currency' ? { maximumFractionDigits: 2, minimumFractionDigits: 2 } : style === 'percent' ? { maximumFractionDigits: 0, minimumFractionDigits: 0 } : undefined);
     const numberParser = new NumberParser(locale);
     const value = field.state.value === null ? null : style === 'percent' ? field.state.value*100 : field.state.value;
-    const form = useForm({
+    const numberForm = useForm({
         defaultValues: {
             formattedValue: value === null ? '' : numberFormat.format(value)
         },
@@ -76,38 +116,47 @@ function View(props: NumberFieldProps) {
     });
     
     return (
-        <form.Field 
-            name="formattedValue"
-            children={(formattedField) => {
+        <form.Subscribe 
+            selector={s => s.values.Table1[0].FORM_FIELDS_REQUIRED}
+            children={FORM_FIELDS_REQUIRED => {
+                const requiredFields = csvToSet(FORM_FIELDS_REQUIRED);
+                const required = requiredFields.has(field.name.replace('Table1[0].', ''));
                 return (
-                    <Field
-                        required={required}
-                        label={t(field.name)}
-                        validationMessage={formattedField.state.meta.isTouched && formattedField.state.meta.errors.length ? formattedField.state.meta.errors[0]?.message : field.state.meta.isTouched && field.state.meta.errors.length > 0 ? t(field.state.meta.errors[0], { length: field.state.meta.errors[0].rule, actual: formattedField.state.value.length }) : null}
-                        {...fieldProps}
-                    >
-                        <Input
-                            contentAfter={style === 'currency' ? <Text size={400}>{currencySign}</Text> : style === 'percent' ? <Text size={400}>{percentSign}</Text> : <NumberRowRegular />}
-                            value={formattedField.state.value}
-                            onBlur={() => {
-                                if (form.state.isValid && value !== null) {
-                                    if (!Number.isInteger(value)) {
-                                        if (style === 'percent') {
-                                            field.setValue(Math.round(value)/100);
-                                        }
-                                        else if (style === 'currency' && value.toString().split('.')[1].length > 2) {
-                                            field.setValue(Math.round(value * 100) / 100);
-                                        }
-                                    }
-                                    formattedField.setValue(numberFormat.format(value));
-                                }
-                            }}
-                            onChange={(_, { value }) => {
-                                formattedField.handleChange(value);
-                            }}
-                            {...inputProps}
-                        />
-                    </Field>
+                    <numberForm.Field 
+                        name="formattedValue"
+                        children={(formattedField) => {
+                            return (
+                                <Field
+                                    required={required}
+                                    label={t(field.name)}
+                                    validationMessage={formattedField.state.meta.isTouched && formattedField.state.meta.errors.length ? formattedField.state.meta.errors[0]?.message : field.state.meta.isTouched && field.state.meta.errors.length > 0 ? t(field.state.meta.errors[0], { length: field.state.meta.errors[0].rule, actual: formattedField.state.value.length }) : null}
+                                    {...fieldProps}
+                                >
+                                    <Input
+                                        contentAfter={style === 'currency' ? <Text size={400}>{currencySign}</Text> : style === 'percent' ? <Text size={400}>{percentSign}</Text> : <NumberRowRegular />}
+                                        value={formattedField.state.value}
+                                        onBlur={() => {
+                                            if (form.state.isValid && value !== null) {
+                                                if (!Number.isInteger(value)) {
+                                                    if (style === 'percent') {
+                                                        field.setValue(Math.round(value)/100);
+                                                    }
+                                                    else if (style === 'currency' && value.toString().split('.')[1].length > 2) {
+                                                        field.setValue(Math.round(value * 100) / 100);
+                                                    }
+                                                }
+                                                formattedField.setValue(numberFormat.format(value));
+                                            }
+                                        }}
+                                        onChange={(_, { value }) => {
+                                            formattedField.handleChange(value);
+                                        }}
+                                        {...inputProps}
+                                    />
+                                </Field>
+                            );
+                        }}
+                    />
                 );
             }}
         />
@@ -115,6 +164,14 @@ function View(props: NumberFieldProps) {
 }
 
 export const NumberField = (props: NumberFieldProps) => {
-    const { printForm: { state: { values: { open: isPrintView } } } } = useWfgFormContext();
-    return isPrintView ? <PrintView {...props} /> : <View {...props} />;
+    const field = useFieldContext();
+    const { form, printForm: { state: { values: { open: isPrintView } } } } = useWfgFormContext();
+    const { isArchive } = useFormInitQuery();
+    return <form.Subscribe 
+        selector={s => s.values.Table1[0].FORM_FIELDS_READONLY ?? ''}
+        children={FORM_FIELDS_READONLY => {
+            const readonlyFields = csvToSet(FORM_FIELDS_READONLY);
+            return isPrintView ? <PrintView {...props} /> : isArchive || readonlyFields.has(field.name.replace('Table1[0].', '')) ? <ReadonlyView {...props} /> : <View {...props} />;
+        }}
+    />;
 }

@@ -11,7 +11,6 @@ import { ReactQueryDevtools } from '@tanstack/react-query-devtools'
 import { initQueryOptions } from '../queryOptions'
 import { useEffect } from 'react'
 import { makeStaticStyles } from '@fluentui/react-components'
-import i18n from '../i18n/i18n'
 import { printPageMargin } from '../components/Form/Provider'
 
 
@@ -47,6 +46,10 @@ export const Route = createRootRouteWithContext<{
         }
     },
     errorComponent: (error) => <div>Error!<div>{error.error.message}</div></div>,
+    notFoundComponent: (props) => {
+        console.log(props);
+        return <div>Not found</div>;
+    },
     component: () => {
         useStaticStyles();
 
@@ -62,7 +65,6 @@ export const Route = createRootRouteWithContext<{
 
             return () => {
                 abortController.abort();
-                i18n.off('missingKey');
             };
         }, []);
 

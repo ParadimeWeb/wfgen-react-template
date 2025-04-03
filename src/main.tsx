@@ -1,17 +1,40 @@
-import i18n from "./i18n/i18n";
+import i18n from "i18next";
+import { initReactI18next } from "react-i18next";
+import LanguageDetector from "i18next-browser-languagedetector";
 import './arktypeconfig';
 import { StrictMode } from "react";
 import ReactDOM from "react-dom/client";
 import { RouterProvider, createRouter } from "@tanstack/react-router";
 import { QueryClient, QueryClientProvider, type MutationFunction } from "@tanstack/react-query";
-
-// Import the generated route tree
 import { routeTree } from "./routeTree.gen";
-
 import reportWebVitals from "./reportWebVitals";
 import axios, { type AxiosRequestConfig, type AxiosResponse } from "axios";
 import { PendingComponent } from "./components/PendingComponent";
 import type { ActionResult, WfgFormData } from "./types";
+
+i18n
+    // Detect user language
+    .use(LanguageDetector)
+    // Pass the i18n instance to react-i18next
+    .use(initReactI18next)
+    // Initialize i18next
+    .init({
+        resources: {},
+        supportedLngs: ["en", "fr"],
+        fallbackLng: "en",
+        nonExplicitSupportedLngs: true,
+        saveMissing: true,
+        saveMissingTo: "all",
+        debug: import.meta.env.DEV,
+        interpolation: {
+            escapeValue: false, // React already escapes values
+        },
+    });
+// i18n.on('missingKey', (lngs, namespace, key, res) => {
+//     const data = new FormData();
+//     data.set('key', key);
+//     // post('ASYNC_MISSING_KEY', { data });
+// });
 
 function createFakeViewState() {
     const input = document.createElement('input');
@@ -34,10 +57,12 @@ function validateASPXWebForm() {
         throw new Error('Missing form element. ASP.NET webform needs a runat server form.');
     }
 }
-export function post<T>(action: string, { url, data, config }: { url?: string, data?: FormData, config?: AxiosRequestConfig<FormData> | undefined } = {}) {
+export function post<T>(action: string, { url, data, config, withViewState = true }: { url?: string, data?: FormData, config?: AxiosRequestConfig<FormData> | undefined, withViewState?: boolean } = {}) {
     validateASPXWebForm();
     const formData = data ?? new FormData();
-    formData.set('__VIEWSTATE', viewState.value);
+    if (withViewState) {
+        formData.set('__VIEWSTATE', viewState.value);
+    }
     formData.set('__WFGENACTION', action);
     return axiosInstance.post<T>(url ?? '', formData, config);
 }

@@ -9,6 +9,7 @@ const Table1 = DataRow.merge({
     FORM_ARCHIVE: "null | string",
     FORM_ACTION: "null | string",
     FORM_FIELDS_REQUIRED: "null | string",
+    FORM_FIELDS_READONLY: "null | string",
     FORM_FIELDS_COMMANDS: "null | string",
     FORM_FIELDS_COMMANDS_FAR: "null | string",
     FORM_FIELDS_COMMANDS_MORE: "null | string",

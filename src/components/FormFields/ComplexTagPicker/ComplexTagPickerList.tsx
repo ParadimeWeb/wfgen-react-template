@@ -5,28 +5,27 @@ import type { QueryOptionsWithQuery } from "../../../queryOptions";
 import type { ComponentType } from "react";
 import type { RowTagProps } from ".";
 import { UserTagPickerOption } from "./User/UserTagPickerOption";
+import { filterUserRows } from "./User";
 import { useTranslation } from "react-i18next";
 
 export type ComplexTagPickerListProps = {
-    queryOptions: QueryOptionsWithQuery;
-    pageSize?: number;
-    localQuery?: boolean;
-    rows: DataRow[];
-	query: string;
-	selectedOptions: string[];
-    TagPickerOptionComponent: ComponentType<Pick<RowTagProps, 'row' | 'rows'>>
+    queryOptions: QueryOptionsWithQuery
+    pageSize?: number
+    localQuery?: boolean
+    rows: DataRow[]
+	query: string
+	selectedOptions: string[]
+    TagPickerOptionComponent?: ComponentType<Pick<RowTagProps, 'row' | 'rows'>>
+    filterRows?: (rows: DataRow[], query: string) => DataRow[]
 };
 
 export const ComplexTagPickerList = (props: ComplexTagPickerListProps) => {
-    const { rows, pageSize = 40, localQuery = false, queryOptions, query, TagPickerOptionComponent = UserTagPickerOption } = props;
+    const { rows, pageSize = 40, localQuery = false, queryOptions, query, TagPickerOptionComponent = UserTagPickerOption, filterRows = filterUserRows } = props;
     const { t } = useTranslation();
     const { data, isLoading, hasNextPage, fetchNextPage, isFetchingNextPage } = useInfiniteQuery(queryOptions(localQuery ? '' : query, pageSize));
     const total = data?.pages[0].Total ?? 0;
     const allRows = data?.pages.flatMap(data => data.Rows) ?? [];
-    const filteredRows = query === '' ? allRows : allRows.filter(r => {
-        const { CommonName } = r as User;
-        return CommonName!.toLowerCase().includes(query.toLowerCase());
-    });
+    const filteredRows = filterRows(allRows, query);
 
     return (
         <TagPickerList style={{ maxHeight: 480 }}>

@@ -7,9 +7,23 @@ import { NumberParser } from "./utils";
 export const initQueryOptions = queryOptions({
     queryKey: ["ASYNC_INIT"],
     queryFn: async () => {
+        const wfgenAction = document.getElementById('__WFGENACTION') as HTMLInputElement | null;
+        let action = 'ASYNC_INIT';
+        let withViewState = true;
         const fd = new FormData();
-        fd.set('__WFGENDATA', __APP_VERSION__);
-        const { data } = await post<WfgDataSet>("ASYNC_INIT", { data: fd });
+        if (wfgenAction !== null) {
+            withViewState = false;
+            action = `ASYNC_${wfgenAction.value}`;
+            const ID_PROCESS_INST = document.getElementById('ID_PROCESS_INST') as HTMLInputElement;
+            const ID_ACTIVITY_INST = document.getElementById('ID_ACTIVITY_INST') as HTMLInputElement;
+            fd.set('ID_PROCESS_INST', ID_PROCESS_INST.value);
+            fd.set('ID_ACTIVITY_INST', ID_ACTIVITY_INST.value);
+            fd.set('DATA_NAME', 'FORM_DATA');
+        }
+        else {
+            fd.set('version', __APP_VERSION__);
+        }
+        const { data } = await post<WfgDataSet>(action, { data: fd, withViewState });
         const initData = WfgInitData(data);
         if (initData instanceof type.errors) {
             throw new Error(initData.summary);
@@ -20,7 +34,6 @@ export const initQueryOptions = queryOptions({
             'FAR': new Set(wfgFormData.Table1[0].FORM_FIELDS_COMMANDS_FAR ? wfgFormData.Table1[0].FORM_FIELDS_COMMANDS_FAR.split(',').filter(o=>o) : []),
             'MORE': new Set(wfgFormData.Table1[0].FORM_FIELDS_COMMANDS_MORE ? wfgFormData.Table1[0].FORM_FIELDS_COMMANDS_MORE.split(',').filter(o=>o) : [])
         };
-        const requiredFields = new Set(wfgFormData.Table1[0].FORM_FIELDS_REQUIRED ? wfgFormData.Table1[0].FORM_FIELDS_REQUIRED.split(',').filter(o=>o) : []);
         const numberFormat = new Intl.NumberFormat(initData.Locale);
         const numberParser = new NumberParser(initData.Locale);
         const absoluteBaseUrl = configuration.WF_ABS_URL.substring(0, configuration.WF_ABS_URL.lastIndexOf('/') + 1);
@@ -28,6 +41,7 @@ export const initQueryOptions = queryOptions({
         const graphQLUrl = `${rootUrl}graphQL`;
         const delegatorUserId = currentUser.id !== assignee.id ? assignee.id : -1;
         const formArchiveUrl = typeof wfgFormData.Table1[0].FORM_ARCHIVE_URL === 'string' ? wfgFormData.Table1[0].FORM_ARCHIVE_URL : '';
+        
         return { 
             wfgFormData,
             configuration,
@@ -39,7 +53,6 @@ export const initQueryOptions = queryOptions({
             isArchive: commands.MAIN.has('ARCHIVE'),
             formArchiveUrl,
             commands,
-            requiredFields,
             locale: initData.Locale,
             timeZoneInfo: initData.TimeZoneInfo,
             numberFormat,

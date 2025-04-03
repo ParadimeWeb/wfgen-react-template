@@ -8,12 +8,15 @@ import { DismissRegular } from "@fluentui/react-icons"
 import { useWfgFormContext } from "../Form/Provider"
 import { useMemo } from "react"
 import { usePrintStyles } from "./TextField"
+import { csvToSet } from "../../utils"
 
 type DatePickerProps = {
     fieldProps?: FieldProps
     datePickerProps?: FUIDatePickerProps
     printFieldProps?: FieldProps
     printTextProps?: TextProps
+    readonlyFieldProps?: FieldProps
+    readonlyDatePickerProps?: FUIDatePickerProps
 };
 
 export const toDate = (value?: string | null) => {
@@ -43,11 +46,46 @@ function PrintView(props: DatePickerProps) {
         </Field>
     );
 }
+function ReadonlyView(props: DatePickerProps) {
+    const { readonlyFieldProps = props.fieldProps, readonlyDatePickerProps = {} } = props;
+    const field = useFieldContext<string | null>();
+    const { form } = useWfgFormContext();
+    const { t } = useTranslation();
+    const value = toDate(field.state.value);
+
+    return (
+        <form.Subscribe 
+            selector={s => s.values.Table1[0].FORM_FIELDS_REQUIRED}
+            children={FORM_FIELDS_REQUIRED => {
+                const requiredFields = csvToSet(FORM_FIELDS_REQUIRED);
+                const required = requiredFields.has(field.name.replace('Table1[0].', ''));
+                return (
+                    <Field
+                        required={required}
+                        label={t(field.name)}
+                        {...readonlyFieldProps}
+                    >
+                        <FUIDatePicker 
+                            readOnly
+                            popupSurface={null}
+                            formatDate={() => {
+                                return value?.format('LL') ?? '';
+                            }}
+                            value={value?.toDate() ?? null}
+                            {...readonlyDatePickerProps}
+                        />
+                    </Field>
+                );
+            }}
+        />
+    );
+}
 function View(props: DatePickerProps) {
     const { fieldProps = {}, datePickerProps = {} } = props;
     const field = useFieldContext<string | null>();
     const { t } = useTranslation();
-    const { locale, requiredFields } = useFormInitQuery();
+    const { locale } = useFormInitQuery();
+    const { form } = useWfgFormContext();
     const strings = useMemo(() => ({
         days: dayjs.weekdays(),
         goToToday: t('Go to today'),
@@ -59,40 +97,56 @@ function View(props: DatePickerProps) {
         shortDays: dayjs.weekdaysMin(),
         shortMonths: dayjs.monthsShort()
     }), [locale]);
-    const required = requiredFields.has(field.name.replace('Table1[0].', ''));
     const value = toDate(field.state.value);
 
     return (
-        <Field
-            label={t(field.name)}
-            required={required}
-            validationMessage={field.state.meta.isTouched && field.state.meta.errors.length > 0 ? t(field.state.meta.errors[0]) : null}
-            {...fieldProps}
-        >
-            <FUIDatePicker 
-                strings={strings}
-                contentBefore={
-                    <Button 
-                        appearance="transparent" 
-                        size="small" 
-                        disabled={datePickerProps.value === null} 
-                        icon={<DismissRegular />} 
-                        onClick={() => { field.handleChange(null); }} 
-                    />
-                }
-                formatDate={() => {
-                    return value?.format('LL') ?? '';
-                }}
-                value={value?.toDate() ?? null}
-                onSelectDate={(date) => {
-                    field.handleChange(date ? dayjs(date).format('YYYY-MM-DD') : null);
-                }}
-                {...datePickerProps}
-            />
-        </Field>
+        <form.Subscribe 
+            selector={s => s.values.Table1[0].FORM_FIELDS_REQUIRED}
+            children={FORM_FIELDS_REQUIRED => {
+                const requiredFields = csvToSet(FORM_FIELDS_REQUIRED);
+                const required = requiredFields.has(field.name.replace('Table1[0].', ''));
+                return (
+                    <Field
+                        label={t(field.name)}
+                        required={required}
+                        validationMessage={field.state.meta.isTouched && field.state.meta.errors.length > 0 ? t(field.state.meta.errors[0]) : null}
+                        {...fieldProps}
+                    >
+                        <FUIDatePicker 
+                            strings={strings}
+                            contentBefore={
+                                <Button 
+                                    appearance="transparent" 
+                                    size="small" 
+                                    disabled={datePickerProps.value === null} 
+                                    icon={<DismissRegular />} 
+                                    onClick={() => { field.handleChange(null); }} 
+                                />
+                            }
+                            formatDate={() => {
+                                return value?.format('LL') ?? '';
+                            }}
+                            value={value?.toDate() ?? null}
+                            onSelectDate={(date) => {
+                                field.handleChange(date ? dayjs(date).format('YYYY-MM-DD') : null);
+                            }}
+                            {...datePickerProps}
+                        />
+                    </Field>
+                );
+            }}
+        />
     );
 }
 export const DatePicker = (props: DatePickerProps) => {
-    const { printForm: { state: { values: { open: isPrintView } } } } = useWfgFormContext();
-    return isPrintView ? <PrintView {...props} /> : <View {...props} />;
+    const field = useFieldContext();
+    const { form, printForm: { state: { values: { open: isPrintView } } } } = useWfgFormContext();
+    const { isArchive } = useFormInitQuery();
+    return <form.Subscribe 
+        selector={s => s.values.Table1[0].FORM_FIELDS_READONLY ?? ''}
+        children={FORM_FIELDS_READONLY => {
+            const readonlyFields = csvToSet(FORM_FIELDS_READONLY);
+            return isPrintView ? <PrintView {...props} /> : isArchive || readonlyFields.has(field.name.replace('Table1[0].', '')) ? <ReadonlyView {...props} /> : <View {...props} />;
+        }}
+    />;
 };
