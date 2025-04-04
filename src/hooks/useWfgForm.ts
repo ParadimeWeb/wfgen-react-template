@@ -1,30 +1,31 @@
-import { createFormHook, createFormHookContexts, useForm } from "@tanstack/react-form";
+import { createFormHook, useForm } from "@tanstack/react-form";
 import { type } from "arktype";
 import { useMutation } from "@tanstack/react-query";
 import type { ActionResult, WfgFormData } from "../types";
-import { post } from "../main";
 import { useFormInitQuery } from "./useFormInitQuery";
-import { TextField } from "../components/FormFields/TextField";
-import { Comments } from "../components/Comments";
-import { NumberField } from "../components/FormFields/NumberField";
-import { DatePicker } from "../components/FormFields/DatePicker";
-import { ComplexTagPicker } from "../components/FormFields/ComplexTagPicker";
-import { Combobox } from "../components/FormFields/Combobox";
-import { Dropdown } from "../components/FormFields/Dropdown";
 import { useTranslation } from "react-i18next";
-import { NewCommentForm } from "../components/Comments/NewCommentForm";
-import { Approvals } from "../components/Approvals";
-import { FileField } from "../components/FormFields/FileField";
+import { post } from "../utils";
+import { fieldContext, formContext } from "./formContext";
+import { lazy } from "react";
 
-const formHookContexts = createFormHookContexts();
-const { fieldContext, formContext } = formHookContexts;
-export const { useFieldContext, useFormContext } = formHookContexts;
+const TextField = lazy(() => import('../components/FormFields/TextField'));
+const RadioGroup = lazy(() => import('../components/FormFields/RadioGroup'));
+const Comments = lazy(() => import('../components/Comments'));
+const DatePicker = lazy(() => import('../components/FormFields/DatePicker'));
+const ComplexTagPicker = lazy(() => import('../components/FormFields/ComplexTagPicker'));
+const Combobox = lazy(() => import('../components/FormFields/Combobox'));
+const Dropdown = lazy(() => import('../components/FormFields/Dropdown'));
+const NumberField = lazy(() => import('../components/FormFields/NumberField'));
+const FileField = lazy(() => import('../components/FormFields/FileField'));
+const Approvals = lazy(() => import('../components/Approvals'));
+const NewCommentForm = lazy(() => import('../components/Comments/NewCommentForm'));
 
-export const { useAppForm, withForm } = createFormHook({
+export const { useAppForm } = createFormHook({
     fieldContext,
     formContext,
     fieldComponents: {
         TextField,
+        RadioGroup,
         NumberField,
         Dropdown,
         Combobox,
@@ -99,3 +100,6 @@ export function useWfgPrintForm() {
     });
     return form;
 }
+
+export type WfgForm = ReturnType<typeof useWfgForm>;
+export type WfgPrintForm = ReturnType<typeof useWfgPrintForm>;

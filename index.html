@@ -32,18 +32,17 @@
     }
   </style>
   <body dir="ltr">
-    <div id="root">
-      <script>
-        if (location.protocol === 'file:') {
-          document.forms[0].submit();
-        }
-        else {
-          const scriptTags = document.getElementsByTagName('script');
-          for (let scriptTag of scriptTags) scriptTag.addEventListener("error", __fallbackScript);
-        }
-      </script>
-    </div>
+    <div id="root"></div>
     <form id="form1" runat="server"></form>
     <script type="module" src="/src/main.tsx"></script>
+    <script>
+      if (location.protocol === 'file:') {
+        document.forms[0].submit();
+      }
+      else {
+        const scriptTags = document.getElementsByTagName('script');
+        for (let scriptTag of scriptTags) scriptTag.addEventListener("error", __fallbackScript);
+      }
+    </script>
   </body>
 </html>

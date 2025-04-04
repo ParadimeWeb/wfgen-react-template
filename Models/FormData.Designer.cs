@@ -597,8 +597,7 @@ namespace FluentUITemplate.Models {
                 this.columnFile3.DefaultValue = ((string)(""));
                 this.columnFile4.AllowDBNull = false;
                 this.columnFile4.DefaultValue = ((string)(""));
-                this.columnZipFile.AllowDBNull = false;
-                this.columnZipFile.DefaultValue = ((string)(""));
+                this.columnZipFile.DefaultValue = ((string)("Key=__Zip"));
             }
             
             [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
@@ -1361,7 +1360,12 @@ namespace FluentUITemplate.Models {
             [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Design.TypedDataSetGenerator", "17.0.0.0")]
             public string ZipFile {
                 get {
-                    return ((string)(this[this.tableTable1.ZipFileColumn]));
+                    try {
+                        return ((string)(this[this.tableTable1.ZipFileColumn]));
+                    }
+                    catch (global::System.InvalidCastException e) {
+                        throw new global::System.Data.StrongTypingException("The value for column \'ZipFile\' in table \'Table1\' is DBNull.", e);
+                    }
                 }
                 set {
                     this[this.tableTable1.ZipFileColumn] = value;
@@ -1426,6 +1430,18 @@ namespace FluentUITemplate.Models {
             [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Design.TypedDataSetGenerator", "17.0.0.0")]
             public void SetFruitsNull() {
                 this[this.tableTable1.FruitsColumn] = global::System.Convert.DBNull;
+            }
+            
+            [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+            [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Design.TypedDataSetGenerator", "17.0.0.0")]
+            public bool IsZipFileNull() {
+                return this.IsNull(this.tableTable1.ZipFileColumn);
+            }
+            
+            [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+            [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Design.TypedDataSetGenerator", "17.0.0.0")]
+            public void SetZipFileNull() {
+                this[this.tableTable1.ZipFileColumn] = global::System.Convert.DBNull;
             }
         }
         

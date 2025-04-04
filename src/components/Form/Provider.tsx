@@ -1,13 +1,11 @@
-import { createContext, useContext } from "react";
 import type { WfgFormContext } from "../../types";
 import ThemeProvider from "../ThemeProvider";
 import { makeStyles, mergeClasses } from "@fluentui/react-components";
 import { formStyles } from "../../styles";
 import { FormActionDialog } from "../Dialogs/FormAction";
 import { FormActionDrawer } from "../Drawers/FormAction";
+import { FormContext, useWfgFormContext } from "../../hooks/useWfgFormContext";
 
-const FormContext = createContext<WfgFormContext | null>(null);
-export const useWfgFormContext = () => useContext(FormContext)!;
 export const printPageMargin = 0.25;
 
 type WfgFormProviderProps = {

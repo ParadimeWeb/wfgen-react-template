@@ -1,7 +1,7 @@
 import { OverlayDrawer } from "@fluentui/react-components";
-import { useWfgFormContext } from "../Form/Provider";
 import { CommentsDrawer } from "./Comments";
 import { ApprovalsDrawer } from "./Approvals";
+import { useWfgFormContext } from "../../hooks/useWfgFormContext";
 
 export const FormActionDrawer = () => {
     const { form } = useWfgFormContext();

@@ -1,7 +1,7 @@
 import { Avatar, Tag} from "@fluentui/react-components";
 import type { User } from "../../../../types";
 import { directoryColors } from "../../../../utils";
-import type { RowTagProps } from "..";
+import type { RowTagProps } from "../types";
 
 export const UserTag = (props: Omit<RowTagProps, 'rows'>) => {
     const { row, fieldProps, tagProps } = props;

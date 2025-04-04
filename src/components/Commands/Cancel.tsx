@@ -3,7 +3,7 @@ import { DismissRegular } from "@fluentui/react-icons";
 import { useIsMutating } from "@tanstack/react-query";
 import { forwardRef } from "react";
 import { useTranslation } from "react-i18next";
-import { useWfgFormContext } from "../Form/Provider";
+import { useWfgFormContext } from "../../hooks/useWfgFormContext";
 
 const useStyles = makeStyles({
     redIconButton: {

@@ -1,8 +1,9 @@
 import { makeStyles, mergeClasses, tokens } from "@fluentui/react-components";
 import { formStyles } from "../../styles";
 import { CommandsToolbar } from "../CommandsToolbar";
-import { printPageMargin, useWfgFormContext } from "./Provider";
+import { printPageMargin } from "./Provider";
 import { ValidationErrorsMessageBar } from "../ValidationErrorsMessageBar";
+import { useWfgFormContext } from "../../hooks/useWfgFormContext";
 
 export const headerHeight = 40;
 

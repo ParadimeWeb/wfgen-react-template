@@ -1,8 +1,7 @@
 import { queryOptions, infiniteQueryOptions } from "@tanstack/react-query";
-import { post } from "./main";
-import { QueryResult, WfgDataSet, WfgInitData } from "./types";
+import { type QueryResult, type WfgDataSet, WfgInitData } from "./types";
 import { type } from "arktype";
-import { NumberParser } from "./utils";
+import { NumberParser, post } from "./utils";
 
 export const initQueryOptions = queryOptions({
     queryKey: ["ASYNC_INIT"],

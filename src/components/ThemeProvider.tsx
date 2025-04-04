@@ -1,6 +1,6 @@
 import { FluentProvider, makeStyles, tokens, webDarkTheme, webLightTheme } from "@fluentui/react-components";
 import { useDarkMode, useReadLocalStorage } from "usehooks-ts";
-import { useWfgFormContext } from "./Form/Provider";
+import { useWfgFormContext } from "../hooks/useWfgFormContext";
 
 export const darkTheme = {
     ...webDarkTheme,

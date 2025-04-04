@@ -1,15 +1,15 @@
 import { Chat } from "@fluentui-contrib/react-chat";
 import { commentChatMessages } from "./CommentChatMessage";
-import { useFieldContext } from "../../hooks/useWfgForm";
 import type { Comment } from "../../types";
 import { makeStyles } from "@fluentui/react-components";
+import { useFieldContext } from "../../hooks/formContext";
 
 const useStyles = makeStyles({
     root: {
         width: 'unset'
     }
 });
-export const Comments = () => {
+export default () => {
     const styles = useStyles();
     const comments = useFieldContext<Comment[]>();
     return (

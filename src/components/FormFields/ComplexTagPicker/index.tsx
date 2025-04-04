@@ -5,48 +5,22 @@ import {
 	TagPicker,
 	TagPickerControl,
 	TagPickerInput,
-	tokens,
-	type FieldProps,
-	type TagPickerProps,
-	type TagProps,
+	tokens
 } from "@fluentui/react-components";
-import { useForm } from "@tanstack/react-form";
+import { useForm, useStore } from "@tanstack/react-form";
 import { useQueryClient } from "@tanstack/react-query";
-import { useState, type ComponentType } from "react";
+import { useState } from "react";
 import type { DataRow } from "../../../types";
 import { ComplexTagPickerList } from "./ComplexTagPickerList";
-import { useWfgFormContext } from "../../Form/Provider";
-import type { QueryOptionsWithQuery } from "../../../queryOptions";
-import { useFieldContext } from "../../../hooks/useWfgForm";
 import { useTranslation } from "react-i18next";
 import { UserTag } from "./User/UserTag";
 import { UserTagPickerGroup } from "./User/UserTagPickerGroup";
 import { UserTagPickerOption } from "./User/UserTagPickerOption";
 import { csvToSet } from "../../../utils";
 import { useFormInitQuery } from "../../../hooks/useFormInitQuery";
-
-export type RowTagProps = {
-    row: DataRow
-	rows: DataRow[]
-    fieldProps?: FieldProps
-    tagProps?: TagProps
-};
-
-type ComplexTagPickerProps = {
-	fieldProps?: FieldProps
-	tagPickerProps?: TagPickerProps
-	printFieldProps?: FieldProps
-	printTagProps?: TagProps
-	readonlyFieldProps?: FieldProps
-	readonlyTagProps?: TagProps
-	queryOptions: QueryOptionsWithQuery
-	pageSize?: number
-	localQuery?: boolean
-	limit?: number
-	TagComponent?: ComponentType<Omit<RowTagProps, 'rows'>>
-	TagPickerGroupComponent?: ComponentType<Pick<RowTagProps, 'rows'>>
-	TagPickerOptionComponent?: ComponentType<Pick<RowTagProps, 'row' | 'rows'>>
-};
+import { useWfgFormContext } from "../../../hooks/useWfgFormContext";
+import { useFieldContext } from "../../../hooks/formContext";
+import type { ComplexTagPickerProps } from "./types";
 
 const usePrintStyles = makeStyles({
 	root: {
@@ -226,15 +200,11 @@ function View(props: ComplexTagPickerProps) {
 		/>
 	);
 }
-export const ComplexTagPicker = (props: ComplexTagPickerProps) => {
+export default (props: ComplexTagPickerProps) => {
 	const field = useFieldContext();
 	const { form, printForm: { state: { values: { open: isPrintView } } } } = useWfgFormContext();
 	const { isArchive } = useFormInitQuery();
-	return <form.Subscribe 
-		selector={s => s.values.Table1[0].FORM_FIELDS_READONLY ?? ''}
-		children={FORM_FIELDS_READONLY => {
-			const readonlyFields = csvToSet(FORM_FIELDS_READONLY);
-			return isPrintView ? <PrintView {...props} /> : isArchive || readonlyFields.has(field.name) ? <ReadonlyView {...props} /> : <View {...props} />;
-		}}
-	/>;
+	const FORM_FIELDS_READONLY = useStore(form.store, s => s.values.Table1[0].FORM_FIELDS_READONLY ?? '');
+	const readonlyFields = csvToSet(FORM_FIELDS_READONLY);
+	return isPrintView ? <PrintView {...props} /> : isArchive || readonlyFields.has(field.name) ? <ReadonlyView {...props} /> : <View {...props} />;
 };

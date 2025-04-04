@@ -1,12 +1,11 @@
 import { defineConfig } from "vite";
 import { readFile, writeFile } from 'fs';
 import viteReact from "@vitejs/plugin-react";
-import { TanStackRouterVite } from "@tanstack/router-plugin/vite";
 
 export const config = {
   env: "DEV",
-  url: "http://localhost",
-  // url: "http://localhost:5173",
+  // url: "http://localhost",
+  url: "http://localhost:5173",
   process: "FLUENTUI_TEMPLATE",
   processVersion: 1,
   sourceMap: true,
@@ -56,7 +55,7 @@ export default defineConfig({
     '__FORM_ENV': JSON.stringify(config.env),
     '__APP_VERSION__': JSON.stringify(process.env.npm_package_version)
   },
-  plugins: [TanStackRouterVite(), viteReact(), writeToAspxFile(config), transformIndexHtml(config)],
+  plugins: [viteReact(), writeToAspxFile(config), transformIndexHtml(config)],
   base: `${config.url}/wfgen/wfapps/webforms/${config.process}/V${config.processVersion}/${config.outDir}/`,
   build: {
     outDir: config.outDir,

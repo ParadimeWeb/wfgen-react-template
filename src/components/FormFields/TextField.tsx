@@ -1,16 +1,16 @@
 import { Field, Input, makeStyles, mergeClasses, tokens, type FieldProps, type InputProps, type TextProps, Text, typographyStyles } from "@fluentui/react-components";
-import { useFieldContext } from "../../hooks/useWfgForm";
 import { useTranslation } from "react-i18next";
-import { useWfgFormContext } from "../Form/Provider";
+import { useWfgFormContext } from "../../hooks/useWfgFormContext";
 import { csvToSet } from "../../utils";
 import { useFormInitQuery } from "../../hooks/useFormInitQuery";
+import { useStore } from "@tanstack/react-form";
+import { useFieldContext } from "../../hooks/formContext";
 
-type TextFieldProps = {
+type TextFieldProps = InputProps & {
     fieldProps?: FieldProps
-    inputProps?: InputProps
+    readonlyFieldProps?: FieldProps
     readonlyInputProps?: InputProps
     printFieldProps?: FieldProps
-    readonlyFieldProps?: FieldProps
     printTextProps?: TextProps
 };
 
@@ -90,7 +90,7 @@ function ReadonlyView(props: TextFieldProps) {
     );
 }
 function View(props: TextFieldProps) {
-    const { fieldProps = {}, inputProps = {} } = props;
+    const { fieldProps = {}, readonlyFieldProps, readonlyInputProps, printFieldProps, printTextProps, ...inputProps } = props;
     const field = useFieldContext<string | null>();
     const { t } = useTranslation();
     const { form } = useWfgFormContext();
@@ -121,15 +121,11 @@ function View(props: TextFieldProps) {
         />
     );
 }
-export const TextField = (props: TextFieldProps) => {
+export default (props: TextFieldProps) => {
     const field = useFieldContext();
     const { form, printForm: { state: { values: { open: isPrintView } } } } = useWfgFormContext();
     const { isArchive } = useFormInitQuery();
-    return <form.Subscribe 
-        selector={s => s.values.Table1[0].FORM_FIELDS_READONLY ?? ''}
-        children={FORM_FIELDS_READONLY => {
-            const readonlyFields = csvToSet(FORM_FIELDS_READONLY);
-            return isPrintView ? <PrintView {...props} /> : isArchive || readonlyFields.has(field.name.replace('Table1[0].', '')) ? <ReadonlyView {...props} /> : <View {...props} />;
-        }}
-    />;
+    const FORM_FIELDS_READONLY = useStore(form.store, s => s.values.Table1[0].FORM_FIELDS_READONLY ?? '');
+    const readonlyFields = csvToSet(FORM_FIELDS_READONLY);
+    return isPrintView ? <PrintView {...props} /> : isArchive || readonlyFields.has(field.name.replace('Table1[0].', '')) ? <ReadonlyView {...props} /> : <View {...props} />;
 };

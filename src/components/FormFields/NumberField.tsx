@@ -1,21 +1,20 @@
 import { Field, Input, mergeClasses, Text, type FieldProps, type InputProps, type TextProps } from "@fluentui/react-components";
-import { useFieldContext } from "../../hooks/useWfgForm";
 import { csvToSet, NumberParser } from "../../utils";
-import { useForm } from "@tanstack/react-form";
+import { useForm, useStore } from "@tanstack/react-form";
 import { type } from "arktype";
 import { useTranslation } from "react-i18next";
 import { NumberRowRegular } from "@fluentui/react-icons";
 import { useFormInitQuery } from "../../hooks/useFormInitQuery";
 import { usePrintStyles } from "./TextField";
-import { useWfgFormContext } from "../Form/Provider";
+import { useWfgFormContext } from "../../hooks/useWfgFormContext";
+import { useFieldContext } from "../../hooks/formContext";
 
-type NumberFieldProps = {
+type NumberFieldProps = InputProps & {
     fieldProps?: FieldProps
-    inputProps?: InputProps
-    printFieldProps?: FieldProps
-    printTextProps?: TextProps
     readonlyFieldProps?: FieldProps
     readonlyInputProps?: InputProps
+    printFieldProps?: FieldProps
+    printTextProps?: TextProps
     style?: "decimal" | "percent" | "currency" | "unit"
     currency?: 'USD' | 'CAD'
 };
@@ -77,10 +76,9 @@ function ReadonlyView(props: NumberFieldProps) {
             }}
         />
     );
-    
 }
 function View(props: NumberFieldProps) {
-    const { fieldProps = {}, inputProps = {}, style = 'decimal', currency = 'USD' } = props;
+    const { fieldProps = {}, readonlyFieldProps, readonlyInputProps, printFieldProps, printTextProps, style = 'decimal', currency = 'USD', ...inputProps } = props;
     const { t } = useTranslation();
     const field = useFieldContext<number | null>();
     const { locale } = useFormInitQuery();
@@ -163,15 +161,11 @@ function View(props: NumberFieldProps) {
     );
 }
 
-export const NumberField = (props: NumberFieldProps) => {
+export default (props: NumberFieldProps) => {
     const field = useFieldContext();
     const { form, printForm: { state: { values: { open: isPrintView } } } } = useWfgFormContext();
     const { isArchive } = useFormInitQuery();
-    return <form.Subscribe 
-        selector={s => s.values.Table1[0].FORM_FIELDS_READONLY ?? ''}
-        children={FORM_FIELDS_READONLY => {
-            const readonlyFields = csvToSet(FORM_FIELDS_READONLY);
-            return isPrintView ? <PrintView {...props} /> : isArchive || readonlyFields.has(field.name.replace('Table1[0].', '')) ? <ReadonlyView {...props} /> : <View {...props} />;
-        }}
-    />;
+    const FORM_FIELDS_READONLY = useStore(form.store, s => s.values.Table1[0].FORM_FIELDS_READONLY ?? '');
+    const readonlyFields = csvToSet(FORM_FIELDS_READONLY);
+    return isPrintView ? <PrintView {...props} /> : isArchive || readonlyFields.has(field.name.replace('Table1[0].', '')) ? <ReadonlyView {...props} /> : <View {...props} />;
 }

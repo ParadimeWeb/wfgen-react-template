@@ -1,14 +1,14 @@
 import { Button, Field, Textarea } from "@fluentui/react-components";
 import { useForm } from "@tanstack/react-form";
 import { type } from "arktype";
-import { useFieldContext } from "../../hooks/useWfgForm";
 import { useFormInitQuery } from "../../hooks/useFormInitQuery";
 import dayjs from "dayjs";
 import type { Comment } from "../../types";
 import { CommentAddRegular } from "@fluentui/react-icons";
 import { useTranslation } from "react-i18next";
+import { useFieldContext } from "../../hooks/formContext";
 
-export const NewCommentForm = () => {
+export default () => {
     const { t } = useTranslation();
     const { currentUser, configuration } = useFormInitQuery();
     const comments = useFieldContext<Comment[]>();

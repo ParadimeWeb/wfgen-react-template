@@ -1,7 +1,7 @@
 import { Button, makeStyles, MessageBar, MessageBarActions, MessageBarBody, MessageBarTitle, shorthands } from "@fluentui/react-components";
 import { InfoRegular } from "@fluentui/react-icons";
 import { useTranslation } from "react-i18next";
-import { useWfgFormContext } from "./Form/Provider";
+import { useWfgFormContext } from "../hooks/useWfgFormContext";
 
 const useStyles = makeStyles({
     root: {

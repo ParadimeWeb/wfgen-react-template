@@ -2,7 +2,7 @@ import { Caption1, Caption2, makeStyles, mergeClasses, tokens } from "@fluentui/
 import { formStyles } from "../../styles";
 import { useTranslation } from "react-i18next";
 import { useFormInitQuery } from "../../hooks/useFormInitQuery";
-import { useWfgFormContext } from "./Provider";
+import { useWfgFormContext } from "../../hooks/useWfgFormContext";
 
 export const footerHeight = 31;
 

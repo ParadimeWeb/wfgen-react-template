@@ -1,6 +1,6 @@
 import { Text, Field, Menu, MenuButton, MenuDivider, MenuGroup, MenuGroupHeader, MenuItem, MenuList, MenuPopover, MenuTrigger, ToolbarButton, Input, Tooltip } from "@fluentui/react-components";
 import { ArrowSyncRegular, DismissRegular, PrintRegular } from "@fluentui/react-icons";
-import { useWfgFormContext } from "../Form/Provider";
+import { useWfgFormContext } from "../../hooks/useWfgFormContext";
 import { useTranslation } from "react-i18next";
 import { forwardRef } from "react";
 

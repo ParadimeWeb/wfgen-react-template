@@ -1,5 +1,5 @@
 import { type } from "arktype";
-import { useWfgForm, useWfgPrintForm } from "./hooks/useWfgForm";
+import type { WfgForm, WfgPrintForm } from "./hooks/useWfgForm";
 
 const DataSet = type("Record<string, Record<string, string | number | boolean | null | undefined>[]>");
 const DataRow = type("Record<string, string | number | boolean | null | undefined>");
@@ -106,8 +106,6 @@ export const WfgFormData = DataSet.merge({
 });
 export type WfgFormData = typeof WfgFormData.infer;
 
-export type WfgForm = ReturnType<typeof useWfgForm>;
-export type WfgPrintForm = ReturnType<typeof useWfgPrintForm>;
 export type WfgFormContext = {
     form: WfgForm;
     printForm: WfgPrintForm;

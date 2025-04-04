@@ -1,90 +1,76 @@
-import i18n from "i18next";
-import { initReactI18next } from "react-i18next";
-import LanguageDetector from "i18next-browser-languagedetector";
-import './arktypeconfig';
+import i18n from "./i18n/i18n";
+import type { i18n as i18next } from "i18next";
+import "./arktypeconfig";
 import { StrictMode } from "react";
 import ReactDOM from "react-dom/client";
-import { RouterProvider, createRouter } from "@tanstack/react-router";
-import { QueryClient, QueryClientProvider, type MutationFunction } from "@tanstack/react-query";
-import { routeTree } from "./routeTree.gen";
+import dayjs from "dayjs";
+import localeData from "dayjs/plugin/localeData";
+import localizedFormat from "dayjs/plugin/localizedFormat";
+import relativeTime from "dayjs/plugin/relativeTime";
+import utc from "dayjs/plugin/utc";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import reportWebVitals from "./reportWebVitals";
-import axios, { type AxiosRequestConfig, type AxiosResponse } from "axios";
+import { createRootRouteWithContext, createRoute, createRouter, RouterProvider } from "@tanstack/react-router";
+import { initQueryOptions } from "./queryOptions";
+import { Root } from "./routes/Root";
+import { Form } from "./routes/Form";
 import { PendingComponent } from "./components/PendingComponent";
-import type { ActionResult, WfgFormData } from "./types";
 
-i18n
-    // Detect user language
-    .use(LanguageDetector)
-    // Pass the i18n instance to react-i18next
-    .use(initReactI18next)
-    // Initialize i18next
-    .init({
-        resources: {},
-        supportedLngs: ["en", "fr"],
-        fallbackLng: "en",
-        nonExplicitSupportedLngs: true,
-        saveMissing: true,
-        saveMissingTo: "all",
-        debug: import.meta.env.DEV,
-        interpolation: {
-            escapeValue: false, // React already escapes values
-        },
-    });
-// i18n.on('missingKey', (lngs, namespace, key, res) => {
-//     const data = new FormData();
-//     data.set('key', key);
-//     // post('ASYNC_MISSING_KEY', { data });
-// });
-
-function createFakeViewState() {
-    const input = document.createElement('input');
-    input.name = '__VIEWSTATE';
-    input.type = 'hidden';
-    input.value = '__VIEWSTATE';
-    return input;
-}
-const viewState = document.getElementById('__VIEWSTATE') as HTMLInputElement | null ?? createFakeViewState();
-const form = document.forms.length > 0 ? document.forms[0] : null;
-const axiosInstance = axios.create({
-    baseURL: form?.action,
-    headers: {
-        'X-Requested-With': 'XMLHttpRequest'
-    }
-});
-
-function validateASPXWebForm() {
-    if (!form) {
-        throw new Error('Missing form element. ASP.NET webform needs a runat server form.');
-    }
-}
-export function post<T>(action: string, { url, data, config, withViewState = true }: { url?: string, data?: FormData, config?: AxiosRequestConfig<FormData> | undefined, withViewState?: boolean } = {}) {
-    validateASPXWebForm();
-    const formData = data ?? new FormData();
-    if (withViewState) {
-        formData.set('__VIEWSTATE', viewState.value);
-    }
-    formData.set('__WFGENACTION', action);
-    return axiosInstance.post<T>(url ?? '', formData, config);
-}
-export const asyncAction: MutationFunction<AxiosResponse<ActionResult, any>, WfgFormData> = (formData) => {
-    const data = new FormData();
-    data.set('FormData', new Blob([JSON.stringify(formData)], { type: 'application/json' }), 'FormDataJson');
-    return post<ActionResult>(formData.Table1[0].FORM_ACTION ?? 'ASYNC_SAVE', { data });
-}
+dayjs.extend(localeData);
+dayjs.extend(localizedFormat);
+dayjs.extend(relativeTime);
+dayjs.extend(utc);
 
 const queryClient = new QueryClient();
 
-// Create a new router instance
+const rootRoute = createRootRouteWithContext<{
+    queryClient: QueryClient
+    i18n: i18next
+}>()({
+    loader: async ({ context: { queryClient, i18n } }) => {
+        const { locale } = await queryClient.ensureQueryData(initQueryOptions);
+        const languageCode = locale.substring(0, 2);
+        if (!i18n.language.startsWith('en')) {
+            await import(`./i18n/locales/${languageCode}/libraries.ts`);
+            dayjs.locale(languageCode);
+        }
+        const resources = (await import(`./i18n/locales/${languageCode}/translation.json`)).default;
+        i18n.addResourceBundle(locale, 'translation', resources);
+        if (locale !== i18n.language) {
+            await i18n.changeLanguage(locale);
+        }
+    },
+    errorComponent: (error) => <div>Error!<div>{error.error.message}</div></div>,
+    notFoundComponent: (props) => {
+        console.log(props);
+        return <div>Not found</div>;
+    },
+    component: Root
+});
+
+const formRoute = createRoute({
+    getParentRoute: () => rootRoute,
+    path: '/wfgen/wfapps/webforms/$process/$version/$aspx',
+    component: Form
+});
+
+const archiveRoute = createRoute({
+    getParentRoute: () => rootRoute,
+    path: '/wfgen/$aspx',
+    component: Form
+});
+
+const routeTree = rootRoute.addChildren([formRoute, archiveRoute]);
+
 const router = createRouter({
     routeTree,
     context: { queryClient, i18n },
     defaultPreload: 'intent',
     defaultPreloadStaleTime: 0,
     scrollRestoration: true,
-    defaultPendingComponent: () => <PendingComponent />
+    defaultPendingComponent: PendingComponent
 });
 
-// Register the router instance for type safety
 declare module "@tanstack/react-router" {
     interface Register {
         router: typeof router;
@@ -93,14 +79,16 @@ declare module "@tanstack/react-router" {
 
 // Render the app
 const rootElement = document.getElementById("root")!;
-const root = ReactDOM.createRoot(rootElement);
-root.render(
-    <StrictMode>
-        <QueryClientProvider client={queryClient}>
-            <RouterProvider router={router} />
-        </QueryClientProvider>
-    </StrictMode>
-);
+if (!rootElement.innerHTML) {
+    const root = ReactDOM.createRoot(rootElement);
+    root.render(
+        <StrictMode>
+            <QueryClientProvider client={queryClient}>
+                <RouterProvider router={router} />
+            </QueryClientProvider>
+        </StrictMode>
+    );
+}
 
 // If you want to start measuring performance in your app, pass a function
 // to log results (for example: reportWebVitals(console.log))

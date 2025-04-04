@@ -1,7 +1,8 @@
 import { Avatar, TagPickerOption } from "@fluentui/react-components";
 import type { User } from "../../../../types";
-import type { RowTagProps } from "..";
 import { directoryColors } from "../../../../utils";
+import type { RowTagProps } from "../types";
+
 
 export const UserTagPickerOption = ({ row, rows }: Pick<RowTagProps, 'row' | 'rows'>) => {
     const { CommonName, JobTitle, Directory, UserName } = row as User;

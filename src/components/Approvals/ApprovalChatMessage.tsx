@@ -6,7 +6,7 @@ import dayjs from "dayjs";
 import { CommentRegular, ShieldDismissRegular, ShieldRegular, ShieldTaskRegular } from "@fluentui/react-icons";
 import { useFormInitQuery } from "../../hooks/useFormInitQuery";
 import { useTranslation } from "react-i18next";
-import { useWfgFormContext } from "../Form/Provider";
+import { useWfgFormContext } from "../../hooks/useWfgFormContext";
 
 const useStyles = makeStyles({
     chatMessage: {

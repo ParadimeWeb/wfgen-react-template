@@ -2,7 +2,7 @@ import { Caption1, Caption2, Divider, makeStyles, mergeClasses, tokens } from "@
 import dayjs from "dayjs";
 import { useTranslation } from "react-i18next";
 import { useFormInitQuery } from "../../hooks/useFormInitQuery";
-import { useWfgFormContext } from "./Provider";
+import { useWfgFormContext } from "../../hooks/useWfgFormContext";
 
 const useStyles = makeStyles({
     main: {

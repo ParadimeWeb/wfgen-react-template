@@ -1,7 +1,7 @@
 import { Button, DrawerBody, DrawerHeader, DrawerHeaderTitle } from "@fluentui/react-components";
 import { useTranslation } from "react-i18next";
 import { useFormInitQuery } from "../../hooks/useFormInitQuery";
-import { useWfgFormContext } from "../Form/Provider";
+import { useWfgFormContext } from "../../hooks/useWfgFormContext";
 import { Dismiss24Regular } from "@fluentui/react-icons";
 import type { AnyFieldApi } from "@tanstack/react-form";
 

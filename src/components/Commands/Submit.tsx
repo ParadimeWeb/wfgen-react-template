@@ -2,7 +2,7 @@ import { useIsMutating } from "@tanstack/react-query";
 import { useTranslation } from "react-i18next";
 import { MenuItem, ToolbarButton, Tooltip } from "@fluentui/react-components";
 import { SendRegular } from "@fluentui/react-icons";
-import { useWfgFormContext } from "../Form/Provider";
+import { useWfgFormContext } from "../../hooks/useWfgFormContext";
 import { forwardRef } from "react";
 
 export const SubmitButton = forwardRef<HTMLButtonElement | HTMLAnchorElement>((_, ref) => {

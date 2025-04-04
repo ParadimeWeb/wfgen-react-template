@@ -1,13 +1,13 @@
 import { Field, Text, Combobox as FUICombobox, Option, type FieldProps, type ComboboxProps as FUIComboboxProps, type TextProps, mergeClasses, makeStyles } from "@fluentui/react-components";
-import { useFieldContext } from "../../hooks/useWfgForm";
 import { useTranslation } from "react-i18next";
 import type { DataRow } from "../../types";
-import { useForm } from "@tanstack/react-form";
+import { useForm, useStore } from "@tanstack/react-form";
 import { usePrintStyles } from "./TextField";
-import { useWfgFormContext } from "../Form/Provider";
+import { useWfgFormContext } from "../../hooks/useWfgFormContext";
 import { csvToSet } from "../../utils";
 import { fieldStyles } from "../../styles";
 import { useFormInitQuery } from "../../hooks/useFormInitQuery";
+import { useFieldContext } from "../../hooks/formContext";
 
 type ValueText = DataRow & {
     Value: string
@@ -192,15 +192,11 @@ function View<T extends ValueText>(props: ComboboxProps<T>) {
     );
 }
 
-export function Combobox<T extends ValueText>(props: ComboboxProps<T>) {
+export default function Combobox<T extends ValueText>(props: ComboboxProps<T>) {
     const field = useFieldContext();
     const { form, printForm: { state: { values: { open: isPrintView } } } } = useWfgFormContext();
     const { isArchive } = useFormInitQuery();
-    return <form.Subscribe 
-        selector={s => s.values.Table1[0].FORM_FIELDS_READONLY ?? ''}
-        children={FORM_FIELDS_READONLY => {
-            const readonlyFields = csvToSet(FORM_FIELDS_READONLY);
-            return isPrintView ? <PrintView {...props} /> : isArchive || readonlyFields.has(field.name.replace('Table1[0].', '')) ? <ReadonlyView {...props} /> : <View {...props} />;
-        }}
-    />;
+    const FORM_FIELDS_READONLY = useStore(form.store, s => s.values.Table1[0].FORM_FIELDS_READONLY ?? '');
+    const readonlyFields = csvToSet(FORM_FIELDS_READONLY);
+    return isPrintView ? <PrintView {...props} /> : isArchive || readonlyFields.has(field.name.replace('Table1[0].', '')) ? <ReadonlyView {...props} /> : <View {...props} />;
 }

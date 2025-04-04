@@ -2,14 +2,13 @@ import { Text, Button, Field, makeStyles, mergeClasses, Spinner, TagGroup, token
 import { useRef } from "react";
 import { useFormInitQuery } from "../../../hooks/useFormInitQuery";
 import { useMutation } from "@tanstack/react-query";
-import { post } from "../../../main";
-import { useFieldContext } from "../../../hooks/useWfgForm";
 import { FileTag } from "./FileTag";
 import { useTranslation } from "react-i18next";
 import { ArrowUploadRegular } from "@fluentui/react-icons";
-import { useForm } from "@tanstack/react-form";
-import { useWfgFormContext } from "../../Form/Provider";
-import { csvToSet } from "../../../utils";
+import { useForm, useStore } from "@tanstack/react-form";
+import { csvToSet, post } from "../../../utils";
+import { useWfgFormContext } from "../../../hooks/useWfgFormContext";
+import { useFieldContext } from "../../../hooks/formContext";
 
 const useStyles = makeStyles({
     tagGroup: {
@@ -448,33 +447,23 @@ function View(props: FileFieldProps & { files: string[] }) {
     );
 }
 
-export const FileField = (props: FileFieldProps) => {
+export default (props: FileFieldProps) => {
     const { otherFields = [], mode = 'fields' } = props;
     const field = useFieldContext<string>();
     const { form, printForm: { state: { values: { open: isPrintView } } } } = useWfgFormContext();
     const { isArchive } = useFormInitQuery();
+    const FORM_FIELDS_READONLY = useStore(form.store, s => s.values.Table1[0].FORM_FIELDS_READONLY ?? '');
+    const readonlyFields = csvToSet(FORM_FIELDS_READONLY);
     if (mode === 'zip') {
         const files = field.state.value.split('Key=').filter(o => o).map(v => `Key=${v}`);
-        return <form.Subscribe 
-            selector={s => s.values.Table1[0].FORM_FIELDS_READONLY ?? ''}
-            children={FORM_FIELDS_READONLY => {
-                const readonlyFields = csvToSet(FORM_FIELDS_READONLY);
-                return isPrintView ? <PrintView {...props} files={files} /> : isArchive || readonlyFields.has(field.name.replace('Table1[0].', '')) ? <ReadonlyView {...props} files={files} /> : <View {...props} files={files} />;
-            }}
-        />;
+        return isPrintView ? <PrintView {...props} files={files} /> : isArchive || readonlyFields.has(field.name.replace('Table1[0].', '')) ? <ReadonlyView {...props} files={files} /> : <View {...props} files={files} />;
     }
     return (
         <form.Subscribe 
             selector={(s) => Object.fromEntries(otherFields.map(f => [f, s.values.Table1[0][f] as string]))}
             children={(otherFiles) => {
                 const files = [field.state.value, ...Object.values(otherFiles)];
-                return <form.Subscribe 
-                    selector={s => s.values.Table1[0].FORM_FIELDS_READONLY ?? ''}
-                    children={FORM_FIELDS_READONLY => {
-                        const readonlyFields = csvToSet(FORM_FIELDS_READONLY);
-                        return isPrintView ? <PrintView {...props} files={files} /> : isArchive || readonlyFields.has(field.name.replace('Table1[0].', '')) ? <ReadonlyView {...props} files={files} /> : <View {...props} files={files} />;
-                    }}
-                />;
+                return isPrintView ? <PrintView {...props} files={files} /> : isArchive || readonlyFields.has(field.name.replace('Table1[0].', '')) ? <ReadonlyView {...props} files={files} /> : <View {...props} files={files} />;
             }}
         />
     );

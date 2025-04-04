@@ -1,23 +1,9 @@
 import { useInfiniteQuery } from "@tanstack/react-query"
 import { Button, Spinner, TagPickerList, TagPickerOptionGroup } from "@fluentui/react-components"
-import type { DataRow, User } from "../../../types"
-import type { QueryOptionsWithQuery } from "../../../queryOptions";
-import type { ComponentType } from "react";
-import type { RowTagProps } from ".";
 import { UserTagPickerOption } from "./User/UserTagPickerOption";
 import { filterUserRows } from "./User";
 import { useTranslation } from "react-i18next";
-
-export type ComplexTagPickerListProps = {
-    queryOptions: QueryOptionsWithQuery
-    pageSize?: number
-    localQuery?: boolean
-    rows: DataRow[]
-	query: string
-	selectedOptions: string[]
-    TagPickerOptionComponent?: ComponentType<Pick<RowTagProps, 'row' | 'rows'>>
-    filterRows?: (rows: DataRow[], query: string) => DataRow[]
-};
+import type { ComplexTagPickerListProps } from "./types";
 
 export const ComplexTagPickerList = (props: ComplexTagPickerListProps) => {
     const { rows, pageSize = 40, localQuery = false, queryOptions, query, TagPickerOptionComponent = UserTagPickerOption, filterRows = filterUserRows } = props;

@@ -2,7 +2,7 @@ import { CounterBadge, makeStyles, MenuItem, ToolbarButton, Tooltip } from "@flu
 import { ApprovalsAppRegular } from "@fluentui/react-icons";
 import { forwardRef } from "react";
 import { useTranslation } from "react-i18next";
-import { useWfgFormContext } from "../Form/Provider";
+import { useWfgFormContext } from "../../hooks/useWfgFormContext";
 
 const useStyles = makeStyles({
     badgeButton: {

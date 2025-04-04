@@ -1,14 +1,15 @@
 import { Button, Field, mergeClasses, Text, type FieldProps, type TextProps } from "@fluentui/react-components"
 import { DatePicker as FUIDatePicker, type DatePickerProps as FUIDatePickerProps } from "@fluentui/react-datepicker-compat"
 import { useTranslation } from "react-i18next"
-import { useFieldContext } from "../../hooks/useWfgForm"
 import { useFormInitQuery } from "../../hooks/useFormInitQuery"
 import dayjs from "dayjs"
 import { DismissRegular } from "@fluentui/react-icons"
-import { useWfgFormContext } from "../Form/Provider"
 import { useMemo } from "react"
 import { usePrintStyles } from "./TextField"
 import { csvToSet } from "../../utils"
+import { useWfgFormContext } from "../../hooks/useWfgFormContext"
+import { useFieldContext } from "../../hooks/formContext"
+import { useStore } from "@tanstack/react-form"
 
 type DatePickerProps = {
     fieldProps?: FieldProps
@@ -138,15 +139,11 @@ function View(props: DatePickerProps) {
         />
     );
 }
-export const DatePicker = (props: DatePickerProps) => {
+export default (props: DatePickerProps) => {
     const field = useFieldContext();
     const { form, printForm: { state: { values: { open: isPrintView } } } } = useWfgFormContext();
     const { isArchive } = useFormInitQuery();
-    return <form.Subscribe 
-        selector={s => s.values.Table1[0].FORM_FIELDS_READONLY ?? ''}
-        children={FORM_FIELDS_READONLY => {
-            const readonlyFields = csvToSet(FORM_FIELDS_READONLY);
-            return isPrintView ? <PrintView {...props} /> : isArchive || readonlyFields.has(field.name.replace('Table1[0].', '')) ? <ReadonlyView {...props} /> : <View {...props} />;
-        }}
-    />;
+    const FORM_FIELDS_READONLY = useStore(form.store, s => s.values.Table1[0].FORM_FIELDS_READONLY ?? '');
+    const readonlyFields = csvToSet(FORM_FIELDS_READONLY);
+    return isPrintView ? <PrintView {...props} /> : isArchive || readonlyFields.has(field.name.replace('Table1[0].', '')) ? <ReadonlyView {...props} /> : <View {...props} />;
 };

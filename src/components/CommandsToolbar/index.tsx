@@ -4,7 +4,7 @@ import commandsMap from "../Commands";
 import { useFormInitQuery } from "../../hooks/useFormInitQuery";
 import { NavigationRegular } from "@fluentui/react-icons";
 import { Fragment } from "react/jsx-runtime";
-import { useWfgFormContext } from "../Form/Provider";
+import { useWfgFormContext } from "../../hooks/useWfgFormContext";
 import { UnknownButton, UnknownMenuItem } from "../Commands/Unknown";
 
 const useStyles = makeStyles({

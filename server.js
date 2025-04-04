@@ -53,6 +53,7 @@ async function createServer() {
             // 3. Send the rendered HTML back.
             res.status(200).set({ "Content-Type": "text/html" }).end(template);
         } catch (e) {
+            console.log('Error on server');
             // If an error is caught, let Vite fix the stack trace so it maps back
             // to your actual source code.
             vite.ssrFixStacktrace(e);
