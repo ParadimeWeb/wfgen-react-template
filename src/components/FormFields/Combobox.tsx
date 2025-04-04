@@ -1,4 +1,4 @@
-import { Field, Text, Combobox as FUICombobox, Option, type FieldProps, type ComboboxProps as FUIComboboxProps, type TextProps, mergeClasses, makeStyles } from "@fluentui/react-components";
+import { Field, Text, Combobox, Option, type FieldProps, type ComboboxProps as FUIComboboxProps, type TextProps, mergeClasses, makeStyles, type OptionProps } from "@fluentui/react-components";
 import { useTranslation } from "react-i18next";
 import type { DataRow } from "../../types";
 import { useForm, useStore } from "@tanstack/react-form";
@@ -8,19 +8,14 @@ import { csvToSet } from "../../utils";
 import { fieldStyles } from "../../styles";
 import { useFormInitQuery } from "../../hooks/useFormInitQuery";
 import { useFieldContext } from "../../hooks/formContext";
+import { Children, isValidElement } from "react";
 
-type ValueText = DataRow & {
-    Value: string
-    Text: string
-};
-type ComboboxProps<T extends ValueText> = {
+type ComboboxProps = FUIComboboxProps & {
     fieldProps?: FieldProps
-    comboboxProps?: FUIComboboxProps
-    printFieldProps?: FieldProps
-    printTextProps?: TextProps
     readonlyFieldProps?: FieldProps
     readonlyComboboxProps?: FUIComboboxProps
-    options: T[]
+    printFieldProps?: FieldProps
+    printTextProps?: TextProps
 };
 
 const useStyles = makeStyles({
@@ -30,14 +25,14 @@ const useStyles = makeStyles({
     ...fieldStyles
 });
 
-function PrintView<T extends ValueText>(props: ComboboxProps<T>) {
-    const { printFieldProps = props.fieldProps, printTextProps = {}, comboboxProps = {} } = props;
+function PrintView(props: ComboboxProps) {
+    const { printFieldProps = props.fieldProps, printTextProps = {}, multiselect } = props;
     const styles = usePrintStyles();
     const field = useFieldContext<DataRow[] | string | null>();
     const { t } = useTranslation();
     const fieldValue = field.state.value;
     const isDataRow = Array.isArray(fieldValue);
-    const value = isDataRow ? comboboxProps.multiselect ? fieldValue.map(r => t(r.Text as string)).join(', ') : fieldValue.length > 0 ? t(fieldValue[0].Text as string) : '' : fieldValue ?? '';
+    const value = isDataRow ? multiselect ? fieldValue.map(r => t(r.Text as string)).join(', ') : fieldValue.length > 0 ? t(fieldValue[0].Text as string) : '' : fieldValue ?? '';
 
     return (
         <Field
@@ -52,8 +47,8 @@ function PrintView<T extends ValueText>(props: ComboboxProps<T>) {
         </Field>
     );
 }
-function ReadonlyView<T extends ValueText>(props: ComboboxProps<T>) {
-    const { readonlyFieldProps = props.fieldProps, readonlyComboboxProps = {}, comboboxProps = {} } = props;
+function ReadonlyView(props: ComboboxProps) {
+    const { fieldProps, readonlyFieldProps = props.fieldProps, readonlyComboboxProps = {}, printFieldProps, printTextProps, ...comboboxProps } = props;
     const styles = useStyles();
     const field = useFieldContext<DataRow[] | string | null>();
     const { form } = useWfgFormContext();
@@ -74,7 +69,7 @@ function ReadonlyView<T extends ValueText>(props: ComboboxProps<T>) {
                         label={t(field.name)}
                         {...readonlyFieldProps}
                     >
-                        <FUICombobox 
+                        <Combobox 
                             input={{
                                 readOnly: true,
                                 className: styles.cursorReadonly
@@ -93,16 +88,26 @@ function ReadonlyView<T extends ValueText>(props: ComboboxProps<T>) {
         />
     );
 }
-function View<T extends ValueText>(props: ComboboxProps<T>) {
-    const { options, fieldProps, comboboxProps = {} } = props;
+function View(props: ComboboxProps) {
+    const { fieldProps, readonlyComboboxProps, readonlyFieldProps, printFieldProps, printTextProps, ...comboboxProps } = props;
     const field = useFieldContext<DataRow[] | string | null>();
     const { t } = useTranslation();
     const { form } = useWfgFormContext();
     const fieldValue = field.state.value;
     const isDataRow = Array.isArray(fieldValue);
-    const value = isDataRow ? comboboxProps.multiselect ? fieldValue.map(r => t(r.Text as string)).join(', ') : fieldValue.length > 0 ? t(fieldValue[0].Text as string) : '' : fieldValue ?? '';
+    const selectedOptions = isDataRow ? comboboxProps.multiselect ? fieldValue.map(r => t(r.Text as string)) : fieldValue.length > 0 ? [t(fieldValue[0].Text as string)] : [] : fieldValue ? [fieldValue] : [];
+    const value = selectedOptions.join(', ');
+    const options = isDataRow ? Children.map(comboboxProps.children, (child) => {
+        if (isValidElement(child)) {
+            const optionProps = child.props as OptionProps;
+            const childrenStringValue = optionProps.children as string;
+            return { Value: optionProps.value ?? childrenStringValue, Text: optionProps.text ?? childrenStringValue };
+        }
+        return { Value: '', Text: '' };
+    }) ?? [] : [];
+
     const defaultValues: {
-        matchingOptions: T[]
+        matchingOptions: { Value: string, Text: string }[]
         customSearch?: string
     } = {
         matchingOptions: [...options],
@@ -129,7 +134,7 @@ function View<T extends ValueText>(props: ComboboxProps<T>) {
                                     validationMessage={field.state.meta.isTouched && field.state.meta.errors.length > 0 ? t(field.state.meta.errors[0]) : null}
                                     {...fieldProps}
                                 >
-                                    <FUICombobox
+                                    <Combobox
                                         defaultValue={value}
                                         onChange={(e) => {
                                             const value = e.target.value.trim();
@@ -181,7 +186,7 @@ function View<T extends ValueText>(props: ComboboxProps<T>) {
                                         {ddForm.state.values.matchingOptions.map((opt, i) => (
                                             <Option key={`option-${i}`} value={opt.Value}>{t(opt.Text)}</Option>
                                         ))}
-                                    </FUICombobox>
+                                    </Combobox>
                                 </Field>
                             );
                         }}
@@ -192,7 +197,7 @@ function View<T extends ValueText>(props: ComboboxProps<T>) {
     );
 }
 
-export default function Combobox<T extends ValueText>(props: ComboboxProps<T>) {
+export default (props: ComboboxProps) => {
     const field = useFieldContext();
     const { form, printForm: { state: { values: { open: isPrintView } } } } = useWfgFormContext();
     const { isArchive } = useFormInitQuery();

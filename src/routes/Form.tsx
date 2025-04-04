@@ -8,6 +8,7 @@ import { FormHeader } from "../components/Form/Header";
 import { FormContent } from "../components/Form/Content";
 import { type } from "arktype";
 import { csvToSet, setToCsv } from "../utils";
+import type { Table1 } from "../types";
 
 const useStyles = makeStyles({
     row: styleHelpers.row(),
@@ -39,8 +40,9 @@ export function Form() {
                         }}
                         listeners={{
                             onBlur: ({ value }) => {
-                                form.setFieldValue('Table1[0].FORM_FIELDS_READONLY', FORM_FIELDS_READONLY => {
-                                    const set = csvToSet(FORM_FIELDS_READONLY);
+                                form.setFieldValue('Table1[0].FORM_FIELDS_READONLY', v => {
+                                    const FORM_FIELDS_READONLY = v as Table1['FORM_FIELDS_READONLY'];
+                                    const set = csvToSet(FORM_FIELDS_READONLY ?? '');
                                     if (value === 'Make readonly') {
                                         set.add('FirstName');
                                     }
@@ -92,26 +94,26 @@ export function Form() {
                         name="ProgramItems"
                         children={field => (
                             <field.Combobox
-                                comboboxProps={{ multiselect: false }}
-                                options={[
-                                    { Value: '741', Text: '741 IT Infrastructure' },
-                                    { Value: '742', Text: '742 Description' },
-                                    { Value: '743', Text: '743 Description' }
-                                ]}
-                            />
+                                multiselect
+                            >
+                                <Option value="741">741 IT Infrastructure</Option>
+                                <Option value="742">742 Description</Option>
+                                <Option value="743">743 Description</Option>
+                            </field.Combobox>
                         )}
                     />
                 </div>
                 <div className={styles.row}>
                     <form.AppField 
                         name="Table1[0].File1"
-                        children={field => <field.FileField otherFields={['File2', 'File3']} />}
+                        children={field => <field.FileField otherFields={['File2']} />}
                     />
                     <form.AppField 
-                        name="Table1[0].File4"
+                        name="Table1[0].Document"
                         validators={{
                             onSubmit: ({ value }) => {
-                                const fu = new URLSearchParams(value);
+                                const file = value as string | null;
+                                const fu = new URLSearchParams(file ?? '');
                                 return fu.has('Name') ? undefined : ['is required', 'File 4'];
                             }
                         }}
@@ -120,7 +122,7 @@ export function Form() {
                 </div>
                 <div className={styles.row}>
                     <form.AppField 
-                        name="Table1[0].ZipFile"
+                        name="Table1[0].Attachments"
                         children={field => <field.FileField mode="zip" />}
                     />
                     <form.AppField 

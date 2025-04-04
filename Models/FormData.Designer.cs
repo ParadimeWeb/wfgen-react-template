@@ -363,11 +363,9 @@ namespace FluentUITemplate.Models {
             
             private global::System.Data.DataColumn columnFile2;
             
-            private global::System.Data.DataColumn columnFile3;
+            private global::System.Data.DataColumn columnDocument;
             
-            private global::System.Data.DataColumn columnFile4;
-            
-            private global::System.Data.DataColumn columnZipFile;
+            private global::System.Data.DataColumn columnAttachments;
             
             [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
             [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Design.TypedDataSetGenerator", "17.0.0.0")]
@@ -460,25 +458,17 @@ namespace FluentUITemplate.Models {
             
             [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
             [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Design.TypedDataSetGenerator", "17.0.0.0")]
-            public global::System.Data.DataColumn File3Column {
+            public global::System.Data.DataColumn DocumentColumn {
                 get {
-                    return this.columnFile3;
+                    return this.columnDocument;
                 }
             }
             
             [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
             [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Design.TypedDataSetGenerator", "17.0.0.0")]
-            public global::System.Data.DataColumn File4Column {
+            public global::System.Data.DataColumn AttachmentsColumn {
                 get {
-                    return this.columnFile4;
-                }
-            }
-            
-            [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-            [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Design.TypedDataSetGenerator", "17.0.0.0")]
-            public global::System.Data.DataColumn ZipFileColumn {
-                get {
-                    return this.columnZipFile;
+                    return this.columnAttachments;
                 }
             }
             
@@ -519,7 +509,7 @@ namespace FluentUITemplate.Models {
             
             [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
             [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Design.TypedDataSetGenerator", "17.0.0.0")]
-            public Table1Row AddTable1Row(string FirstName, string LastName, decimal Amount, System.DateTime StartDate, string Fruits, string File1, string File2, string File3, string File4, string ZipFile) {
+            public Table1Row AddTable1Row(string FirstName, string LastName, decimal Amount, System.DateTime StartDate, string Fruits, string File1, string File2, string Document, string Attachments) {
                 Table1Row rowTable1Row = ((Table1Row)(this.NewRow()));
                 object[] columnValuesArray = new object[] {
                         FirstName,
@@ -529,9 +519,8 @@ namespace FluentUITemplate.Models {
                         Fruits,
                         File1,
                         File2,
-                        File3,
-                        File4,
-                        ZipFile};
+                        Document,
+                        Attachments};
                 rowTable1Row.ItemArray = columnValuesArray;
                 this.Rows.Add(rowTable1Row);
                 return rowTable1Row;
@@ -561,9 +550,8 @@ namespace FluentUITemplate.Models {
                 this.columnFruits = base.Columns["Fruits"];
                 this.columnFile1 = base.Columns["File1"];
                 this.columnFile2 = base.Columns["File2"];
-                this.columnFile3 = base.Columns["File3"];
-                this.columnFile4 = base.Columns["File4"];
-                this.columnZipFile = base.Columns["ZipFile"];
+                this.columnDocument = base.Columns["Document"];
+                this.columnAttachments = base.Columns["Attachments"];
             }
             
             [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
@@ -583,21 +571,18 @@ namespace FluentUITemplate.Models {
                 base.Columns.Add(this.columnFile1);
                 this.columnFile2 = new global::System.Data.DataColumn("File2", typeof(string), null, global::System.Data.MappingType.Element);
                 base.Columns.Add(this.columnFile2);
-                this.columnFile3 = new global::System.Data.DataColumn("File3", typeof(string), null, global::System.Data.MappingType.Element);
-                base.Columns.Add(this.columnFile3);
-                this.columnFile4 = new global::System.Data.DataColumn("File4", typeof(string), null, global::System.Data.MappingType.Element);
-                base.Columns.Add(this.columnFile4);
-                this.columnZipFile = new global::System.Data.DataColumn("ZipFile", typeof(string), null, global::System.Data.MappingType.Element);
-                base.Columns.Add(this.columnZipFile);
+                this.columnDocument = new global::System.Data.DataColumn("Document", typeof(string), null, global::System.Data.MappingType.Element);
+                base.Columns.Add(this.columnDocument);
+                this.columnAttachments = new global::System.Data.DataColumn("Attachments", typeof(string), null, global::System.Data.MappingType.Element);
+                base.Columns.Add(this.columnAttachments);
                 this.columnFile1.AllowDBNull = false;
                 this.columnFile1.DefaultValue = ((string)(""));
                 this.columnFile2.AllowDBNull = false;
                 this.columnFile2.DefaultValue = ((string)(""));
-                this.columnFile3.AllowDBNull = false;
-                this.columnFile3.DefaultValue = ((string)(""));
-                this.columnFile4.AllowDBNull = false;
-                this.columnFile4.DefaultValue = ((string)(""));
-                this.columnZipFile.DefaultValue = ((string)("Key=__Zip"));
+                this.columnDocument.AllowDBNull = false;
+                this.columnDocument.DefaultValue = ((string)(""));
+                this.columnAttachments.AllowDBNull = false;
+                this.columnAttachments.DefaultValue = ((string)(""));
             }
             
             [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
@@ -1336,39 +1321,23 @@ namespace FluentUITemplate.Models {
             
             [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
             [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Design.TypedDataSetGenerator", "17.0.0.0")]
-            public string File3 {
+            public string Document {
                 get {
-                    return ((string)(this[this.tableTable1.File3Column]));
+                    return ((string)(this[this.tableTable1.DocumentColumn]));
                 }
                 set {
-                    this[this.tableTable1.File3Column] = value;
+                    this[this.tableTable1.DocumentColumn] = value;
                 }
             }
             
             [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
             [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Design.TypedDataSetGenerator", "17.0.0.0")]
-            public string File4 {
+            public string Attachments {
                 get {
-                    return ((string)(this[this.tableTable1.File4Column]));
+                    return ((string)(this[this.tableTable1.AttachmentsColumn]));
                 }
                 set {
-                    this[this.tableTable1.File4Column] = value;
-                }
-            }
-            
-            [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-            [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Design.TypedDataSetGenerator", "17.0.0.0")]
-            public string ZipFile {
-                get {
-                    try {
-                        return ((string)(this[this.tableTable1.ZipFileColumn]));
-                    }
-                    catch (global::System.InvalidCastException e) {
-                        throw new global::System.Data.StrongTypingException("The value for column \'ZipFile\' in table \'Table1\' is DBNull.", e);
-                    }
-                }
-                set {
-                    this[this.tableTable1.ZipFileColumn] = value;
+                    this[this.tableTable1.AttachmentsColumn] = value;
                 }
             }
             
@@ -1430,18 +1399,6 @@ namespace FluentUITemplate.Models {
             [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Design.TypedDataSetGenerator", "17.0.0.0")]
             public void SetFruitsNull() {
                 this[this.tableTable1.FruitsColumn] = global::System.Convert.DBNull;
-            }
-            
-            [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-            [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Design.TypedDataSetGenerator", "17.0.0.0")]
-            public bool IsZipFileNull() {
-                return this.IsNull(this.tableTable1.ZipFileColumn);
-            }
-            
-            [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-            [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Design.TypedDataSetGenerator", "17.0.0.0")]
-            public void SetZipFileNull() {
-                this[this.tableTable1.ZipFileColumn] = global::System.Convert.DBNull;
             }
         }
         

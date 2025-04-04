@@ -37,9 +37,9 @@ namespace FluentUITemplate
             
         }
 
-        protected override void OnAsyncActions(Dictionary<string, Action<string, string, ContextParameters>> actions)
+        protected override void OnAsyncActions(Dictionary<string, Action<string, ContextParameters>> actions)
         {
-            actions.Add("myaction", (action, data, ctx) =>
+            actions.Add("myaction", (action, ctx) =>
             {
                 Response.Write(JsonConvert.SerializeObject(new { 
                     Testing = "Testing"
@@ -47,10 +47,10 @@ namespace FluentUITemplate
             });
         }
 
-        protected override void OnAsyncSave(string action, string data, ContextParameters ctx)
+        protected override void OnAsyncSave(string action, ContextParameters ctx)
         {
             Thread.Sleep(5000);
-            base.OnAsyncSave(action, data, ctx);
+            base.OnAsyncSave(action, ctx);
         }
     }
 }

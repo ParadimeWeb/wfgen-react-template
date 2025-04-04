@@ -80,26 +80,29 @@ router.post("/Default.aspx", async (req, res) => {
             };
             break;
         case "ASYNC_UPLOAD":
-            const fields = JSON.parse(body.fields);
+            console.log(body);
+            console.log(files);
+            await new Promise((resolve) => setTimeout(resolve, 2000));
+            const mode = body.mode;
+            const field = body.field;
+            const urlParams = new URLSearchParams();
+            if (mode === 'zip') {
+                files.forEach((f, i) => {
+                    urlParams.append('Key', `Zip${i}`);
+                    urlParams.append('Path', `upload\\${field}\\${f.originalname}`);
+                    urlParams.append('Name', f.originalname);
+                });
+                json = [urlParams.toString()];
+                break;
+            }
             json = files.map((f, i) => {
-                const Key = fields[i];
+                const Key = field[i];
                 return new URLSearchParams({
                     Key,
                     Path: `upload\\${Key}\\${f.originalname}`,
                     Name: f.originalname
                 }).toString();
             });
-            await new Promise((resolve) => setTimeout(resolve, 5000));
-            break;
-        case "ASYNC_UPLOAD_ZIP":
-            const field = body.field;
-            const urlParams = new URLSearchParams();
-            files.forEach((f, i) => {
-                urlParams.append('Key', `Zip${i}`);
-                urlParams.append('Path', `zip\\${f.originalname}`);
-                urlParams.append('Name', f.originalname);
-            });
-            json = [urlParams.toString()];
             break;
         case "ASYNC_MISSING_KEY":
             const key = body.key;

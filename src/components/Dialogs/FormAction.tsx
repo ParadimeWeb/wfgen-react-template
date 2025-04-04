@@ -5,11 +5,11 @@ import { dialogStyles, redTheme } from "./styles";
 import { useWfgFormContext } from "../../hooks/useWfgFormContext";
 import { useForm, type AnyFieldApi } from "@tanstack/react-form";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import type { WfgForm } from "../../types";
 import { ErrorDialogSurface } from "./Error";
 import { type } from "arktype";
 import { useFormInitQuery } from "../../hooks/useFormInitQuery";
 import { asyncAction } from "../../utils";
+import type { WfgForm } from "../../hooks/useWfgForm";
 
 const useStyles = makeStyles({
     root: {
@@ -181,7 +181,8 @@ export const FormActionDialog = () => {
         <form.Field 
             name="Table1[0].FORM_ACTION"
             children={field => {
-                const actionSplit = field.state.value?.split('_') ?? [''];
+                const value = field.state.value as string | null;
+                const actionSplit = value?.split('_') ?? [''];
                 const formAction = actionSplit.length > 1 ? actionSplit[1] : actionSplit[0];
                 const isError = actionSplit[0] === 'ERROR';
                 const open = isError || actionSplit[0] === 'CONFIRM';

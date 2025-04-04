@@ -14,6 +14,7 @@ const Table1 = DataRow.merge({
     FORM_FIELDS_COMMANDS_FAR: "null | string",
     FORM_FIELDS_COMMANDS_MORE: "null | string",
 });
+export type Table1 = typeof Table1.infer;
 const Configuration = DataRow.merge({
     WF_ACTIVITY_DESC: "string",
     WF_ACTIVITY_ID: "number.integer",

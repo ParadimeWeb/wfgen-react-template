@@ -44,7 +44,7 @@ const View = (props: FormProps) => {
     const {
         children,
         className,
-        autoSaveInterval = 0
+        // autoSaveInterval = 0
     } = props;
 
     return (

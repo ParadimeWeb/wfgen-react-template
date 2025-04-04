@@ -6,10 +6,11 @@ import { useWfgFormContext } from "../../hooks/useWfgFormContext";
 export const FormActionDrawer = () => {
     const { form } = useWfgFormContext();
     return (
-        <form.Field 
+        <form.Field
             name="Table1[0].FORM_ACTION"
             children={field => {
-                const actionSplit = field.state.value?.split('_') ?? [''];
+                const value = field.state.value as string | null;
+                const actionSplit = value?.split('_') ?? [''];
                 const formAction = actionSplit.length > 1 ? actionSplit[1] : actionSplit[0];
                 const open = actionSplit[0] === 'DRAWER';
 

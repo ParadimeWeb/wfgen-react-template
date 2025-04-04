@@ -78,6 +78,12 @@ function readableBytes(bytes: number, locale: string) {
     return `${numberFormat.format(readableNumber)} ${sizes[i]}`;
 }
 
+type FileUploadResult = {
+    Key: string
+    Path?: string
+    Name: string
+    Error?: string
+};
 type FileFieldProps = {
     fieldProps?: FieldProps
     printFieldProps?: FieldProps
@@ -92,7 +98,7 @@ type FileFieldProps = {
     disabled?: boolean
     onBeforeDownload?: (readOnly: boolean) => { href: string | undefined; [key: string]: any }
     onBeforeUpload?: (formData: FormData) => void
-    onAfterUpload?: (uploadedFiles: string[]) => { [field:string]: any }
+    onAfterUpload?: (uploadedFiles: FileUploadResult[]) => { [field:string]: any }
     tagSize?: TagProps["size"]
     maxFileNameLength?: number
 };
@@ -209,7 +215,7 @@ function View(props: FileFieldProps & { files: string[] }) {
         files,
         tagSize,
         maxAllowedContentLength = 4194304,
-        onBeforeDownload = () => ({ href: undefined }),
+        // onBeforeDownload = () => ({ href: undefined }),
         onBeforeUpload = () => {},
         onAfterUpload = () => ({}),
         disabled = false,
@@ -220,6 +226,7 @@ function View(props: FileFieldProps & { files: string[] }) {
     const { locale } = useFormInitQuery();
     const field = useFieldContext<string>();
     const { form } = useWfgFormContext();
+    const shortField = field.name.replace('Table1[0].', '');
     const fileUploads = files.map(f => new URLSearchParams(f));
     const fileInput = useRef<HTMLInputElement | null>(null);
     const uploadForm = useForm({
@@ -232,7 +239,7 @@ function View(props: FileFieldProps & { files: string[] }) {
     const percentageFormat = useRef(new Intl.NumberFormat(locale, { style: 'percent', minimumFractionDigits: 2, maximumFractionDigits: 2 }));
     const { mutateAsync, isPending } = useMutation({
         mutationFn: (formData: FormData) => {
-            return post<string[]>(mode === 'zip' ? 'ASYNC_UPLOAD_ZIP' : 'ASYNC_UPLOAD', { data: formData, config: {
+            return post<FileUploadResult[]>('ASYNC_UPLOAD', { data: formData, config: {
                 onUploadProgress: (progressEvent) => {
                     uploadForm.setFieldValue('percentComplete', progressEvent.loaded / (progressEvent.total ?? 1));
                 }
@@ -274,15 +281,18 @@ function View(props: FileFieldProps & { files: string[] }) {
             return undefined;
         }
         const formData = new FormData();
+        formData.set('mode', mode);
         if (mode === 'zip') {
-            formData.append("field", field.name);
+            formData.set('field', shortField);
         }
         else {
             const availableFields = fileUploads.length < 2 ? fileUploads.map(f => f.get('Key')!) : fileUploads.filter(f => !f.has('Name')).map(f => f.get('Key')!);
             if (files.length > availableFields.length) {
                 return t('A maximum of {{count, number}} files can be uploaded. Delete some files to try again.', { count: fileUploads.length });
             }
-            formData.append("fields", JSON.stringify(availableFields));
+            availableFields.forEach((f) => {
+                formData.append('field', f); // JSON.stringify(availableFields));
+            });
         }
         let contentLength = 0;
         for (let i = 0; i < files.length; i++) { 
@@ -298,19 +308,28 @@ function View(props: FileFieldProps & { files: string[] }) {
 
         for (let i = 0; i < files.length; i++) {
             const file = files[i];
-            formData.append("file" + i, file);
+            formData.append('file', file);
         }
         let result: string | undefined = undefined;
         await mutateAsync(formData, {
             onSuccess: (result) => {
                 onAfterUpload(result.data);
                 if (mode === 'zip') {
-                    field.handleChange(result.data[0]);
+                    const fu = new URLSearchParams();
+                    result.data.forEach((fuRes) => {
+                        fu.append("Key", fuRes.Key);
+                        fu.append("Path", fuRes.Path!);
+                        fu.append("Name", fuRes.Name);
+                    });
+                    field.handleChange(fu.toString());
                 }
                 else {
-                    result.data.forEach((value) => {
-                        const fu = new URLSearchParams(value);
-                        form.setFieldValue(`Table1[0].${fu.get('Key')}`, value);
+                    result.data.forEach((fuRes) => {
+                        const fu = new URLSearchParams();
+                        fu.set("Key", fuRes.Key);
+                        fu.set("Path", fuRes.Path!);
+                        fu.set("Name", fuRes.Name);
+                        form.setFieldValue(`Table1[0].${fuRes.Key}`, fu.toString());
                     });
                 }
             },
@@ -327,7 +346,7 @@ function View(props: FileFieldProps & { files: string[] }) {
                 selector={s => s.values.Table1[0].FORM_FIELDS_REQUIRED}
                 children={FORM_FIELDS_REQUIRED => {
                     const requiredFields = csvToSet(FORM_FIELDS_REQUIRED);
-                    const required = requiredFields.has(field.name.replace('Table1[0].', ''));
+                    const required = requiredFields.has(shortField);
                     return (
                         <uploadForm.Field 
                             name="files"
