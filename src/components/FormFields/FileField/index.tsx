@@ -6,7 +6,7 @@ import { FileTag } from "./FileTag";
 import { useTranslation } from "react-i18next";
 import { ArrowUploadRegular } from "@fluentui/react-icons";
 import { useForm, useStore } from "@tanstack/react-form";
-import { csvToSet, post } from "../../../utils";
+import { csvToSet, downloadFile, post } from "../../../utils";
 import { useWfgFormContext } from "../../../hooks/useWfgFormContext";
 import { useFieldContext } from "../../../hooks/formContext";
 
@@ -112,14 +112,13 @@ function PrintView(props: FileFieldProps & { fileUploads: URLSearchParams[] }) {
     } = props;
     const styles = useStyles();
     const { t } = useTranslation();
-    const { isArchive, rootUrl, configuration } = useFormInitQuery();
     const fieldsWithFile = fileUploads.filter((fu) => fu.has('Name'));
     const tagGroup = (
         <TagGroup className={styles.tagGroup}>
             {fieldsWithFile.map(fu => {
                 const key = fu.get('Key')!;
                 const fileName = fu.get('Name')!;
-                const fileUrl = fu.get('Url');
+                const filePath = fu.get('Path')!;
                 return (
                     <FileTag 
                         key={`fileTag_${key}`}
@@ -127,14 +126,7 @@ function PrintView(props: FileFieldProps & { fileUploads: URLSearchParams[] }) {
                         fileName={fileName}
                         value={key} 
                         size={tagSize} 
-                        onClick={() => {
-                            if (isArchive) {
-                                window.open(fileUrl ?? `${rootUrl}show.aspx?QUERY=DOWNLOAD&ID_PROCESS_INST=${configuration.WF_PROCESS_INST_ID}&ID_ACTIVITY_INST=${configuration.WF_ACTIVITY_INST_ID}&PARAM_NAME=${key}&ATTACHMENT=N`);
-                            }
-                            else {
-                                //downloadFile(ctx, fu.field, fu.path!, onBeforeDownload(false));
-                            }
-                        }}
+                        onClick={() => { downloadFile(key, filePath); }}
                     />
                 );
             })}
@@ -156,7 +148,7 @@ function ReadonlyView(props: FileFieldProps & { fileUploads: URLSearchParams[] }
     } = props;
     const styles = useStyles();
     const { t } = useTranslation();
-    const { isArchive, rootUrl, configuration } = useFormInitQuery();
+    const { isArchive } = useFormInitQuery();
     const field = useFieldContext<string>();
     const { form } = useWfgFormContext();
     const fieldsWithFile = fileUploads.filter((fu) => fu.has('Name'));
@@ -165,7 +157,7 @@ function ReadonlyView(props: FileFieldProps & { fileUploads: URLSearchParams[] }
             {fieldsWithFile.map(fu => {
                 const key = fu.get('Key')!;
                 const fileName = fu.get('Name')!;
-                const fileUrl = fu.get('Url');
+                const filePath = fu.get('Path')!;
                 return (
                     <FileTag 
                         key={`fileTag_${key}`}
@@ -175,10 +167,10 @@ function ReadonlyView(props: FileFieldProps & { fileUploads: URLSearchParams[] }
                         size={tagSize} 
                         onClick={() => {
                             if (isArchive) {
-                                window.open(fileUrl ?? `${rootUrl}show.aspx?QUERY=DOWNLOAD&ID_PROCESS_INST=${configuration.WF_PROCESS_INST_ID}&ID_ACTIVITY_INST=${configuration.WF_ACTIVITY_INST_ID}&PARAM_NAME=${key}&ATTACHMENT=N`);
+                                window.open(filePath);
                             }
                             else {
-                                //downloadFile(ctx, fu.field, fu.path!, onBeforeDownload(false));
+                                downloadFile(key, filePath);
                             }
                         }}
                     />
@@ -225,7 +217,6 @@ function View(props: FileFieldProps & { fileUploads: URLSearchParams[] }) {
     const field = useFieldContext<string>();
     const { form } = useWfgFormContext();
     const shortField = field.name.replace('Table1[0].', '');
-    //const fileUploads = files.map(f => new URLSearchParams(f));
     const fileInput = useRef<HTMLInputElement | null>(null);
     const uploadForm = useForm({
         defaultValues: {
@@ -258,16 +249,20 @@ function View(props: FileFieldProps & { fileUploads: URLSearchParams[] }) {
         >
             {fieldsWithFile.map((fu) => {
                 const key = fu.get('Key')!;
+                const fileName = fu.get('Name')!;
+                const filePath = fu.get('Path')!;
                 return (
                     <FileTag
                         key={`fileTag_${key}`}
                         maxFileNameLength={maxFileNameLength}
-                        fileName={fu.get('Name')!}
+                        fileName={fileName}
                         value={key} 
                         size={tagSize} 
                         disabled={disabled}
                         hasSecondaryAction 
-                        onClick={() => {}} //downloadFile(ctx, fu.field, fu.path!, onBeforeDownload(false))}
+                        onClick={() => {
+                            downloadFile(key, filePath);
+                        }}
                     />
                 );
             })}
@@ -289,7 +284,7 @@ function View(props: FileFieldProps & { fileUploads: URLSearchParams[] }) {
                 return t('A maximum of {{count, number}} files can be uploaded. Delete some files to try again.', { count: fileUploads.length });
             }
             availableFields.forEach((f) => {
-                formData.append('field', f); // JSON.stringify(availableFields));
+                formData.append('field', f);
             });
         }
         let contentLength = 0;

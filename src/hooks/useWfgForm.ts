@@ -1,10 +1,10 @@
 import { createFormHook, useForm } from "@tanstack/react-form";
 import { type } from "arktype";
 import { useMutation } from "@tanstack/react-query";
-import type { ActionResult, WfgFormData } from "../types";
+import type { WfgFormData } from "../types";
 import { useFormInitQuery } from "./useFormInitQuery";
 import { useTranslation } from "react-i18next";
-import { post } from "../utils";
+import { postWithFormData } from "../utils";
 import { fieldContext, formContext } from "./formContext";
 import { lazy } from "react";
 
@@ -45,11 +45,9 @@ export function useWfgForm() {
     const { mutateAsync } = useMutation({
         mutationFn: async (value: WfgFormData) => {
             value.Table1[0].FORM_ACTION = 'ASYNC_SUBMIT';
-            const data = new FormData();
-            data.set('FormData', new Blob([JSON.stringify(value)], { type: 'application/json' }), 'FormDataJson');
-            const res = await post<ActionResult>('ASYNC_SUBMIT', { data });
+            const res = await postWithFormData(value);
             return res.data;
-        },
+        }
     });
 
     return useAppForm({

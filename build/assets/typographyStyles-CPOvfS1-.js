@@ -1,0 +1,2 @@
+import{w as e}from"./index-CVsynKIo.js";const i={body1:{fontFamily:e.fontFamilyBase,fontSize:e.fontSizeBase300,fontWeight:e.fontWeightRegular,lineHeight:e.lineHeightBase300},body2:{fontFamily:e.fontFamilyBase,fontSize:e.fontSizeBase400,fontWeight:e.fontWeightRegular,lineHeight:e.lineHeightBase400},caption1:{fontFamily:e.fontFamilyBase,fontSize:e.fontSizeBase200,fontWeight:e.fontWeightRegular,lineHeight:e.lineHeightBase200}};export{i as t};
+//# sourceMappingURL=typographyStyles-CPOvfS1-.js.map

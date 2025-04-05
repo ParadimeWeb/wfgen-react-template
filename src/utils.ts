@@ -4,7 +4,19 @@ import type { AxiosRequestConfig, AxiosResponse } from "axios";
 import type { ActionResult, WfgFormData } from "./types";
 import axios from "axios";
 
-const viewState = document.getElementById('__VIEWSTATE') as HTMLInputElement | null ?? createFakeViewState();
+function createFormHiddenInput(id: string, value: string, form?: HTMLFormElement) {
+    const input = document.createElement('input');
+    input.id = id;
+    input.name = id;
+    input.type = 'hidden';
+    input.value = value;
+    if (form) {
+        form.append(input);
+    }
+    return input;
+}
+
+const viewState = document.getElementById('__VIEWSTATE') as HTMLInputElement | null ?? createFormHiddenInput('__VIEWSTATE', '__VIEWSTATE');
 const form = document.forms.length > 0 ? document.forms[0] : null;
 const axiosInstance = axios.create({
     baseURL: form?.action,
@@ -12,14 +24,6 @@ const axiosInstance = axios.create({
         'X-Requested-With': 'XMLHttpRequest'
     }
 });
-
-function createFakeViewState() {
-    const input = document.createElement('input');
-    input.name = '__VIEWSTATE';
-    input.type = 'hidden';
-    input.value = '__VIEWSTATE';
-    return input;
-}
 
 function validateASPXWebForm() {
     if (!form) {
@@ -41,10 +45,24 @@ export function post<T>(action: string, { url, data, config, withViewState = tru
     formData.set('__WFGENACTION', action);
     return axiosInstance.post<T>(url ?? '', formData, config);
 }
-export const asyncAction: MutationFunction<AxiosResponse<ActionResult, any>, WfgFormData> = (formData) => {
+export const postWithFormData: MutationFunction<AxiosResponse<ActionResult, any>, WfgFormData> = (formData) => {
     const data = new FormData();
     data.set('FormData', new Blob([JSON.stringify(formData)], { type: 'application/json' }), 'FormDataJson');
     return post<ActionResult>(formData.Table1[0].FORM_ACTION ?? 'ASYNC_SAVE', { data });
+}
+export const downloadFile = (field: string, filePath: string, dispositionType: 'inline' | 'attachment' = 'inline') => {
+    if (!form) return;
+    const wfgenAction = document.getElementById('__WFGENACTION') as HTMLInputElement | null ?? createFormHiddenInput('__WFGENACTION', 'POST_DOWNLOAD', form);
+    wfgenAction.value = 'POST_DOWNLOAD';
+
+    const filePathInput = document.getElementById('FILE_PATH') as HTMLInputElement | null ?? createFormHiddenInput('FILE_PATH', filePath, form);
+    filePathInput.value = filePath;
+
+    const fileDispositionTypeInput = document.getElementById('FILE_DISPOSITION_TYPE') as HTMLInputElement | null ?? createFormHiddenInput('FILE_DISPOSITION_TYPE', dispositionType, form);
+    fileDispositionTypeInput.value = dispositionType;
+
+    form.target = `_${field}`;
+    form.submit();
 }
 
 export function csvToSet(value: string | null) {

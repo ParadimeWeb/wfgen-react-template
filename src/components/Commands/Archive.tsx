@@ -1,7 +1,7 @@
 import { Field, Input, makeStyles, Popover, PopoverSurface, PopoverTrigger, Subtitle2, tokens, ToolbarButton } from "@fluentui/react-components";
 import { ArrowDownloadRegular, LinkRegular, Warning20Regular } from "@fluentui/react-icons";
 import { useTranslation } from "react-i18next";
-import { useFormInitQuery } from "../../hooks/useFormInitQuery";
+import { useWfgFormContext } from "../../hooks/useWfgFormContext";
 
 const useStyles = makeStyles({
     archive: {
@@ -43,11 +43,13 @@ export const Archive = () => {
 
 export const ArchiveDownload = () => {
     const { t } = useTranslation();
-    const { formArchiveUrl } = useFormInitQuery();
+    const { form: { state: { values: { Table1: [{ FORM_ARCHIVE }] } } } } = useWfgFormContext();
+    const fu = new URLSearchParams(FORM_ARCHIVE ?? '');
+    const filePath = fu.get('Path');
     return (
         <ToolbarButton 
             icon={<ArrowDownloadRegular />} 
-            onClick={() => window.open(`${formArchiveUrl}&ATTACHMENT=Y`, '_blank')}
+            onClick={() => window.open(`${filePath}&ATTACHMENT=Y`, '_blank')}
         >
             {t('Download')}
         </ToolbarButton>
@@ -57,7 +59,9 @@ export const ArchiveDownload = () => {
 export const ArchiveCopyLink = () => {
     const styles = usePopoverStyles();
     const { t } = useTranslation();
-    const { formArchiveUrl } = useFormInitQuery();
+    const { form: { state: { values: { Table1: [{ FORM_ARCHIVE }] } } } } = useWfgFormContext();
+    const fu = new URLSearchParams(FORM_ARCHIVE ?? '');
+    const filePath = fu.get('Path');
     return (
         <Popover positioning="below-end" withArrow>
             <PopoverTrigger>
@@ -67,7 +71,7 @@ export const ArchiveCopyLink = () => {
                 <Field className={styles.root} label={'fff'}>
                     <Input 
                         readOnly
-                        defaultValue={`${formArchiveUrl}&ATTACHMENT=N`}
+                        defaultValue={`${filePath}&ATTACHMENT=N`}
                         onFocus={(ev) => ev.target.select()}
                     />
                 </Field>

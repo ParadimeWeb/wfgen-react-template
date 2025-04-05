@@ -21,10 +21,6 @@ export const Root = () => {
 
     useEffect(() => {
         const abortController = new AbortController();
-        document.forms[0].addEventListener('submit', (e) => {
-            e.preventDefault();
-            e.stopPropagation();
-        }, { signal: abortController.signal });
         window.addEventListener("dragover", (e) => { e.preventDefault(); }, { signal: abortController.signal });
         window.addEventListener("drop", (e) => { e.preventDefault(); }, { signal: abortController.signal });
         window.addEventListener('beforeprint', () => {}, { signal: abortController.signal });

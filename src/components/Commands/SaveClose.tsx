@@ -4,7 +4,7 @@ import { useTranslation } from "react-i18next";
 import { useIsMutating, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useWfgFormContext } from "../../hooks/useWfgFormContext";
 import { forwardRef } from "react";
-import { asyncAction } from "../../utils";
+import { postWithFormData } from "../../utils";
 
 export const SaveCloseButton = forwardRef<HTMLButtonElement | HTMLAnchorElement>((_, ref) => {
     const queryClient = useQueryClient();
@@ -12,7 +12,7 @@ export const SaveCloseButton = forwardRef<HTMLButtonElement | HTMLAnchorElement>
     const { form } = useWfgFormContext();
     const { isPending, mutate } = useMutation({
         mutationKey: ['save'],
-        mutationFn: asyncAction
+        mutationFn: postWithFormData
     });
 
     return isPending ? 
@@ -38,7 +38,7 @@ export const SaveCloseIconButton = forwardRef<HTMLButtonElement | HTMLAnchorElem
     const { form } = useWfgFormContext();
     const { mutate, isPending } = useMutation({
         mutationKey: ['save'],
-        mutationFn: asyncAction
+        mutationFn: postWithFormData
     });
     const isMutating = useIsMutating({ mutationKey: ['save'], exact: true }) > 0;
 
@@ -66,7 +66,7 @@ export const SaveCloseMenuItem = () => {
     const { form } = useWfgFormContext();
     const { mutate, isPending } = useMutation({
         mutationKey: ['save'],
-        mutationFn: asyncAction
+        mutationFn: postWithFormData
     });
     const isMutating = useIsMutating({ mutationKey: ['save'], exact: true }) > 0;
 

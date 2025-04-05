@@ -8,7 +8,7 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { ErrorDialogSurface } from "./Error";
 import { type } from "arktype";
 import { useFormInitQuery } from "../../hooks/useFormInitQuery";
-import { asyncAction } from "../../utils";
+import { postWithFormData } from "../../utils";
 import type { WfgForm } from "../../hooks/useWfgForm";
 
 const useStyles = makeStyles({
@@ -33,7 +33,7 @@ function FormActionDialogSurface({ form, field, formAction }: { form: WfgForm, f
     const { currentUser, configuration, wfgFormData } = useFormInitQuery();
     const { mutate, isPending } = useMutation({
         mutationKey: ['save'],
-        mutationFn: asyncAction
+        mutationFn: postWithFormData
     });
     const actionForm = useForm({
         defaultValues: {

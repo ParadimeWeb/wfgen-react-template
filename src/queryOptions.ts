@@ -39,7 +39,6 @@ export const initQueryOptions = queryOptions({
         const rootUrl = absoluteBaseUrl.substring(0, absoluteBaseUrl.indexOf('/', absoluteBaseUrl.indexOf('//') + 2) + 1);
         const graphQLUrl = `${rootUrl}graphQL`;
         const delegatorUserId = currentUser.id !== assignee.id ? assignee.id : -1;
-        const formArchiveUrl = typeof wfgFormData.Table1[0].FORM_ARCHIVE_URL === 'string' ? wfgFormData.Table1[0].FORM_ARCHIVE_URL : '';
         
         return { 
             wfgFormData,
@@ -50,7 +49,6 @@ export const initQueryOptions = queryOptions({
             graphQLUrl,
             delegatorUserId,
             isArchive: commands.MAIN.has('ARCHIVE'),
-            formArchiveUrl,
             commands,
             locale: initData.Locale,
             timeZoneInfo: initData.TimeZoneInfo,
