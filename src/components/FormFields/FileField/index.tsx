@@ -103,17 +103,16 @@ type FileFieldProps = {
     maxFileNameLength?: number
 };
 
-function PrintView(props: FileFieldProps & { files: string[] }) {
+function PrintView(props: FileFieldProps & { fileUploads: URLSearchParams[] }) {
     const {
         printFieldProps = {},
-        files,
+        fileUploads,
         tagSize,
         maxFileNameLength = 32
     } = props;
     const styles = useStyles();
     const { t } = useTranslation();
     const { isArchive, rootUrl, configuration } = useFormInitQuery();
-    const fileUploads = files.map(f => new URLSearchParams(f));
     const fieldsWithFile = fileUploads.filter((fu) => fu.has('Name'));
     const tagGroup = (
         <TagGroup className={styles.tagGroup}>
@@ -148,10 +147,10 @@ function PrintView(props: FileFieldProps & { files: string[] }) {
         </Field>
     );
 }
-function ReadonlyView(props: FileFieldProps & { files: string[] }) {
+function ReadonlyView(props: FileFieldProps & { fileUploads: URLSearchParams[] }) {
     const {
         readonlyFieldProps = {},
-        files,
+        fileUploads,
         tagSize,
         maxFileNameLength = 32
     } = props;
@@ -160,7 +159,6 @@ function ReadonlyView(props: FileFieldProps & { files: string[] }) {
     const { isArchive, rootUrl, configuration } = useFormInitQuery();
     const field = useFieldContext<string>();
     const { form } = useWfgFormContext();
-    const fileUploads = files.map(f => new URLSearchParams(f));
     const fieldsWithFile = fileUploads.filter((fu) => fu.has('Name'));
     const tagGroup = (
         <TagGroup className={styles.tagGroup}>
@@ -208,11 +206,11 @@ function ReadonlyView(props: FileFieldProps & { files: string[] }) {
         />
     );
 }
-function View(props: FileFieldProps & { files: string[] }) {
+function View(props: FileFieldProps & { fileUploads: URLSearchParams[] }) {
     const {
         fieldProps = {},
         mode = "fields",
-        files,
+        fileUploads,
         tagSize,
         maxAllowedContentLength = 4194304,
         // onBeforeDownload = () => ({ href: undefined }),
@@ -227,7 +225,7 @@ function View(props: FileFieldProps & { files: string[] }) {
     const field = useFieldContext<string>();
     const { form } = useWfgFormContext();
     const shortField = field.name.replace('Table1[0].', '');
-    const fileUploads = files.map(f => new URLSearchParams(f));
+    //const fileUploads = files.map(f => new URLSearchParams(f));
     const fileInput = useRef<HTMLInputElement | null>(null);
     const uploadForm = useForm({
         defaultValues: {
@@ -474,15 +472,18 @@ export default (props: FileFieldProps) => {
     const FORM_FIELDS_READONLY = useStore(form.store, s => s.values.Table1[0].FORM_FIELDS_READONLY ?? '');
     const readonlyFields = csvToSet(FORM_FIELDS_READONLY);
     if (mode === 'zip') {
-        const files = field.state.value.split('Key=').filter(o => o).map(v => `Key=${v}`);
-        return isPrintView ? <PrintView {...props} files={files} /> : isArchive || readonlyFields.has(field.name.replace('Table1[0].', '')) ? <ReadonlyView {...props} files={files} /> : <View {...props} files={files} />;
+        const fu = new URLSearchParams(field.state.value);
+        const paths = fu.getAll('Path');
+        const names = fu.getAll('Name');
+        const fileUploads = paths.map((Path, i) => new URLSearchParams({ Key: `Zip${i}`, Name: names[i], Path }));
+        return isPrintView ? <PrintView {...props} fileUploads={fileUploads} /> : isArchive || readonlyFields.has(field.name.replace('Table1[0].', '')) ? <ReadonlyView {...props} fileUploads={fileUploads} /> : <View {...props} fileUploads={fileUploads} />;
     }
     return (
         <form.Subscribe 
             selector={(s) => Object.fromEntries(otherFields.map(f => [f, s.values.Table1[0][f] as string]))}
             children={(otherFiles) => {
-                const files = [field.state.value, ...Object.values(otherFiles)];
-                return isPrintView ? <PrintView {...props} files={files} /> : isArchive || readonlyFields.has(field.name.replace('Table1[0].', '')) ? <ReadonlyView {...props} files={files} /> : <View {...props} files={files} />;
+                const fileUploads = [new URLSearchParams(field.state.value), ...Object.values(otherFiles).map(v => new URLSearchParams(v))];
+                return isPrintView ? <PrintView {...props} fileUploads={fileUploads} /> : isArchive || readonlyFields.has(field.name.replace('Table1[0].', '')) ? <ReadonlyView {...props} fileUploads={fileUploads} /> : <View {...props} fileUploads={fileUploads} />;
             }}
         />
     );
