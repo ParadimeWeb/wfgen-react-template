@@ -575,14 +575,6 @@ namespace FluentUITemplate.Models {
                 base.Columns.Add(this.columnDocument);
                 this.columnAttachments = new global::System.Data.DataColumn("Attachments", typeof(string), null, global::System.Data.MappingType.Element);
                 base.Columns.Add(this.columnAttachments);
-                this.columnFile1.AllowDBNull = false;
-                this.columnFile1.DefaultValue = ((string)(""));
-                this.columnFile2.AllowDBNull = false;
-                this.columnFile2.DefaultValue = ((string)(""));
-                this.columnDocument.AllowDBNull = false;
-                this.columnDocument.DefaultValue = ((string)(""));
-                this.columnAttachments.AllowDBNull = false;
-                this.columnAttachments.DefaultValue = ((string)(""));
             }
             
             [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
@@ -1301,7 +1293,12 @@ namespace FluentUITemplate.Models {
             [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Design.TypedDataSetGenerator", "17.0.0.0")]
             public string File1 {
                 get {
-                    return ((string)(this[this.tableTable1.File1Column]));
+                    try {
+                        return ((string)(this[this.tableTable1.File1Column]));
+                    }
+                    catch (global::System.InvalidCastException e) {
+                        throw new global::System.Data.StrongTypingException("The value for column \'File1\' in table \'Table1\' is DBNull.", e);
+                    }
                 }
                 set {
                     this[this.tableTable1.File1Column] = value;
@@ -1312,7 +1309,12 @@ namespace FluentUITemplate.Models {
             [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Design.TypedDataSetGenerator", "17.0.0.0")]
             public string File2 {
                 get {
-                    return ((string)(this[this.tableTable1.File2Column]));
+                    try {
+                        return ((string)(this[this.tableTable1.File2Column]));
+                    }
+                    catch (global::System.InvalidCastException e) {
+                        throw new global::System.Data.StrongTypingException("The value for column \'File2\' in table \'Table1\' is DBNull.", e);
+                    }
                 }
                 set {
                     this[this.tableTable1.File2Column] = value;
@@ -1323,7 +1325,12 @@ namespace FluentUITemplate.Models {
             [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Design.TypedDataSetGenerator", "17.0.0.0")]
             public string Document {
                 get {
-                    return ((string)(this[this.tableTable1.DocumentColumn]));
+                    try {
+                        return ((string)(this[this.tableTable1.DocumentColumn]));
+                    }
+                    catch (global::System.InvalidCastException e) {
+                        throw new global::System.Data.StrongTypingException("The value for column \'Document\' in table \'Table1\' is DBNull.", e);
+                    }
                 }
                 set {
                     this[this.tableTable1.DocumentColumn] = value;
@@ -1334,7 +1341,12 @@ namespace FluentUITemplate.Models {
             [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Design.TypedDataSetGenerator", "17.0.0.0")]
             public string Attachments {
                 get {
-                    return ((string)(this[this.tableTable1.AttachmentsColumn]));
+                    try {
+                        return ((string)(this[this.tableTable1.AttachmentsColumn]));
+                    }
+                    catch (global::System.InvalidCastException e) {
+                        throw new global::System.Data.StrongTypingException("The value for column \'Attachments\' in table \'Table1\' is DBNull.", e);
+                    }
                 }
                 set {
                     this[this.tableTable1.AttachmentsColumn] = value;
@@ -1399,6 +1411,54 @@ namespace FluentUITemplate.Models {
             [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Design.TypedDataSetGenerator", "17.0.0.0")]
             public void SetFruitsNull() {
                 this[this.tableTable1.FruitsColumn] = global::System.Convert.DBNull;
+            }
+            
+            [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+            [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Design.TypedDataSetGenerator", "17.0.0.0")]
+            public bool IsFile1Null() {
+                return this.IsNull(this.tableTable1.File1Column);
+            }
+            
+            [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+            [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Design.TypedDataSetGenerator", "17.0.0.0")]
+            public void SetFile1Null() {
+                this[this.tableTable1.File1Column] = global::System.Convert.DBNull;
+            }
+            
+            [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+            [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Design.TypedDataSetGenerator", "17.0.0.0")]
+            public bool IsFile2Null() {
+                return this.IsNull(this.tableTable1.File2Column);
+            }
+            
+            [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+            [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Design.TypedDataSetGenerator", "17.0.0.0")]
+            public void SetFile2Null() {
+                this[this.tableTable1.File2Column] = global::System.Convert.DBNull;
+            }
+            
+            [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+            [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Design.TypedDataSetGenerator", "17.0.0.0")]
+            public bool IsDocumentNull() {
+                return this.IsNull(this.tableTable1.DocumentColumn);
+            }
+            
+            [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+            [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Design.TypedDataSetGenerator", "17.0.0.0")]
+            public void SetDocumentNull() {
+                this[this.tableTable1.DocumentColumn] = global::System.Convert.DBNull;
+            }
+            
+            [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+            [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Design.TypedDataSetGenerator", "17.0.0.0")]
+            public bool IsAttachmentsNull() {
+                return this.IsNull(this.tableTable1.AttachmentsColumn);
+            }
+            
+            [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+            [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Design.TypedDataSetGenerator", "17.0.0.0")]
+            public void SetAttachmentsNull() {
+                this[this.tableTable1.AttachmentsColumn] = global::System.Convert.DBNull;
             }
         }
         
