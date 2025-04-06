@@ -19,6 +19,8 @@
     "{{count, number}} validation error_other": "{{count, number}} validation errors",
     "Table1[0].LastName": "Last Name",
     "Table1[0].StartDate": "Start Date",
+    "Table1[0].Document": "Specific Document",
+    "Table1[0].Attachments": "Attachments (Zip mode)",
     "Page width": "Page width",
     "Actions": "Actions",
     "Print": "Print",

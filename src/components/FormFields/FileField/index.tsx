@@ -68,6 +68,9 @@ const useStyles = makeStyles({
         paddingLeft: tokens.spacingHorizontalS,
         paddingRight: tokens.spacingHorizontalS,
         ...typographyStyles.caption1
+    },
+    validationMessage: {
+        whiteSpace: 'pre-wrap'
     }
 });
 function readableBytes(bytes: number, locale: string) {
@@ -90,7 +93,6 @@ type FileFieldProps = {
     printFieldProps?: FieldProps
     readonlyFieldProps?: FieldProps
     fields?: string[]
-    // otherFields?: string[]
     mode?: 'field' | 'zip'
     /**
      * Max content length in bytes
@@ -98,9 +100,6 @@ type FileFieldProps = {
      */
     maxAllowedContentLength?: number
     disabled?: boolean
-    onBeforeDownload?: (readOnly: boolean) => { href: string | undefined; [key: string]: any }
-    onBeforeUpload?: (formData: FormData) => void
-    onAfterUpload?: (uploadedFiles: FileUploadResult[]) => { [field:string]: any }
     tagSize?: TagProps["size"]
     maxFileNameLength?: number
 };
@@ -207,9 +206,6 @@ function View(props: Omit<FileFieldProps, 'mode'> & { mode: 'field' | 'fields' |
         files,
         tagSize,
         maxAllowedContentLength = 4194304,
-        // onBeforeDownload = () => ({ href: undefined }),
-        onBeforeUpload = () => {},
-        onAfterUpload = () => ({}),
         disabled = false,
         maxFileNameLength = 32
     } = props;
@@ -234,63 +230,12 @@ function View(props: Omit<FileFieldProps, 'mode'> & { mode: 'field' | 'fields' |
                     uploadForm.setFieldValue('percentComplete', progressEvent.loaded / (progressEvent.total ?? 1));
                 }
             }})
-        },
-        onMutate: (formData) => {
-            onBeforeUpload(formData);
         }
     });
     
-    const tagGroup = (
-        <TagGroup
-            className={mergeClasses(styles.tagGroup, mode === 'zip' && styles.paddingTop)}
-            onDismiss={(_, data) => {
-                console.log('onDismiss', data.value);
-                if (mode === 'fields') {
-                    field.removeValue(files.findIndex(([field]) => field === data.value));
-                    return;
-                }
-                if (mode === 'zip') {
-                    const fu = files[0][1];
-                    const keys = fu.getAll('Keys');
-                    const names = fu.getAll('Keys');
-                    const paths = fu.getAll('Keys');
-                    const i = keys.indexOf(data.value);
-                    fu.delete('Key', data.value);
-                    fu.delete('Name', names[i]);
-                    fu.delete('Path', paths[i]);
-                    field.handleChange(fu.toString());
-                    return;
-                }
-                field.handleChange(`Key=${data.value}`);
-            }}
-        >
-            {files.map(([_, fu]) => {
-                const names = fu.getAll('Name');
-                if (names.length < 1) return null;
-                const paths = fu.getAll('Path');
-                return fu.getAll('Key').map((key, i) => {
-                    return (
-                        <FileTag
-                            key={`fileTag_${key}`}
-                            maxFileNameLength={maxFileNameLength}
-                            fileName={names[i]}
-                            value={key} 
-                            size={tagSize} 
-                            disabled={disabled}
-                            hasSecondaryAction 
-                            onClick={() => {
-                                downloadFile(key, paths[i]);
-                            }}
-                        />
-                    );
-                });
-            })}
-        </TagGroup>
-    );
-
     async function upload(files: FileList | File[] | null) {
         if (files === null || files.length < 1) {
-            return undefined;
+            return [];
         }
         const formData = new FormData();
         formData.set('mode', mode);
@@ -298,7 +243,7 @@ function View(props: Omit<FileFieldProps, 'mode'> & { mode: 'field' | 'fields' |
         if (mode === 'fields') {
             const availableFields = fields.filter(f => !values.has(f));
             if (files.length > availableFields.length) {
-                return t('A maximum of {{count, number}} files can be uploaded. Delete some files to try again.', { count: fields.length });
+                return [t('A maximum of {{count, number}} files can be uploaded. Delete some files to try again.', { count: fields.length })];
             }
             availableFields.forEach((f) => {
                 formData.append('field', f);
@@ -314,26 +259,29 @@ function View(props: Omit<FileFieldProps, 'mode'> & { mode: 'field' | 'fields' |
         }
         if (contentLength > maxAllowedContentLength) {
             const sizes = { bytes: t('bytes'), kiloBytes: t('kiloBytes'), megaBytes: t('megaBytes'), gigaBytes: t('gigaBytes') };
-            return t('A maximum content size of {{max}} can be uploaded at one time. Failed to upload {{actual}}.', { 
+            return [t('A maximum content size of {{max}} can be uploaded at one time. Failed to upload {{actual}}.', { 
                 max: t(readableBytes(maxAllowedContentLength, locale), sizes),
                 actual: t(readableBytes(contentLength, locale), sizes)
-            });
+            })];
         }
 
         for (let i = 0; i < files.length; i++) {
             const file = files[i];
             formData.append('file', file);
         }
-        let result: string | undefined = undefined;
+        const errors: string[] = [];
         await mutateAsync(formData, {
             onSuccess: (result) => {
-                onAfterUpload(result.data);
                 if (mode === 'fields') {
                     result.data.forEach((fuRes) => {
+                        if (fuRes.Error) {
+                            errors.push(t(fuRes.Error, { name: fuRes.Name }));
+                            return;
+                        }
                         const fu = new URLSearchParams();
                         fu.set("Key", fuRes.Key);
-                        fu.set("Path", fuRes.Path!);
                         fu.set("Name", fuRes.Name);
+                        fu.set("Path", fuRes.Path!);
                         form.setFieldValue(`Table1[0].${fuRes.Key}`, fu.toString());
                         field.pushValue({ Field: fuRes.Key });
                     });
@@ -341,6 +289,10 @@ function View(props: Omit<FileFieldProps, 'mode'> & { mode: 'field' | 'fields' |
                 }
                 const fu = new URLSearchParams();
                 result.data.forEach((fuRes) => {
+                    if (fuRes.Error) {
+                        errors.push(t(fuRes.Error, { name: fuRes.Name }));
+                        return;
+                    }
                     fu.append("Key", fuRes.Key);
                     fu.append("Path", fuRes.Path!);
                     fu.append("Name", fuRes.Name);
@@ -348,10 +300,10 @@ function View(props: Omit<FileFieldProps, 'mode'> & { mode: 'field' | 'fields' |
                 field.handleChange(fu.toString());
             },
             onError: (error) => {
-                result = error.message;
+                errors.push(error.message);
             }
         });
-        return result;
+        return errors;
     }
 
     return (
@@ -374,88 +326,127 @@ function View(props: Omit<FileFieldProps, 'mode'> & { mode: 'field' | 'fields' |
                         }}
                         children={filesField => {
                             return (
-                                <uploadForm.Field 
-                                    name="isDragOver"
-                                    children={isDragOverField => {
-                                        return (
-                                            <Field
-                                                label={t('File')}
-                                                validationMessage={field.state.meta.isTouched && field.state.meta.errors.length > 0 ? t(field.state.meta.errors[0]) : filesField.state.meta.errors.length > 0 ? t(filesField.state.meta.errors[0] as string) : null}
-                                                required={required}
-                                                className={mergeClasses(fieldProps.className, styles.dragDrop)}
-                                                onDragEnter={() => { isDragOverField.handleChange(true); }}
-                                                {...fieldProps} 
+                                <Field
+                                    label={t(field.name)}
+                                    validationMessage={field.state.meta.isTouched && field.state.meta.errors.length > 0 ? t(field.state.meta.errors[0]) : filesField.state.meta.errors.length > 0 ? { className: styles.validationMessage, children: filesField.state.meta.errors.join('\n') } : null}
+                                    required={required}
+                                    className={mergeClasses(fieldProps.className, styles.dragDrop)}
+                                    onDragEnter={() => { uploadForm.setFieldValue('isDragOver', true); }}
+                                    {...fieldProps} 
+                                >
+                                    {fProps => (<>
+                                        <input
+                                            type="file"
+                                            multiple={mode === 'zip' || fields.length > 1}
+                                            ref={fileInput}
+                                            className={styles.fileInput}
+                                            onChange={(ev) => {
+                                                if (ev.target.files !== null) {
+                                                    filesField.handleChange(ev.target.files);
+                                                }
+                                            }}
+                                        />
+                                        {mode === 'zip' || files.length !== fields.length ? 
+                                        <Field hint={fields.length > 1 ? t('You can upload {{count, number}} more files for a maximum of {{max, number}}.', { count: fields.length - files.length, max: fields.length }) : null}>
+                                            <Button 
+                                                {...fProps}
+                                                size={fieldProps.size}
+                                                className={styles.button}
+                                                icon={<ArrowUploadRegular />}
+                                                onClick={() => {
+                                                    if (fileInput.current) {
+                                                        fileInput.current.click();
+                                                    }
+                                                }}
+                                                disabled={disabled}
                                             >
-                                                {fProps => (<>
-                                                    <input
-                                                        type="file"
-                                                        multiple={mode === 'zip' || fields.length > 1}
-                                                        ref={fileInput}
-                                                        className={styles.fileInput}
-                                                        onChange={(ev) => {
-                                                            if (ev.target.files !== null) {
-                                                                filesField.handleChange(ev.target.files);
-                                                            }
-                                                        }}
-                                                    />
-                                                    {mode === 'zip' || files.length !== fields.length ? 
-                                                    <Field hint={fields.length > 1 ? t('You can upload {{count, number}} more files for a maximum of {{max, number}}.', { count: fields.length - files.length, max: fields.length }) : null}>
-                                                        <Button 
-                                                            {...fProps}
-                                                            size={fieldProps.size}
-                                                            className={styles.button}
-                                                            icon={<ArrowUploadRegular />}
-                                                            onClick={() => {
-                                                                if (fileInput.current) {
-                                                                    fileInput.current.click();
-                                                                }
-                                                            }}
+                                                {t('Select files or drag them here', { count: mode === 'zip' ? 2 : fields.length })}
+                                            </Button>
+                                        </Field> : null}
+                                        <TagGroup
+                                            className={mergeClasses(styles.tagGroup, mode === 'zip' && styles.paddingTop)}
+                                            onDismiss={(_, data) => {
+                                                if (mode === 'fields') {
+                                                    field.removeValue(files.findIndex(([field]) => field === data.value));
+                                                    return;
+                                                }
+                                                if (mode === 'zip') {
+                                                    const fu = files[0][1];
+                                                    const keys = fu.getAll('Key');
+                                                    const names = fu.getAll('Name');
+                                                    const paths = fu.getAll('Path');
+                                                    const i = keys.indexOf(data.value);
+                                                    fu.delete('Key', data.value);
+                                                    fu.delete('Name', names[i]);
+                                                    fu.delete('Path', paths[i]);
+                                                    field.handleChange(fu.toString());
+                                                    return;
+                                                }
+                                                field.handleChange(`Key=${data.value}`);
+                                            }}
+                                        >
+                                            {files.map(([_, fu]) => {
+                                                const names = fu.getAll('Name');
+                                                if (names.length < 1) return null;
+                                                const paths = fu.getAll('Path');
+                                                return fu.getAll('Key').map((key, i) => {
+                                                    return (
+                                                        <FileTag
+                                                            key={`fileTag_${key}`}
+                                                            maxFileNameLength={maxFileNameLength}
+                                                            fileName={names[i]}
+                                                            value={key} 
+                                                            size={tagSize} 
                                                             disabled={disabled}
-                                                        >
-                                                            {t('Select files or drag them here', { count: mode === 'zip' ? 2 : fields.length })}
-                                                        </Button>
-                                                    </Field> : null}
-                                                    {tagGroup}
-                                                    {isDragOverField.state.value && !disabled &&
-                                                    <div 
-                                                        className={styles.overlayUpload}
-                                                        onDragLeave={() => { isDragOverField.handleChange(false); }}
-                                                        onDrop={(ev) => {
-                                                            if (ev.dataTransfer.items) {
-                                                                let files: File[] = [];
-                                                                for(let i=0; i<ev.dataTransfer.items.length; i++) {
-                                                                    if (ev.dataTransfer.items[i].kind === 'file') {
-                                                                        const f = ev.dataTransfer.items[i].getAsFile();
-                                                                        if (f !== null)
-                                                                            files.push(f);
-                                                                    }
-                                                                }
-                                                                filesField.handleChange(files);
-                                                            }
-                                                            else {
-                                                                filesField.handleChange(ev.dataTransfer.files);
-                                                            }
-                                                            isDragOverField.handleChange(false);
-                                                        }}
-                                                    ></div>}
-                                                    {isPending && 
-                                                    <div className={styles.overlay}>
-                                                        <uploadForm.Subscribe 
-                                                            selector={s => s.values.percentComplete}
-                                                            children={percentComplete => {
-                                                                return (
-                                                                    <Spinner size="tiny" label={t('uploading... {{percent}}', { percent: percentageFormat.current.format(percentComplete) })} />
-                                                                );
+                                                            hasSecondaryAction 
+                                                            onClick={() => {
+                                                                downloadFile(key, paths[i]);
                                                             }}
                                                         />
-                                                    </div>}     
-                                                </>)}
-                                            </Field>
-                                        );
-                                    }}
-                                />
+                                                    );
+                                                });
+                                            })}
+                                        </TagGroup>
+                                        <uploadForm.Subscribe 
+                                            selector={s => s.values.isDragOver}
+                                            children={isDragOver => isDragOver && !disabled ? (
+                                                <div 
+                                                    className={styles.overlayUpload}
+                                                    onDragLeave={() => { uploadForm.setFieldValue('isDragOver', false); }}
+                                                    onDrop={(ev) => {
+                                                        if (ev.dataTransfer.items) {
+                                                            let files: File[] = [];
+                                                            for(let i=0; i<ev.dataTransfer.items.length; i++) {
+                                                                if (ev.dataTransfer.items[i].kind === 'file') {
+                                                                    const f = ev.dataTransfer.items[i].getAsFile();
+                                                                    if (f !== null)
+                                                                        files.push(f);
+                                                                }
+                                                            }
+                                                            filesField.handleChange(files);
+                                                        }
+                                                        else {
+                                                            filesField.handleChange(ev.dataTransfer.files);
+                                                        }
+                                                        uploadForm.setFieldValue('isDragOver', false);
+                                                    }}
+                                                ></div>
+                                            ) : null}
+                                        />
+                                        {isPending && 
+                                        <div className={styles.overlay}>
+                                            <uploadForm.Subscribe 
+                                                selector={s => s.values.percentComplete}
+                                                children={percentComplete => {
+                                                    return (
+                                                        <Spinner size="tiny" label={t('uploading... {{percent}}', { percent: percentageFormat.current.format(percentComplete) })} />
+                                                    );
+                                                }}
+                                            />
+                                        </div>}     
+                                    </>)}
+                                </Field>
                             );
-                            
                         }}
                     />
                 );

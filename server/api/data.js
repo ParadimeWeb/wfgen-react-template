@@ -1,5 +1,5 @@
 export const initData = {
-    "Locale":"fr-CA",
+    "Locale":"en-US",
     "TimeZoneInfo": {
         "Name":"(GMT-08:00) Pacific Time (US and Canada)",
         "UTCOffset":-480

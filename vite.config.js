@@ -4,8 +4,8 @@ import viteReact from "@vitejs/plugin-react";
 
 export const config = {
   env: "DEV",
-  // url: "http://localhost",
-  url: "http://localhost:5173",
+  url: "http://localhost",
+  // url: "http://localhost:5173",
   process: "FLUENTUI_TEMPLATE",
   processVersion: 1,
   sourceMap: true,

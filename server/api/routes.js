@@ -85,7 +85,6 @@ router.post("/Default.aspx", async (req, res) => {
             await new Promise((resolve) => setTimeout(resolve, 2000));
             const mode = body.mode;
             const field = body.field;
-            const urlParams = new URLSearchParams();
             if (mode === 'zip') {
                 json = files.map((f, i) => {
                     return {
@@ -100,6 +99,7 @@ router.post("/Default.aspx", async (req, res) => {
                 const Key = Array.isArray(field) ? field[i] : field;
                 return {
                     Key,
+                    // Error: 'File name, {{name}}, is too long. Try renaming it.',
                     Path: `upload\\${Key}\\${f.originalname}`,
                     Name: f.originalname
                 };

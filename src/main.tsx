@@ -30,7 +30,7 @@ const rootRoute = createRootRouteWithContext<{
     loader: async ({ context: { queryClient, i18n } }) => {
         const { locale } = await queryClient.ensureQueryData(initQueryOptions);
         const languageCode = locale.substring(0, 2);
-        if (!i18n.language.startsWith('en')) {
+        if (!locale.startsWith('en')) {
             await import(`./i18n/locales/${languageCode}/libraries.ts`);
             dayjs.locale(languageCode);
         }

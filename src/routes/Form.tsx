@@ -1,4 +1,4 @@
-import { makeStyles, Option, Radio, TagGroup } from "@fluentui/react-components";
+import { makeStyles, Option, Radio } from "@fluentui/react-components";
 import { styleHelpers } from "../styles";
 import { FormFooter } from "../components/Form/Footer";
 import { employeesQueryOptions } from "../queryOptions";
@@ -9,7 +9,6 @@ import { FormContent } from "../components/Form/Content";
 import { type } from "arktype";
 import { csvToSet, setToCsv } from "../utils";
 import type { Table1 } from "../types";
-import { FileTag } from "../components/FormFields/FileField/FileTag";
 
 const useStyles = makeStyles({
     row: styleHelpers.row(),
@@ -104,17 +103,18 @@ export function Form() {
                         )}
                     />
                 </div>
-                {/* <div className={styles.row}>
+                <div className={styles.row}>
                     <form.AppField 
-                        name="Table1[0].File1"
+                        name="Files"
                         validators={{
                             onSubmit: ({ value }) => {
-                                const file = value as string | null;
-                                const fu = new URLSearchParams(file ?? '');
-                                return fu.has('Name') ? undefined : ['is required', 'File1'];
+                                console.log('onSubmit', value);
+                                return value.find(f => f.Field === 'File2') ? undefined : 'Required File2';
                             }
                         }}
-                        children={field => <field.FileField otherFields={['File2']} />}
+                        children={field => {
+                            return <field.FileField fields={['File1', 'File2']} />
+                        }}
                     />
                     <form.AppField 
                         name="Table1[0].Document"
@@ -141,21 +141,9 @@ export function Form() {
                             </field.RadioGroup>
                         }
                     />
-                </div> */}
+                </div>
                 <div className={styles.row}>
-                    <form.AppField 
-                        name="Files"
-                        mode="array"
-                        validators={{
-                            onSubmit: ({ value }) => {
-                                console.log('onSubmit', value);
-                                return value.find(f => f.Field === 'File2') ? undefined : 'Required File2';
-                            }
-                        }}
-                        children={field => {
-                            return <field.FileField fields={['File1', 'File2']} />
-                        }}
-                    />
+                    
                 </div>
             </FormContent>
             <FormFooter />
