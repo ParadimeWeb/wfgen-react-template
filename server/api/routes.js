@@ -87,21 +87,22 @@ router.post("/Default.aspx", async (req, res) => {
             const field = body.field;
             const urlParams = new URLSearchParams();
             if (mode === 'zip') {
-                files.forEach((f, i) => {
-                    urlParams.append('Key', `Zip${i}`);
-                    urlParams.append('Path', `upload\\${field}\\${f.originalname}`);
-                    urlParams.append('Name', f.originalname);
+                json = files.map((f, i) => {
+                    return {
+                        Key: `Zip${i}`,
+                        Path: `upload\\${field}\\${f.originalname}`,
+                        Name: f.originalname
+                    };
                 });
-                json = [urlParams.toString()];
                 break;
             }
             json = files.map((f, i) => {
-                const Key = field[i];
-                return new URLSearchParams({
+                const Key = Array.isArray(field) ? field[i] : field;
+                return {
                     Key,
                     Path: `upload\\${Key}\\${f.originalname}`,
                     Name: f.originalname
-                }).toString();
+                };
             });
             break;
         case "ASYNC_MISSING_KEY":

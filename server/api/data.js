@@ -12,11 +12,10 @@ export const initData = {
             "StartDate":null,
             "FirstName":"Gabriel",
             "EndDate":"2023-07-14T00:00:00Z",
-            "File4":"Key=File4",
-            "File3":"Key=File3",
+            "Document":"Key=Document",
             "File2":"Key=File2&Path=file%5CFile2%5CRE_+D%26B+APPROVAL+SANGSHIN+ELECOM+RE_+%5BEXTERNAL%5D+FW_+RFMW+Quote+913581%2C+CMC+Electronics%2C+Inc+Reference_+%5BSensitive+Information%5D.pdf&Name=RE_+D%26B+APPROVAL+SANGSHIN+ELECOM+RE_+%5BEXTERNAL%5D+FW_+RFMW+Quote+913581%2C+CMC+Electronics%2C+Inc+Reference_+%5BSensitive+Information%5D.pdf",
             "File1":"Key=File1&Path=file%5CSome+Cool+File.pdf&Name=Some+Cool+File.pdf",
-            "ZipFile": "Key=Zip0&Path=file%5CZipFile%5CSome+Cool+File.pdf&Name=Some+Cool+File.pdf&Key=Zip1&Path=file%5CZipFile%5CTesting.pdf&Name=Testing.pdf",
+            "Attachments": "Key=Zip0&Path=file%5CZipFile%5CSome+Cool+File.pdf&Name=Some+Cool+File.pdf&Key=Zip1&Path=file%5CZipFile%5CTesting.pdf&Name=Testing.pdf",
             "Checkbox":"Y",
             "Toggle":"Y",
             "Fruits":"Orange",
@@ -36,6 +35,14 @@ export const initData = {
             "FORM_FIELDS_REQUIRED":"LastName,COMMENTS,APPROVE_COMMENTS,REJECT_COMMENTS,File3",
             "FORM_VALIDATORS": "{ \"Table1\": [{\"FirstName\": \"string >= 3 & string < 10\",\"LastName\": \"string > 0\",\"Amount\": \"number\"}]}"
         }],
+        "Files": [
+            {
+                Field: "File1",
+            },
+            {
+                Field: "File2"
+            }
+        ],
         "__Comments": [
             {
                 "Type":"REJECTION",
