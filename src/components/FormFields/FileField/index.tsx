@@ -10,6 +10,7 @@ import { csvToSet, downloadFile, post } from "../../../utils";
 import { useWfgFormContext } from "../../../hooks/useWfgFormContext";
 import { useFieldContext } from "../../../hooks/formContext";
 import type { DataRow } from "../../../types";
+import { ZipFileCard } from "./ZipFileCard";
 
 const useStyles = makeStyles({
     tagGroup: {
@@ -113,35 +114,37 @@ function PrintView(props: Omit<FileFieldProps, 'mode'> & { files: [string, URLSe
     } = props;
     const styles = useStyles();
     const { t } = useTranslation();
-    const tagGroup = (
-        <TagGroup className={styles.tagGroup}>
-            {files.map(([_, fu]) => {
-                const key = fu.get('Key')!;
-                const fileName = fu.get('Name')!;
-                const filePath = fu.get('Path')!;
-                return (
-                    <FileTag 
-                        key={`fileTag_${key}`}
-                        maxFileNameLength={maxFileNameLength}
-                        fileName={fileName}
-                        value={key} 
-                        size={tagSize} 
-                        onClick={() => { downloadFile(key, filePath); }}
-                    />
-                );
-            })}
-        </TagGroup>
-    );
+    const field = useFieldContext();
 
     return (
-        <Field label={t('File')} {...printFieldProps}>
-            {files.length > 0 ? tagGroup : <Text>{t('No file')}</Text>}
+        <Field label={t(field.name)} {...printFieldProps}>
+            {files.length > 0 ? 
+            <TagGroup className={styles.tagGroup}>
+                {files.map(([_, fu]) => {
+                    const key = fu.get('Key')!;
+                    const fileName = fu.get('Name')!;
+                    const filePath = fu.get('Path')!;
+                    return (
+                        <FileTag 
+                            key={`fileTag_${key}`}
+                            maxFileNameLength={maxFileNameLength}
+                            fileName={fileName}
+                            value={key} 
+                            size={tagSize} 
+                            onClick={() => { downloadFile(key, filePath); }}
+                        />
+                    );
+                })}
+            </TagGroup> : 
+            <Text>{t('No file')}</Text>}
         </Field>
     );
 }
-function ReadonlyView(props: Omit<FileFieldProps, 'mode'> & { files: [string, URLSearchParams][] }) {
+function ReadonlyView(props: Omit<FileFieldProps, 'mode'> & { mode: 'field' | 'fields' | 'zip', files: [string, URLSearchParams][] }) {
     const {
         readonlyFieldProps = {},
+        mode,
+        fields = [],
         files,
         tagSize,
         maxFileNameLength = 32
@@ -149,34 +152,8 @@ function ReadonlyView(props: Omit<FileFieldProps, 'mode'> & { files: [string, UR
     const styles = useStyles();
     const { t } = useTranslation();
     const { isArchive } = useFormInitQuery();
-    const field = useFieldContext<string>();
+    const field = useFieldContext();
     const { form } = useWfgFormContext();
-    const tagGroup = (
-        <TagGroup className={styles.tagGroup}>
-            {files.map(([_, fu]) => {
-                const key = fu.get('Key')!;
-                const fileName = fu.get('Name')!;
-                const filePath = fu.get('Path')!;
-                return (
-                    <FileTag 
-                        key={`fileTag_${key}`}
-                        maxFileNameLength={maxFileNameLength}
-                        fileName={fileName}
-                        value={key} 
-                        size={tagSize} 
-                        onClick={() => {
-                            if (isArchive) {
-                                window.open(filePath);
-                            }
-                            else {
-                                downloadFile(key, filePath);
-                            }
-                        }}
-                    />
-                );
-            })}
-        </TagGroup>
-    );
 
     return (
         <form.Subscribe 
@@ -187,10 +164,37 @@ function ReadonlyView(props: Omit<FileFieldProps, 'mode'> & { files: [string, UR
                 return (
                     <Field
                         required={required}
-                        label={t('File')} 
+                        label={t(field.name)} 
                         {...readonlyFieldProps}
                     >
-                        {files.length > 0 ? tagGroup : <Text>{t('No file')}</Text>}
+                        {files.length > 0 ? 
+                        isArchive && mode === 'zip' ?
+                        <ZipFileCard field={fields[0]} /> :
+                        <TagGroup className={styles.tagGroup}>
+                            {files.map(([_, fu]) => {
+                                const key = fu.get('Key')!;
+                                const fileName = fu.get('Name')!;
+                                const filePath = fu.get('Path')!;
+                                return (
+                                    <FileTag 
+                                        key={`fileTag_${key}`}
+                                        maxFileNameLength={maxFileNameLength}
+                                        fileName={fileName}
+                                        value={key} 
+                                        size={tagSize} 
+                                        onClick={() => {
+                                            if (isArchive) {
+                                                window.open(filePath);
+                                            }
+                                            else {
+                                                downloadFile(key, filePath);
+                                            }
+                                        }}
+                                    />
+                                );
+                            })}
+                        </TagGroup> : 
+                        <Text>{t('No file')}</Text>}
                     </Field>
                 );
             }}
@@ -387,7 +391,6 @@ function View(props: Omit<FileFieldProps, 'mode'> & { mode: 'field' | 'fields' |
                                         >
                                             {files.map(([_, fu]) => {
                                                 const names = fu.getAll('Name');
-                                                if (names.length < 1) return null;
                                                 const paths = fu.getAll('Path');
                                                 return fu.getAll('Key').map((key, i) => {
                                                     return (
@@ -471,5 +474,5 @@ export default (props: FileFieldProps) => {
     const files = mode === 'fields' ? Array.from(values) : values.get(shortField)!.getAll('Name').length > 0 ? Array.from(values) : [];
     const FORM_FIELDS_READONLY = useStore(form.store, s => s.values.Table1[0].FORM_FIELDS_READONLY ?? '');
     const readonlyFields = csvToSet(FORM_FIELDS_READONLY);
-    return isPrintView ? <PrintView {...props} files={files} /> : isArchive || readonlyFields.has(field.name.replace('Table1[0].', '')) ? <ReadonlyView {...props} files={files} /> : <View {...props} fields={fields} mode={mode} values={values} files={files} />;
+    return isPrintView ? <PrintView {...props} files={files} /> : isArchive || readonlyFields.has(field.name.replace('Table1[0].', '')) ? <ReadonlyView {...props} fields={fields} mode={mode} files={files} /> : <View {...props} fields={fields} mode={mode} values={values} files={files} />;
 };

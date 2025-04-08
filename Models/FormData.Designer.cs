@@ -367,6 +367,8 @@ namespace FluentUITemplate.Models {
             
             private global::System.Data.DataColumn columnAttachments;
             
+            private global::System.Data.DataColumn columnAttachments2;
+            
             [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
             [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Design.TypedDataSetGenerator", "17.0.0.0")]
             public Table1DataTable() {
@@ -474,6 +476,14 @@ namespace FluentUITemplate.Models {
             
             [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
             [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Design.TypedDataSetGenerator", "17.0.0.0")]
+            public global::System.Data.DataColumn Attachments2Column {
+                get {
+                    return this.columnAttachments2;
+                }
+            }
+            
+            [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+            [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Design.TypedDataSetGenerator", "17.0.0.0")]
             [global::System.ComponentModel.Browsable(false)]
             public int Count {
                 get {
@@ -509,7 +519,7 @@ namespace FluentUITemplate.Models {
             
             [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
             [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Design.TypedDataSetGenerator", "17.0.0.0")]
-            public Table1Row AddTable1Row(string FirstName, string LastName, decimal Amount, System.DateTime StartDate, string Fruits, string File1, string File2, string Document, string Attachments) {
+            public Table1Row AddTable1Row(string FirstName, string LastName, decimal Amount, System.DateTime StartDate, string Fruits, string File1, string File2, string Document, string Attachments, string Attachments2) {
                 Table1Row rowTable1Row = ((Table1Row)(this.NewRow()));
                 object[] columnValuesArray = new object[] {
                         FirstName,
@@ -520,7 +530,8 @@ namespace FluentUITemplate.Models {
                         File1,
                         File2,
                         Document,
-                        Attachments};
+                        Attachments,
+                        Attachments2};
                 rowTable1Row.ItemArray = columnValuesArray;
                 this.Rows.Add(rowTable1Row);
                 return rowTable1Row;
@@ -552,6 +563,7 @@ namespace FluentUITemplate.Models {
                 this.columnFile2 = base.Columns["File2"];
                 this.columnDocument = base.Columns["Document"];
                 this.columnAttachments = base.Columns["Attachments"];
+                this.columnAttachments2 = base.Columns["Attachments2"];
             }
             
             [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
@@ -575,6 +587,8 @@ namespace FluentUITemplate.Models {
                 base.Columns.Add(this.columnDocument);
                 this.columnAttachments = new global::System.Data.DataColumn("Attachments", typeof(string), null, global::System.Data.MappingType.Element);
                 base.Columns.Add(this.columnAttachments);
+                this.columnAttachments2 = new global::System.Data.DataColumn("Attachments2", typeof(string), null, global::System.Data.MappingType.Element);
+                base.Columns.Add(this.columnAttachments2);
             }
             
             [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
@@ -1355,6 +1369,22 @@ namespace FluentUITemplate.Models {
             
             [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
             [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Design.TypedDataSetGenerator", "17.0.0.0")]
+            public string Attachments2 {
+                get {
+                    try {
+                        return ((string)(this[this.tableTable1.Attachments2Column]));
+                    }
+                    catch (global::System.InvalidCastException e) {
+                        throw new global::System.Data.StrongTypingException("The value for column \'Attachments2\' in table \'Table1\' is DBNull.", e);
+                    }
+                }
+                set {
+                    this[this.tableTable1.Attachments2Column] = value;
+                }
+            }
+            
+            [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+            [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Design.TypedDataSetGenerator", "17.0.0.0")]
             public bool IsFirstNameNull() {
                 return this.IsNull(this.tableTable1.FirstNameColumn);
             }
@@ -1459,6 +1489,18 @@ namespace FluentUITemplate.Models {
             [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Design.TypedDataSetGenerator", "17.0.0.0")]
             public void SetAttachmentsNull() {
                 this[this.tableTable1.AttachmentsColumn] = global::System.Convert.DBNull;
+            }
+            
+            [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+            [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Design.TypedDataSetGenerator", "17.0.0.0")]
+            public bool IsAttachments2Null() {
+                return this.IsNull(this.tableTable1.Attachments2Column);
+            }
+            
+            [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+            [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Design.TypedDataSetGenerator", "17.0.0.0")]
+            public void SetAttachments2Null() {
+                this[this.tableTable1.Attachments2Column] = global::System.Convert.DBNull;
             }
         }
         

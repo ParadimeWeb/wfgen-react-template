@@ -117,10 +117,10 @@ function View(props: DropdownProps) {
                             defaultSelectedOptions={selectedOptions}
                             onOptionSelect={(_, data) => {
                                 if (isDataRow) {
-                                    field.setValue(data.selectedOptions.length > 0 ? data.selectedOptions.map(v => options.find(opt => opt.Value === v)!) : []);
+                                    field.handleChange(data.selectedOptions.length > 0 ? data.selectedOptions.map(v => options.find(opt => opt.Value === v)!) : []);
                                     return;
                                 }
-                                field.setValue(data.selectedOptions.length > 0 ? data.selectedOptions.map(v => v).join(', ') : null);
+                                field.handleChange(data.selectedOptions.length > 0 ? data.selectedOptions.map(v => v).join(', ') : null);
                             }}
                             {...dropdownProps}
                         />

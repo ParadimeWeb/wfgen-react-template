@@ -17,6 +17,7 @@ namespace FluentUITemplate
         protected override string[] OnFormDataInit()
         {
             formData.CreateUserTable("AssignedTo");
+            formData.CreateFilesTable("Files");
             AddApproval("approver");
 
             return new string[] { formData.SomeOtherTable.TableName };

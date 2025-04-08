@@ -16,6 +16,7 @@ export const initData = {
             "File2":"Key=File2&Path=file%5CFile2%5CRE_+D%26B+APPROVAL+SANGSHIN+ELECOM+RE_+%5BEXTERNAL%5D+FW_+RFMW+Quote+913581%2C+CMC+Electronics%2C+Inc+Reference_+%5BSensitive+Information%5D.pdf&Name=RE_+D%26B+APPROVAL+SANGSHIN+ELECOM+RE_+%5BEXTERNAL%5D+FW_+RFMW+Quote+913581%2C+CMC+Electronics%2C+Inc+Reference_+%5BSensitive+Information%5D.pdf",
             "File1":"Key=File1&Path=file%5CSome+Cool+File.pdf&Name=Some+Cool+File.pdf",
             "Attachments": "Key=Zip0&Path=file%5CZipFile%5CSome+Cool+File.pdf&Name=Some+Cool+File.pdf&Key=Zip1&Path=file%5CZipFile%5CTesting.pdf&Name=Testing.pdf",
+            "Attachments2": "Key=Attachments2",
             "Checkbox":"Y",
             "Toggle":"Y",
             "Fruits":"Orange",

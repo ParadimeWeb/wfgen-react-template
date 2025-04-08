@@ -136,6 +136,7 @@ function View(props: ComboboxProps) {
                                 >
                                     <Combobox
                                         defaultValue={value}
+                                        defaultSelectedOptions={selectedOptions}
                                         onChange={(e) => {
                                             const value = e.target.value.trim();
                                             const matches = options.filter((opt) => t(opt.Text).toLowerCase().indexOf(value.toLowerCase()) === 0);
@@ -162,7 +163,7 @@ function View(props: ComboboxProps) {
             
                                             if (comboboxProps.multiselect) {
                                                 if (isDataRow) {
-                                                    field.setValue(
+                                                    field.handleChange(
                                                         data.selectedOptions.length > 0 ? data.selectedOptions.map(v => {
                                                             const selectedOption = options.find(opt => opt.Value === v);
                                                             return selectedOption ?? { Value: data.optionValue!, Text: data.optionText! };
@@ -170,15 +171,15 @@ function View(props: ComboboxProps) {
                                                         : []);
                                                     return;
                                                 }
-                                                field.setValue(data.selectedOptions.length > 0 ? data.selectedOptions.map(v => v).join(', ') : null);
+                                                field.handleChange(data.selectedOptions.length > 0 ? data.selectedOptions.map(v => v).join(', ') : null);
                                                 return;
                                             }
                                             if (isDataRow) {
                                                 const selectedOption = data.selectedOptions.length > 0 ? options.find(opt => opt.Value === data.optionValue) : null;
-                                                field.setValue(selectedOption !== null ? selectedOption ? [selectedOption] : [{ Value: data.optionValue!, Text: data.optionText! }] : []);
+                                                field.handleChange(selectedOption !== null ? selectedOption ? [selectedOption] : [{ Value: data.optionValue!, Text: data.optionText! }] : []);
                                                 return;
                                             }
-                                            field.setValue(data.optionValue ?? null);
+                                            field.handleChange(data.optionValue ?? null);
                                         }}
                                         {...comboboxProps}
                                     >

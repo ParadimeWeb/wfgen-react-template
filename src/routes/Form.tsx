@@ -133,6 +133,12 @@ export function Form() {
                         children={field => <field.FileField mode="zip" />}
                     />
                     <form.AppField 
+                        name="Table1[0].Attachments2"
+                        children={field => <field.FileField mode="zip" />}
+                    />
+                </div>
+                <div className={styles.row}>
+                    <form.AppField 
                         name="Table1[0].ChoiceGroup"
                         children={field => 
                             <field.RadioGroup>
@@ -141,9 +147,6 @@ export function Form() {
                             </field.RadioGroup>
                         }
                     />
-                </div>
-                <div className={styles.row}>
-                    
                 </div>
             </FormContent>
             <FormFooter />

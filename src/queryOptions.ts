@@ -29,9 +29,9 @@ export const initQueryOptions = queryOptions({
         }
         const { __Configuration: [configuration], __Assignee: [assignee], __CurrentUser: [currentUser], ...wfgFormData } = initData.WfgDataSet;
         const commands = {
-            'MAIN': new Set(wfgFormData.Table1[0].FORM_FIELDS_COMMANDS ? wfgFormData.Table1[0].FORM_FIELDS_COMMANDS.split(',').filter(o=>o) : []),
-            'FAR': new Set(wfgFormData.Table1[0].FORM_FIELDS_COMMANDS_FAR ? wfgFormData.Table1[0].FORM_FIELDS_COMMANDS_FAR.split(',').filter(o=>o) : []),
-            'MORE': new Set(wfgFormData.Table1[0].FORM_FIELDS_COMMANDS_MORE ? wfgFormData.Table1[0].FORM_FIELDS_COMMANDS_MORE.split(',').filter(o=>o) : [])
+            'MAIN': wfgFormData.Table1[0].FORM_FIELDS_COMMANDS ? wfgFormData.Table1[0].FORM_FIELDS_COMMANDS.split(',').filter(o=>o) : [],
+            'FAR': wfgFormData.Table1[0].FORM_FIELDS_COMMANDS_FAR ? wfgFormData.Table1[0].FORM_FIELDS_COMMANDS_FAR.split(',').filter(o=>o) : [],
+            'MORE': wfgFormData.Table1[0].FORM_FIELDS_COMMANDS_MORE ? wfgFormData.Table1[0].FORM_FIELDS_COMMANDS_MORE.split(',').filter(o=>o) : []
         };
         const numberFormat = new Intl.NumberFormat(initData.Locale);
         const numberParser = new NumberParser(initData.Locale);
@@ -48,7 +48,7 @@ export const initQueryOptions = queryOptions({
             rootUrl,
             graphQLUrl,
             delegatorUserId,
-            isArchive: commands.MAIN.has('ARCHIVE'),
+            isArchive: commands.MAIN.includes('ARCHIVE'),
             commands,
             locale: initData.Locale,
             timeZoneInfo: initData.TimeZoneInfo,
