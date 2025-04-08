@@ -140,7 +140,7 @@ function View(props: ComplexTagPickerProps) {
 													return true;
 												});
 												if (limit === 1) {
-													field.setValue([row!]);
+													field.handleChange([row!]);
 												}
 												else {
 													field.pushValue(row!);
@@ -151,7 +151,7 @@ function View(props: ComplexTagPickerProps) {
 													field.removeValue(0);
 												}
 												else {
-													field.setValue(field.state.value.filter((r) => r.UserName !== data.value));
+													field.handleChange(field.state.value.filter((r) => r.UserName !== data.value));
 												}
 											}
 											tagForm.setFieldValue("inputValue", "");
