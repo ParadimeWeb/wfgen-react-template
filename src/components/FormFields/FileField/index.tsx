@@ -237,8 +237,8 @@ function View(props: Omit<FileFieldProps, 'mode'> & { mode: 'field' | 'fields' |
         }
     });
     
-    async function upload(files: FileList | File[] | null) {
-        if (files === null || files.length < 1) {
+    async function upload(uploadFiles: FileList | File[] | null) {
+        if (uploadFiles === null || uploadFiles.length < 1) {
             return [];
         }
         const formData = new FormData();
@@ -246,7 +246,7 @@ function View(props: Omit<FileFieldProps, 'mode'> & { mode: 'field' | 'fields' |
 
         if (mode === 'fields') {
             const availableFields = fields.filter(f => !values.has(f));
-            if (files.length > availableFields.length) {
+            if (uploadFiles.length > availableFields.length) {
                 return [t('A maximum of {{count, number}} files can be uploaded. Delete some files to try again.', { count: fields.length })];
             }
             availableFields.forEach((f) => {
@@ -258,8 +258,8 @@ function View(props: Omit<FileFieldProps, 'mode'> & { mode: 'field' | 'fields' |
         }
 
         let contentLength = 0;
-        for (let i = 0; i < files.length; i++) { 
-            contentLength += files[0].size;
+        for (let i = 0; i < uploadFiles.length; i++) { 
+            contentLength += uploadFiles[0].size;
         }
         if (contentLength > maxAllowedContentLength) {
             const sizes = { bytes: t('bytes'), kiloBytes: t('kiloBytes'), megaBytes: t('megaBytes'), gigaBytes: t('gigaBytes') };
@@ -269,8 +269,8 @@ function View(props: Omit<FileFieldProps, 'mode'> & { mode: 'field' | 'fields' |
             })];
         }
 
-        for (let i = 0; i < files.length; i++) {
-            const file = files[i];
+        for (let i = 0; i < uploadFiles.length; i++) {
+            const file = uploadFiles[i];
             formData.append('file', file);
         }
         const errors: string[] = [];
@@ -289,6 +289,28 @@ function View(props: Omit<FileFieldProps, 'mode'> & { mode: 'field' | 'fields' |
                         form.setFieldValue(`Table1[0].${fuRes.Key}`, fu.toString());
                         field.pushValue({ Field: fuRes.Key });
                     });
+                    return;
+                }
+                if (mode === 'zip') {
+                    const fu = new URLSearchParams();
+                    const names = files[0][1].getAll('Name');
+                    const paths = files[0][1].getAll('Path');
+                    let i = 0;
+                    for (; i < names.length; i++) {
+                        fu.append('Key', `Zip${i}`);
+                        fu.append('Path', paths[i]);
+                        fu.append('Name', names[i]);
+                    }
+                    result.data.forEach((fuRes) => {
+                        if (fuRes.Error) {
+                            errors.push(t(fuRes.Error, { name: fuRes.Name }));
+                            return;
+                        }
+                        fu.append("Key", `Zip${i}`);
+                        fu.append("Path", fuRes.Path!);
+                        fu.append("Name", fuRes.Name);
+                    });
+                    field.handleChange(fu.toString());
                     return;
                 }
                 const fu = new URLSearchParams();

@@ -1,7 +1,7 @@
 import type { AvatarProps } from "@fluentui/react-components";
 import type { MutationFunction } from "@tanstack/react-query";
 import type { AxiosRequestConfig, AxiosResponse } from "axios";
-import type { ActionResult, WfgFormData } from "./types";
+import type { ActionResult, Directory, WfgFormData } from "./types";
 import axios from "axios";
 
 function createFormHiddenInput(id: string, value: string, form?: HTMLFormElement) {
@@ -31,9 +31,10 @@ function validateASPXWebForm() {
     }
 }
 
-export const directoryColors = new Map<string, AvatarProps["color"]>([
-    ["WORKFLOWGEN", "red"],
-    ["CENTRIC_BRANDS", "blue"]
+export const directoryColors = new Map<Directory, AvatarProps["color"]>([
+    ["WORKFLOWGEN", "dark-red"],
+    ["CENTRIC_BRANDS", "brand"],
+    ["CUSTOMERS", "dark-green"]
 ]);
 
 export function post<T>(action: string, { url, data, config, withViewState = true }: { url?: string, data?: FormData, config?: AxiosRequestConfig<FormData> | undefined, withViewState?: boolean } = {}) {

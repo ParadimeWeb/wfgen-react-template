@@ -92,7 +92,7 @@ export const ApprovalChatMessage = ({ approval }: { approval: Approval }) => {
     const { timeZoneInfo } = useFormInitQuery();
     const { form } = useWfgFormContext();
     const name = approval.ApprovedByName ?? approval.ApproverName ?? t('Unassigned');
-    const directory = approval.ApprovedByDirectory ?? approval.ApproverDirectory ?? '';
+    const directory = approval.ApprovedByDirectory ?? approval.ApproverDirectory ?? null;
 
     return (
         <form.Subscribe 
@@ -104,7 +104,7 @@ export const ApprovalChatMessage = ({ approval }: { approval: Approval }) => {
                     return (<>
                         <ChatMessage
                             body={{ className: mergeClasses(styles.chatMessage, styles.chatApprovalMessage) }}
-                            avatar={<Avatar name={name} color={directoryColors.get(directory)} />}
+                            avatar={<Avatar name={name} color={directory ? directoryColors.get(directory) : "neutral"} />}
                             author={name}
                             decorationLabel={{ 
                                 className: styles.chatApprovalDecorationLabel, 
@@ -122,7 +122,7 @@ export const ApprovalChatMessage = ({ approval }: { approval: Approval }) => {
                     return (<>
                         <ChatMessage
                             body={{ className: mergeClasses(styles.chatMessage, styles.chatRejectionMessage) }}
-                            avatar={<Avatar name={name} color={directoryColors.get(directory)} />}
+                            avatar={<Avatar name={name} color={directory ? directoryColors.get(directory) : "neutral"} />}
                             author={name}
                             decorationLabel={{ 
                                 className: styles.chatRejectionDecorationLabel, 
@@ -139,7 +139,7 @@ export const ApprovalChatMessage = ({ approval }: { approval: Approval }) => {
                 return (<>
                     <ChatMessage
                         body={{ className: mergeClasses(styles.chatMessage, styles.chatPendingMessage) }}
-                        avatar={<Avatar name={name} color={directoryColors.get(directory)} />}
+                        avatar={<Avatar name={name} color={directory ? directoryColors.get(directory) : "neutral"} />}
                         author={name}
                         decorationLabel={{
                             className: styles.chatPendingDecorationLabel, 

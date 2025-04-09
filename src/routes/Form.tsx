@@ -73,7 +73,7 @@ export function Form() {
                 <div className={styles.row}>
                     <form.AppField 
                         name="AssignedTo"
-                        children={field => <field.ComplexTagPicker queryOptions={employeesQueryOptions} />}
+                        children={field => <field.ComplexTagPicker limit={1} queryOptions={(query) => employeesQueryOptions({ query, directory: ['CENTRIC_BRANDS', 'CUSTOMERS'] })} />}
                     />
                 </div>
                 <div className={styles.row}>

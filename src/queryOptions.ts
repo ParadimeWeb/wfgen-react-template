@@ -1,5 +1,5 @@
 import { queryOptions, infiniteQueryOptions } from "@tanstack/react-query";
-import { type QueryResult, type WfgDataSet, WfgInitData } from "./types";
+import { type Directory, type QueryResult, type WfgDataSet, WfgInitData } from "./types";
 import { type } from "arktype";
 import { NumberParser, post } from "./utils";
 
@@ -62,14 +62,44 @@ export const initQueryOptions = queryOptions({
     staleTime: Infinity,
 });
 
-export const employeesQueryOptions = (query: string, pageSize = 40) =>
-    infiniteQueryOptions({
+type QueryOptions = {
+    query: string
+    pageSize?: number
+};
+type EmployeeQueryParams = QueryOptions & {
+    active?: 'Y' | 'N' | null
+    archive?: 'Y' | 'N' | null
+    directory?: Directory[]
+    extraAttributes?: string[]
+};
+export const employeesQueryOptions = (options: EmployeeQueryParams) => {
+    const {
+        query,
+        active = 'Y',
+        archive = 'N',
+        directory = [],
+        extraAttributes = [],
+        pageSize = 50
+    } = options;
+    return infiniteQueryOptions({
         queryKey: ["employees", query],
         queryFn: async ({ signal, queryKey, pageParam }) => {
             const data = new FormData();
             data.set("page", pageParam.toString());
             data.set("pageSize", pageSize.toString());
             data.set("query", queryKey[1] as string);
+            if (active !== null) {
+                data.set("active", active);
+            }
+            if (archive !== null) {
+                data.set("archive", archive);
+            }
+            if (directory.length > 0) {
+                data.set("directory", directory.join());
+            }
+            if (extraAttributes.length > 0) {
+                data.set("extraAttributes", extraAttributes.join());
+            }
             const res = await post<QueryResult>("ASYNC_GetUsers", {
                 data,
                 config: { signal },
@@ -84,4 +114,4 @@ export const employeesQueryOptions = (query: string, pageSize = 40) =>
         refetchOnMount: true,
         staleTime: 5 * 60 * 1000,
     });
-export type QueryOptionsWithQuery = typeof employeesQueryOptions;
+}

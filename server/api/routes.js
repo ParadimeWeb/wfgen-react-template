@@ -27,7 +27,7 @@ router.post("/Default.aspx", async (req, res) => {
         case "ASYNC_INIT":
             json = initData;
             break;
-        case "ASYNC_USERS":
+        case "ASYNC_GetUsers":
             const page = Number(body.page);
             const pageSize = Number(body.pageSize);
             const query = (body.query).toLowerCase();

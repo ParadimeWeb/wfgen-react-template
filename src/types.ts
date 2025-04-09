@@ -1,6 +1,8 @@
 import { type } from "arktype";
 import type { WfgForm, WfgPrintForm } from "./hooks/useWfgForm";
 
+const Directory = type("'WORKFLOWGEN' | 'CENTRIC_BRANDS' | 'CUSTOMERS'");
+export type Directory = typeof Directory.infer;
 const DataSet = type("Record<string, Record<string, string | number | boolean | null | undefined>[]>");
 const DataRow = type("Record<string, string | number | boolean | null | undefined>");
 export type DataRow = typeof DataRow.infer;
@@ -35,7 +37,7 @@ const Comment = DataRow.merge({
     Role: "null | string?",
     Author: "string",
     UserName: "string",
-    Directory: "string",
+    Directory,
     Created: "string.date.iso",
     ProcessInstId: "number.integer",
     ProcessName: "string",
@@ -53,12 +55,12 @@ const Approval = DataRow.merge({
     ApproverEmployeeNumber: "null | string?",
     ApproverName: "null | string?",
     ApproverEmail: "null | string.email?",
-    ApproverDirectory: "null | string?",
+    ApproverDirectory: Directory.or("null").optional(),
     ApprovedByUserName: "null | string?",
     ApprovedByEmployeeNumber: "null | string?",
     ApprovedByName: "null | string?",
     ApprovedByEmail: "null | string.email?",
-    ApprovedByDirectory: "null | string?",
+    ApprovedByDirectory: Directory.or("null").optional(),
     Approved: "null | string.date.iso?",
 });
 export type Approval = typeof Approval.infer;
@@ -71,7 +73,7 @@ const User = DataRow.merge({
     LastName: "null | string",
     Email: "null | string.email",
     JobTitle: "null | string",
-    Directory: "null | string",
+    Directory: Directory.or("null"),
     Locale: "null | 0 < string < 6",
     TimeZoneId: "null | number.integer",
     IsActive: "boolean",

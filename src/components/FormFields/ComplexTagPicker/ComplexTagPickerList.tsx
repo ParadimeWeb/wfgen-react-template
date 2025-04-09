@@ -6,9 +6,9 @@ import { useTranslation } from "react-i18next";
 import type { ComplexTagPickerListProps } from "./types";
 
 export const ComplexTagPickerList = (props: ComplexTagPickerListProps) => {
-    const { rows, pageSize = 40, localQuery = false, queryOptions, query, TagPickerOptionComponent = UserTagPickerOption, filterRows = filterUserRows } = props;
+    const { rows, localQuery = false, queryOptions, query, TagPickerOptionComponent = UserTagPickerOption, filterRows = filterUserRows } = props;
     const { t } = useTranslation();
-    const { data, isLoading, hasNextPage, fetchNextPage, isFetchingNextPage } = useInfiniteQuery(queryOptions(localQuery ? '' : query, pageSize));
+    const { data, isLoading, hasNextPage, fetchNextPage, isFetchingNextPage } = useInfiniteQuery(queryOptions(localQuery ? '' : query));
     const total = data?.pages[0].Total ?? 0;
     const allRows = data?.pages.flatMap(data => data.Rows) ?? [];
     const filteredRows = filterRows(allRows, query);

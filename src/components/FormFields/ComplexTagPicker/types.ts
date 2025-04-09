@@ -1,7 +1,9 @@
 import type { FieldProps, TagPickerProps, TagProps } from "@fluentui/react-components";
-import type { DataRow } from "../../../types";
-import type { QueryOptionsWithQuery } from "../../../queryOptions";
+import type { DataRow, QueryResult } from "../../../types";
 import type { ComponentType } from "react";
+import type { InfiniteData, infiniteQueryOptions } from "@tanstack/react-query";
+
+type QueryOptions = ReturnType<typeof infiniteQueryOptions<QueryResult, Error, InfiniteData<QueryResult>, string[], number>>;
 
 export type RowTagProps = {
     row: DataRow
@@ -17,8 +19,7 @@ export type ComplexTagPickerProps = {
     printTagProps?: TagProps
     readonlyFieldProps?: FieldProps
     readonlyTagProps?: TagProps
-    queryOptions: QueryOptionsWithQuery
-    pageSize?: number
+    queryOptions: (query: string) => QueryOptions
     localQuery?: boolean
     limit?: number
     TagComponent?: ComponentType<Omit<RowTagProps, 'rows'>>
@@ -27,8 +28,7 @@ export type ComplexTagPickerProps = {
 };
 
 export type ComplexTagPickerListProps = {
-    queryOptions: QueryOptionsWithQuery
-    pageSize?: number
+    queryOptions: (query: string) => QueryOptions
     localQuery?: boolean
     rows: DataRow[]
 	query: string

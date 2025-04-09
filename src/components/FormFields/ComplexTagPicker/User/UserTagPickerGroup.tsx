@@ -1,4 +1,4 @@
-import { Avatar, Tag, TagPickerGroup} from "@fluentui/react-components";
+import { Avatar, Tag, TagPickerGroup } from "@fluentui/react-components";
 import type { User } from "../../../../types";
 import { directoryColors } from "../../../../utils";
 import type { RowTagProps } from "../types";
