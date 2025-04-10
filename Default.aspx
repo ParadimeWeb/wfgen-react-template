@@ -13,7 +13,7 @@
       function __fallbackScript(e) { window.location.replace(e.target.src); }
     </script>
     <title>WorkflowGen React</title>
-    <script type="module" crossorigin="use-credentials" src="http://localhost/wfgen/wfapps/webforms/FLUENTUI_TEMPLATE/V1/build/assets/index-Cd-no0MH.js"></script>
+    <script type="module" crossorigin="use-credentials" src="http://localhost/wfgen/wfapps/webforms/FLUENTUI_TEMPLATE/V1/build/assets/index-BTakXTv0.js"></script>
   </head>
   <style>
     :where(body) {

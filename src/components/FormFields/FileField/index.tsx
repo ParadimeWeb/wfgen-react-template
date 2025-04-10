@@ -1,12 +1,11 @@
-import { Text, Button, Field, makeStyles, mergeClasses, Spinner, TagGroup, tokens, typographyStyles, type FieldProps, type TagProps } from "@fluentui/react-components";
+import { Text, Button, Field, makeStyles, mergeClasses, TagGroup, tokens, typographyStyles, type FieldProps, type TagProps } from "@fluentui/react-components";
 import { useRef } from "react";
 import { useFormInitQuery } from "../../../hooks/useFormInitQuery";
-import { useMutation } from "@tanstack/react-query";
-import { FileTag } from "./FileTag";
+import { FileTag, type TFile } from "./FileTag";
 import { useTranslation } from "react-i18next";
 import { ArrowUploadRegular } from "@fluentui/react-icons";
 import { useForm, useStore } from "@tanstack/react-form";
-import { csvToSet, downloadFile, post } from "../../../utils";
+import { csvToSet, downloadFile } from "../../../utils";
 import { useWfgFormContext } from "../../../hooks/useWfgFormContext";
 import { useFieldContext } from "../../../hooks/formContext";
 import type { DataRow } from "../../../types";
@@ -83,12 +82,6 @@ function readableBytes(bytes: number, locale: string) {
     return `${numberFormat.format(readableNumber)} ${sizes[i]}`;
 }
 
-type FileUploadResult = {
-    Key: string
-    Path?: string
-    Name: string
-    Error?: string
-};
 type FileFieldProps = {
     fieldProps?: FieldProps
     printFieldProps?: FieldProps
@@ -121,17 +114,17 @@ function PrintView(props: Omit<FileFieldProps, 'mode'> & { files: [string, URLSe
             {files.length > 0 ? 
             <TagGroup className={styles.tagGroup}>
                 {files.map(([_, fu]) => {
-                    const key = fu.get('Key')!;
+                    const Key = fu.get('Key')!;
                     const fileName = fu.get('Name')!;
                     const filePath = fu.get('Path')!;
                     return (
                         <FileTag 
-                            key={`fileTag_${key}`}
+                            key={`fileTag_${Key}`}
                             maxFileNameLength={maxFileNameLength}
-                            fileName={fileName}
-                            value={key} 
+                            file={{ Key, Name: fileName }}
+                            value={Key} 
                             size={tagSize} 
-                            onClick={() => { downloadFile(key, filePath); }}
+                            onClick={() => { downloadFile(Key, filePath); }}
                         />
                     );
                 })}
@@ -172,22 +165,22 @@ function ReadonlyView(props: Omit<FileFieldProps, 'mode'> & { mode: 'field' | 'f
                         <ZipFileCard field={fields[0]} /> :
                         <TagGroup className={styles.tagGroup}>
                             {files.map(([_, fu]) => {
-                                const key = fu.get('Key')!;
+                                const Key = fu.get('Key')!;
                                 const fileName = fu.get('Name')!;
                                 const filePath = fu.get('Path')!;
                                 return (
                                     <FileTag 
-                                        key={`fileTag_${key}`}
+                                        key={`fileTag_${Key}`}
                                         maxFileNameLength={maxFileNameLength}
-                                        fileName={fileName}
-                                        value={key} 
+                                        file={{ Key, Name: fileName }}
+                                        value={Key} 
                                         size={tagSize} 
                                         onClick={() => {
                                             if (isArchive) {
                                                 window.open(filePath);
                                             }
                                             else {
-                                                downloadFile(key, filePath);
+                                                downloadFile(Key, filePath);
                                             }
                                         }}
                                     />
@@ -221,116 +214,51 @@ function View(props: Omit<FileFieldProps, 'mode'> & { mode: 'field' | 'fields' |
     const fileInput = useRef<HTMLInputElement | null>(null);
     const uploadForm = useForm({
         defaultValues: {
-            percentComplete: 0,
             isDragOver: false,
-            files: null as FileList | File[] | null
-        }
-    });
-    const percentageFormat = useRef(new Intl.NumberFormat(locale, { style: 'percent', minimumFractionDigits: 2, maximumFractionDigits: 2 }));
-    const { mutateAsync, isPending } = useMutation({
-        mutationFn: (formData: FormData) => {
-            return post<FileUploadResult[]>('ASYNC_UPLOAD', { data: formData, config: {
-                onUploadProgress: (progressEvent) => {
-                    uploadForm.setFieldValue('percentComplete', progressEvent.loaded / (progressEvent.total ?? 1));
-                }
-            }})
-        }
-    });
-    
-    async function upload(uploadFiles: FileList | File[] | null) {
-        if (uploadFiles === null || uploadFiles.length < 1) {
-            return [];
-        }
-        const formData = new FormData();
-        formData.set('mode', mode);
-
-        if (mode === 'fields') {
-            const availableFields = fields.filter(f => !values.has(f));
-            if (uploadFiles.length > availableFields.length) {
-                return [t('A maximum of {{count, number}} files can be uploaded. Delete some files to try again.', { count: fields.length })];
-            }
-            availableFields.forEach((f) => {
-                formData.append('field', f);
-            });
-        }
-        else {
-            formData.set('field', fields[0]);
-        }
-
-        let contentLength = 0;
-        for (let i = 0; i < uploadFiles.length; i++) { 
-            contentLength += uploadFiles[0].size;
-        }
-        if (contentLength > maxAllowedContentLength) {
-            const sizes = { bytes: t('bytes'), kiloBytes: t('kiloBytes'), megaBytes: t('megaBytes'), gigaBytes: t('gigaBytes') };
-            return [t('A maximum content size of {{max}} can be uploaded at one time. Failed to upload {{actual}}.', { 
-                max: t(readableBytes(maxAllowedContentLength, locale), sizes),
-                actual: t(readableBytes(contentLength, locale), sizes)
-            })];
-        }
-
-        for (let i = 0; i < uploadFiles.length; i++) {
-            const file = uploadFiles[i];
-            formData.append('file', file);
-        }
-        const errors: string[] = [];
-        await mutateAsync(formData, {
-            onSuccess: (result) => {
-                if (mode === 'fields') {
-                    result.data.forEach((fuRes) => {
-                        if (fuRes.Error) {
-                            errors.push(t(fuRes.Error, { name: fuRes.Name }));
-                            return;
-                        }
-                        const fu = new URLSearchParams();
-                        fu.set("Key", fuRes.Key);
-                        fu.set("Name", fuRes.Name);
-                        fu.set("Path", fuRes.Path!);
-                        form.setFieldValue(`Table1[0].${fuRes.Key}`, fu.toString());
-                        field.pushValue({ Field: fuRes.Key });
-                    });
-                    return;
-                }
-                if (mode === 'zip') {
+            files: [] as TFile[]
+        },
+        onSubmit: ({ value: { files: fileUploads } }) => {
+            if (mode === 'fields') {
+                fileUploads.forEach((fuRes) => {
                     const fu = new URLSearchParams();
-                    const names = files[0][1].getAll('Name');
-                    const paths = files[0][1].getAll('Path');
-                    let i = 0;
-                    for (; i < names.length; i++) {
-                        fu.append('Key', `Zip${i}`);
-                        fu.append('Path', paths[i]);
-                        fu.append('Name', names[i]);
-                    }
-                    result.data.forEach((fuRes) => {
-                        if (fuRes.Error) {
-                            errors.push(t(fuRes.Error, { name: fuRes.Name }));
-                            return;
-                        }
-                        fu.append("Key", `Zip${i}`);
-                        fu.append("Path", fuRes.Path!);
-                        fu.append("Name", fuRes.Name);
-                    });
-                    field.handleChange(fu.toString());
-                    return;
-                }
+                    fu.set("Key", fuRes.Key);
+                    fu.set("Name", fuRes.Name);
+                    fu.set("Path", fuRes.Path!);
+                    form.setFieldValue(`Table1[0].${fuRes.Key}`, fu.toString());
+                    field.pushValue({ Field: fuRes.Key });
+                });
+                uploadForm.reset();
+                return;
+            }
+            if (mode === 'zip') {
                 const fu = new URLSearchParams();
-                result.data.forEach((fuRes) => {
-                    if (fuRes.Error) {
-                        errors.push(t(fuRes.Error, { name: fuRes.Name }));
-                        return;
-                    }
-                    fu.append("Key", fuRes.Key);
+                const names = files[0][1].getAll('Name');
+                const paths = files[0][1].getAll('Path');
+                let i = 0;
+                for (; i < names.length; i++) {
+                    fu.append('Key', `Zip${i}`);
+                    fu.append('Path', paths[i]);
+                    fu.append('Name', names[i]);
+                }
+                fileUploads.forEach((fuRes, index) => {
+                    fu.append("Key", `Zip${i + index}`);
                     fu.append("Path", fuRes.Path!);
                     fu.append("Name", fuRes.Name);
                 });
+                console.log(fu.toString());
                 field.handleChange(fu.toString());
-            },
-            onError: (error) => {
-                errors.push(error.message);
+                uploadForm.reset();
+                return;
             }
-        });
-        return errors;
-    }
+            const fu = new URLSearchParams();
+            fu.set("Key", fileUploads[0].Key);
+            fu.set("Path", fileUploads[0].Path!);
+            fu.set("Name", fileUploads[0].Name);
+            field.handleChange(fu.toString());
+            uploadForm.reset();
+        }
+    });
+    const availableFields = mode === 'fields' ? fields.filter(f => !values.has(f)) : [];
 
     return (
         <form.Subscribe 
@@ -342,15 +270,48 @@ function View(props: Omit<FileFieldProps, 'mode'> & { mode: 'field' | 'fields' |
                     <uploadForm.Field 
                         name="files"
                         validators={{
-                            onChangeAsync: async ({ value: files }) => {
-                                const result = await upload(files);
+                            onChange: ({ value }) => {
+                                console.log('onChange', value);
+                                const errorFiles = value.filter(f => f.Error !== undefined);
+                                if (errorFiles.length > 0) {
+                                    return errorFiles.map(f => t(f.Error!, { name: f.Name }));
+                                }
+
+                                const uploadFiles = value.filter(f => { return f.File !== undefined; });
+                                if (uploadFiles.length > 0) {
+                                    if (mode === 'fields' && uploadFiles.length > availableFields.length) {
+                                        return [t('A maximum of {{count, number}} files can be uploaded. Delete some files to try again.', { count: fields.length })];
+                                    }
+                            
+                                    let contentLength = 0;
+                                    for (let i = 0; i < uploadFiles.length; i++) { 
+                                        contentLength += uploadFiles[0].File!.size;
+                                    }
+                                    if (contentLength > maxAllowedContentLength) {
+                                        const sizes = { bytes: t('bytes'), kiloBytes: t('kiloBytes'), megaBytes: t('megaBytes'), gigaBytes: t('gigaBytes') };
+                                        return [t('A maximum content size of {{max}} can be uploaded at one time. Failed to upload {{actual}}.', { 
+                                            max: t(readableBytes(maxAllowedContentLength, locale), sizes),
+                                            actual: t(readableBytes(contentLength, locale), sizes)
+                                        })];
+                                    }
+                                    return undefined;
+                                }
+
                                 if (fileInput?.current) {
                                     fileInput.current.value = '';
                                 }
-                                return result;
+                                uploadForm.handleSubmit();
+                                return undefined;
                             }
                         }}
                         children={filesField => {
+                            const fileTags = files.flatMap(([_, fu]) => { 
+                                const names = fu.getAll('Name');
+                                const paths = fu.getAll('Path');
+                                return fu.getAll('Key').map((Key, i) => ({ Key, Name: names[i], Path: paths[i] } as TFile));
+                            });
+                            const filesToUpload = filesField.state.value.filter(f => f.File !== undefined);
+                            fileTags.push(...filesField.state.value);
                             return (
                                 <Field
                                     label={t(field.name)}
@@ -368,7 +329,10 @@ function View(props: Omit<FileFieldProps, 'mode'> & { mode: 'field' | 'fields' |
                                             className={styles.fileInput}
                                             onChange={(ev) => {
                                                 if (ev.target.files !== null) {
-                                                    filesField.handleChange(ev.target.files);
+                                                    filesField.handleChange([...ev.target.files].map((f, i) => {
+                                                        //const Key = mode === 'zip' ? `Zip${i + fileTagsCount}` : mode === 'fields' ? availableFields[i] : fields[0];
+                                                        return { Key: `Upload${i}`, Name: f.name, File: f };
+                                                    }));
                                                 }
                                             }}
                                         />
@@ -384,7 +348,7 @@ function View(props: Omit<FileFieldProps, 'mode'> & { mode: 'field' | 'fields' |
                                                         fileInput.current.click();
                                                     }
                                                 }}
-                                                disabled={disabled}
+                                                disabled={disabled || filesToUpload.length > 0}
                                             >
                                                 {t('Select files or drag them here', { count: mode === 'zip' ? 2 : fields.length })}
                                             </Button>
@@ -411,25 +375,29 @@ function View(props: Omit<FileFieldProps, 'mode'> & { mode: 'field' | 'fields' |
                                                 field.handleChange(`Key=${data.value}`);
                                             }}
                                         >
-                                            {files.map(([_, fu]) => {
-                                                const names = fu.getAll('Name');
-                                                const paths = fu.getAll('Path');
-                                                return fu.getAll('Key').map((key, i) => {
-                                                    return (
-                                                        <FileTag
-                                                            key={`fileTag_${key}`}
-                                                            maxFileNameLength={maxFileNameLength}
-                                                            fileName={names[i]}
-                                                            value={key} 
-                                                            size={tagSize} 
-                                                            disabled={disabled}
-                                                            hasSecondaryAction 
-                                                            onClick={() => {
-                                                                downloadFile(key, paths[i]);
-                                                            }}
-                                                        />
-                                                    );
-                                                });
+                                            {fileTags.map((f, i) => {
+                                                const availableFields = fields.filter(f => !values.has(f));
+                                                return (
+                                                    <FileTag 
+                                                        key={`fileTag-${i}`}
+                                                        hasSecondaryAction
+                                                        field={mode === 'fields' ? availableFields[i] : fields[0]}
+                                                        value={f.Key}
+                                                        mode={mode}
+                                                        file={f}
+                                                        size={tagSize} 
+                                                        disabled={disabled}
+                                                        maxFileNameLength={maxFileNameLength}
+                                                        onUploaded={(f) => {
+                                                            const index = filesField.state.value.findIndex(fu => fu.Name === f.Name);
+                                                            console.log(index, f);
+                                                            filesField.replaceValue(index, { ...f });
+                                                        }}
+                                                        onClick={() => {
+                                                            downloadFile(f.Key, f.Path!);
+                                                        }}
+                                                    />
+                                                );
                                             })}
                                         </TagGroup>
                                         <uploadForm.Subscribe 
@@ -448,27 +416,16 @@ function View(props: Omit<FileFieldProps, 'mode'> & { mode: 'field' | 'fields' |
                                                                         files.push(f);
                                                                 }
                                                             }
-                                                            filesField.handleChange(files);
+                                                            // filesField.handleChange([...filesField.state.value, ...files.map((f, i) => ({ Key: `Upload${i}`, Name: f.name, File: f }))]);
                                                         }
                                                         else {
-                                                            filesField.handleChange(ev.dataTransfer.files);
+                                                            // filesField.handleChange([...filesField.state.value, ...[...ev.dataTransfer.files].map((f, i) => ({ Key: `Upload${i}`, Name: f.name, File: f }))]);
                                                         }
                                                         uploadForm.setFieldValue('isDragOver', false);
                                                     }}
                                                 ></div>
                                             ) : null}
                                         />
-                                        {isPending && 
-                                        <div className={styles.overlay}>
-                                            <uploadForm.Subscribe 
-                                                selector={s => s.values.percentComplete}
-                                                children={percentComplete => {
-                                                    return (
-                                                        <Spinner size="tiny" label={t('uploading... {{percent}}', { percent: percentageFormat.current.format(percentComplete) })} />
-                                                    );
-                                                }}
-                                            />
-                                        </div>}     
                                     </>)}
                                 </Field>
                             );

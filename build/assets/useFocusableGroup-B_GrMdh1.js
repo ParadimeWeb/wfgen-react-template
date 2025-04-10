@@ -1,2 +1,0 @@
-import{ba as t,bb as a,bc as i,bd as r}from"./index-Cd-no0MH.js";const s=e=>(t(a),i({groupper:{tabbability:u(e==null?void 0:e.tabBehavior)},focusable:{ignoreKeydown:e==null?void 0:e.ignoreDefaultKeydown}})),u=e=>{switch(e){case"unlimited":return r.Unlimited;case"limited":return r.Limited;case"limited-trap-focus":return r.LimitedTrapFocus;default:return}};export{s as u};
-//# sourceMappingURL=useFocusableGroup-B_GrMdh1.js.map

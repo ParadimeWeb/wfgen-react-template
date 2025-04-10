@@ -85,25 +85,19 @@ router.post("/Default.aspx", async (req, res) => {
             await new Promise((resolve) => setTimeout(resolve, 2000));
             const mode = body.mode;
             const field = body.field;
-            if (mode === 'zip') {
-                json = files.map((f, i) => {
-                    return {
-                        Key: `Zip${i}`,
-                        Path: `upload\\${field}\\${f.originalname}`,
-                        Name: f.originalname
-                    };
-                });
-                break;
-            }
-            json = files.map((f, i) => {
-                const Key = Array.isArray(field) ? field[i] : field;
-                return {
-                    Key,
+            const f = files[0];
+            json = mode === 'zip' ? 
+                {
+                    Key: 'Zip',
+                    Path: `upload\\${field}\\${f.originalname}`,
+                    Name: f.originalname
+                } : 
+                {
+                    Key: field,
                     // Error: 'File name, {{name}}, is too long. Try renaming it.',
-                    Path: `upload\\${Key}\\${f.originalname}`,
+                    Path: `upload\\${field}\\${f.originalname}`,
                     Name: f.originalname
                 };
-            });
             break;
         case "ASYNC_MISSING_KEY":
             const key = body.key;

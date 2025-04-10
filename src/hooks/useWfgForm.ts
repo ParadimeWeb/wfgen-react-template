@@ -20,7 +20,7 @@ const FileField = lazy(() => import('../components/FormFields/FileField'));
 const Approvals = lazy(() => import('../components/Approvals'));
 const NewCommentForm = lazy(() => import('../components/Comments/NewCommentForm'));
 
-export const { useAppForm } = createFormHook({
+const { useAppForm } = createFormHook({
     fieldContext,
     formContext,
     fieldComponents: {

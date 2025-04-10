@@ -1,4 +1,4 @@
-import { makeStyles, Option, Radio } from "@fluentui/react-components";
+import { Field, InteractionTag, InteractionTagPrimary, InteractionTagSecondary, Link, makeStyles, Option, ProgressBar, Radio } from "@fluentui/react-components";
 import { styleHelpers } from "../styles";
 import { FormFooter } from "../components/Form/Footer";
 import { employeesQueryOptions } from "../queryOptions";
@@ -9,6 +9,7 @@ import { FormContent } from "../components/Form/Content";
 import { type } from "arktype";
 import { csvToSet, setToCsv } from "../utils";
 import type { Table1 } from "../types";
+import { FileTypeIcon } from "../components/FormFields/FileField/FileTypeIcon";
 
 const useStyles = makeStyles({
     row: styleHelpers.row(),
@@ -147,6 +148,21 @@ export function Form() {
                             </field.RadioGroup>
                         }
                     />
+                    
+                    <InteractionTag
+                        disabled={false}
+                        appearance="outline"
+                        style={{ position: 'relative' }}
+                    >
+                        <InteractionTagPrimary
+                            hasSecondaryAction
+                            icon={<FileTypeIcon fileName="name.pdf" size={20} />}
+                        >
+                            This is the file name.pdf
+                        </InteractionTagPrimary>
+                        <InteractionTagSecondary />
+                        <ProgressBar style={{ position: 'absolute', bottom: 0, borderTopLeftRadius: 'unset', borderTopRightRadius: 'unset' }} bar={{ style: { borderTopRightRadius: '4px' } }} color="success" thickness="large" value={0.75} />
+                    </InteractionTag>
                 </div>
             </FormContent>
             <FormFooter />
