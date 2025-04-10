@@ -30,7 +30,6 @@ export type TFile = {
 type FileTagProps = { 
     field?: string
     value?: string
-    mode?: 'field' | 'fields' | 'zip'
     file: TFile
     onUploaded?: (result: TFile) => void 
     maxFileNameLength: number; 
@@ -45,8 +44,7 @@ export const fileIconSize = new Map<TagSize, FileTypeIconSize>([
 export const FileTag = (props: FileTagProps) => {
     const { 
         field = '', 
-        value = '', 
-        mode = 'field', 
+        value = '',
         file, 
         maxFileNameLength, 
         size = 'medium', 
@@ -62,11 +60,11 @@ export const FileTag = (props: FileTagProps) => {
     });
 
     const { isFetching } = useQuery({
-        queryKey: [file.Name],
+        queryKey: [field, file.Key],
         queryFn: async () => {
             const data = new FormData();
             data.append('field', field);
-            data.append('mode', mode);
+            data.append('key', file.Key);
             data.append('file', file.File!);
             return post<TFile>('ASYNC_UPLOAD', { data, config: {
                 onUploadProgress: (progressEvent) => {

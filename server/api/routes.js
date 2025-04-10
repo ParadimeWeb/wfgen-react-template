@@ -21,6 +21,7 @@ router.post("/Default.aspx", async (req, res) => {
     // Access form data through req.body for regular form fields
     const { body, files } = req;
     
+    
     // Get the action from the form data
     const action = body.__WFGENACTION;
     switch (action) {
@@ -83,24 +84,17 @@ router.post("/Default.aspx", async (req, res) => {
             console.log(body);
             console.log(files);
             await new Promise((resolve) => setTimeout(resolve, 2000));
-            const mode = body.mode;
+            //const mode = body.mode;
             const field = body.field;
+            const Key = body.key;
             const f = files[0];
-            json = mode === 'zip' ? 
-                {
-                    Key: 'Zip',
-                    Path: `upload\\${field}\\${f.originalname}`,
-                    Name: f.originalname
-                } : 
-                {
-                    Key: field,
-                    // Error: 'File name, {{name}}, is too long. Try renaming it.',
-                    Path: `upload\\${field}\\${f.originalname}`,
-                    Name: f.originalname
-                };
+            json = {
+                Key,
+                Path: `upload\\${field}\\${f.originalname}`,
+                Name: f.originalname
+            };
             break;
         case "ASYNC_MISSING_KEY":
-            const key = body.key;
             const enFilePath = path.resolve(__dirname, "../../src/i18n/locales/en/translation.json");
             const frFilePath = path.resolve(__dirname, "../../src/i18n/locales/fr/translation.json");
             let enTranslation = fs.readFileSync(

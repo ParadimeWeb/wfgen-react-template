@@ -219,9 +219,9 @@ function View(props: Omit<FileFieldProps, 'mode'> & { mode: 'field' | 'fields' |
         },
         onSubmit: ({ value: { files: fileUploads } }) => {
             if (mode === 'fields') {
-                fileUploads.forEach((fuRes) => {
+                fileUploads.forEach((fuRes, i) => {
                     const fu = new URLSearchParams();
-                    fu.set("Key", fuRes.Key);
+                    fu.set("Key", availableFields[i]);
                     fu.set("Name", fuRes.Name);
                     fu.set("Path", fuRes.Path!);
                     form.setFieldValue(`Table1[0].${fuRes.Key}`, fu.toString());
@@ -251,7 +251,7 @@ function View(props: Omit<FileFieldProps, 'mode'> & { mode: 'field' | 'fields' |
                 return;
             }
             const fu = new URLSearchParams();
-            fu.set("Key", fileUploads[0].Key);
+            fu.set("Key", fields[0]);
             fu.set("Path", fileUploads[0].Path!);
             fu.set("Name", fileUploads[0].Name);
             field.handleChange(fu.toString());
@@ -303,18 +303,22 @@ function View(props: Omit<FileFieldProps, 'mode'> & { mode: 'field' | 'fields' |
                                 return undefined;
                             }
                         }}
-                        children={filesField => {
-                            const fileTags = files.flatMap(([_, fu]) => { 
-                                const names = fu.getAll('Name');
-                                const paths = fu.getAll('Path');
-                                return fu.getAll('Key').map((Key, i) => ({ Key, Name: names[i], Path: paths[i] } as TFile));
-                            });
-                            const filesToUpload = filesField.state.value.filter(f => f.File !== undefined);
-                            fileTags.push(...filesField.state.value);
+                        children={uploadFilesField => {
+                            const fileTags: TFile[] = [
+                                ...files.flatMap(([_, fu]) => { 
+                                    const names = fu.getAll('Name');
+                                    const paths = fu.getAll('Path');
+                                    return fu.getAll('Key').map((Key, i) => ({ Key, Name: names[i], Path: paths[i] }));
+                                }),
+                                ...uploadFilesField.state.value
+                            ];
+                            const filesUploading = uploadFilesField.state.value.filter(f => f.File !== undefined);
+                            const uploadFilesStartIndex = fileTags.length - uploadFilesField.state.value.length;
+                            console.log(field.name, uploadFilesStartIndex, fileTags);
                             return (
                                 <Field
                                     label={t(field.name)}
-                                    validationMessage={field.state.meta.isTouched && field.state.meta.errors.length > 0 ? t(field.state.meta.errors[0]) : filesField.state.meta.errors.length > 0 ? { className: styles.validationMessage, children: filesField.state.meta.errors.join('\n') } : null}
+                                    validationMessage={field.state.meta.isTouched && field.state.meta.errors.length > 0 ? t(field.state.meta.errors[0]) : uploadFilesField.state.meta.errors.length > 0 ? { className: styles.validationMessage, children: uploadFilesField.state.meta.errors.join('\n') } : null}
                                     required={required}
                                     className={mergeClasses(fieldProps.className, styles.dragDrop)}
                                     onDragEnter={() => { uploadForm.setFieldValue('isDragOver', true); }}
@@ -328,7 +332,7 @@ function View(props: Omit<FileFieldProps, 'mode'> & { mode: 'field' | 'fields' |
                                             className={styles.fileInput}
                                             onChange={(ev) => {
                                                 if (ev.target.files !== null) {
-                                                    filesField.handleChange([...ev.target.files].map((f, i) => ({ Key: `Upload${i}`, Name: f.name, File: f })));
+                                                    uploadFilesField.handleChange([...ev.target.files].map((f, i) => ({ Key: `Upload${i}`, Name: f.name, File: f } as TFile)));
                                                 }
                                             }}
                                         />
@@ -344,7 +348,7 @@ function View(props: Omit<FileFieldProps, 'mode'> & { mode: 'field' | 'fields' |
                                                         fileInput.current.click();
                                                     }
                                                 }}
-                                                disabled={disabled || filesToUpload.length > 0}
+                                                disabled={disabled || filesUploading.length > 0}
                                             >
                                                 {t('Select files or drag them here', { count: mode === 'zip' ? 2 : fields.length })}
                                             </Button>
@@ -372,22 +376,19 @@ function View(props: Omit<FileFieldProps, 'mode'> & { mode: 'field' | 'fields' |
                                             }}
                                         >
                                             {fileTags.map((f, i) => {
-                                                const availableFields = fields.filter(f => !values.has(f));
                                                 return (
                                                     <FileTag 
                                                         key={`fileTag-${i}`}
                                                         hasSecondaryAction
-                                                        field={mode === 'fields' ? availableFields[i] : fields[0]}
+                                                        field={availableFields.length > i ? availableFields[i] : fields[0]}
                                                         value={f.Key}
-                                                        mode={mode}
                                                         file={f}
                                                         size={tagSize} 
                                                         disabled={disabled}
                                                         maxFileNameLength={maxFileNameLength}
                                                         onUploaded={(f) => {
-                                                            const index = filesField.state.value.findIndex(fu => fu.Name === f.Name);
-                                                            console.log(index, f);
-                                                            filesField.replaceValue(index, { ...f });
+                                                            console.log(i - uploadFilesStartIndex, f);
+                                                            uploadFilesField.replaceValue(i - uploadFilesStartIndex, { ...f });
                                                         }}
                                                         onClick={() => {
                                                             downloadFile(f.Key, f.Path!);
@@ -412,10 +413,10 @@ function View(props: Omit<FileFieldProps, 'mode'> & { mode: 'field' | 'fields' |
                                                                         files.push(f);
                                                                 }
                                                             }
-                                                            filesField.handleChange(files.map((f, i) => ({ Key: `Upload${i}`, Name: f.name, File: f })));
+                                                            uploadFilesField.handleChange(files.map((f, i) => ({ Key: `Upload${i}`, Name: f.name, File: f } as TFile)));
                                                         }
                                                         else {
-                                                            filesField.handleChange([...ev.dataTransfer.files].map((f, i) => ({ Key: `Upload${i}`, Name: f.name, File: f })));
+                                                            uploadFilesField.handleChange([...ev.dataTransfer.files].map((f, i) => ({ Key: `Upload${i}`, Name: f.name, File: f } as TFile)));
                                                         }
                                                         uploadForm.setFieldValue('isDragOver', false);
                                                     }}
