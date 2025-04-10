@@ -271,7 +271,6 @@ function View(props: Omit<FileFieldProps, 'mode'> & { mode: 'field' | 'fields' |
                         name="files"
                         validators={{
                             onChange: ({ value }) => {
-                                console.log('onChange', value);
                                 const errorFiles = value.filter(f => f.Error !== undefined);
                                 if (errorFiles.length > 0) {
                                     return errorFiles.map(f => t(f.Error!, { name: f.Name }));
@@ -329,10 +328,7 @@ function View(props: Omit<FileFieldProps, 'mode'> & { mode: 'field' | 'fields' |
                                             className={styles.fileInput}
                                             onChange={(ev) => {
                                                 if (ev.target.files !== null) {
-                                                    filesField.handleChange([...ev.target.files].map((f, i) => {
-                                                        //const Key = mode === 'zip' ? `Zip${i + fileTagsCount}` : mode === 'fields' ? availableFields[i] : fields[0];
-                                                        return { Key: `Upload${i}`, Name: f.name, File: f };
-                                                    }));
+                                                    filesField.handleChange([...ev.target.files].map((f, i) => ({ Key: `Upload${i}`, Name: f.name, File: f })));
                                                 }
                                             }}
                                         />
@@ -416,10 +412,10 @@ function View(props: Omit<FileFieldProps, 'mode'> & { mode: 'field' | 'fields' |
                                                                         files.push(f);
                                                                 }
                                                             }
-                                                            // filesField.handleChange([...filesField.state.value, ...files.map((f, i) => ({ Key: `Upload${i}`, Name: f.name, File: f }))]);
+                                                            filesField.handleChange(files.map((f, i) => ({ Key: `Upload${i}`, Name: f.name, File: f })));
                                                         }
                                                         else {
-                                                            // filesField.handleChange([...filesField.state.value, ...[...ev.dataTransfer.files].map((f, i) => ({ Key: `Upload${i}`, Name: f.name, File: f }))]);
+                                                            filesField.handleChange([...ev.dataTransfer.files].map((f, i) => ({ Key: `Upload${i}`, Name: f.name, File: f })));
                                                         }
                                                         uploadForm.setFieldValue('isDragOver', false);
                                                     }}
