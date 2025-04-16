@@ -224,16 +224,16 @@ function View(props: Omit<FileFieldProps, 'mode'> & { mode: 'field' | 'fields' |
                     fu.set("Key", availableFields[i]);
                     fu.set("Name", fuRes.Name);
                     fu.set("Path", fuRes.Path!);
-                    form.setFieldValue(`Table1[0].${fuRes.Key}`, fu.toString());
-                    field.pushValue({ Field: fuRes.Key });
+                    form.setFieldValue(`Table1[0].${availableFields[i]}`, fu.toString());
+                    field.pushValue({ Field: availableFields[i] });
                 });
                 uploadForm.reset();
                 return;
             }
             if (mode === 'zip') {
                 const fu = new URLSearchParams();
-                const names = files[0][1].getAll('Name');
-                const paths = files[0][1].getAll('Path');
+                const names = files.length > 0 ? files[0][1].getAll('Name') : [];
+                const paths = files.length > 0 ? files[0][1].getAll('Path') : [];
                 let i = 0;
                 for (; i < names.length; i++) {
                     fu.append('Key', `Zip${i}`);
@@ -314,7 +314,6 @@ function View(props: Omit<FileFieldProps, 'mode'> & { mode: 'field' | 'fields' |
                             ];
                             const filesUploading = uploadFilesField.state.value.filter(f => f.File !== undefined);
                             const uploadFilesStartIndex = fileTags.length - uploadFilesField.state.value.length;
-                            console.log(field.name, uploadFilesStartIndex, fileTags);
                             return (
                                 <Field
                                     label={t(field.name)}
@@ -369,7 +368,7 @@ function View(props: Omit<FileFieldProps, 'mode'> & { mode: 'field' | 'fields' |
                                                     fu.delete('Key', data.value);
                                                     fu.delete('Name', names[i]);
                                                     fu.delete('Path', paths[i]);
-                                                    field.handleChange(fu.toString());
+                                                    field.handleChange(keys.length === 1 ? 'Key=Zip0' : fu.toString());
                                                     return;
                                                 }
                                                 field.handleChange(`Key=${data.value}`);

@@ -24,7 +24,7 @@
               <xs:element name="File2" msprop:Generator_ColumnPropNameInTable="File2Column" msprop:Generator_ColumnPropNameInRow="File2" msprop:Generator_UserColumnName="File2" msprop:Generator_ColumnVarNameInTable="columnFile2" type="xs:string" minOccurs="0" />
               <xs:element name="Document" msprop:Generator_ColumnPropNameInTable="DocumentColumn" msprop:Generator_ColumnPropNameInRow="Document" msprop:Generator_UserColumnName="Document" msprop:Generator_ColumnVarNameInTable="columnDocument" type="xs:string" minOccurs="0" />
               <xs:element name="Attachments" msprop:Generator_ColumnPropNameInTable="AttachmentsColumn" msprop:Generator_ColumnPropNameInRow="Attachments" msprop:Generator_UserColumnName="Attachments" msprop:Generator_ColumnVarNameInTable="columnAttachments" type="xs:string" minOccurs="0" />
-              <xs:element name="Attachments2" msprop:Generator_ColumnPropNameInRow="Attachments2" msprop:Generator_ColumnPropNameInTable="Attachments2Column" msprop:Generator_ColumnVarNameInTable="columnAttachments2" msprop:Generator_UserColumnName="Attachments2" type="xs:string" minOccurs="0" />
+              <xs:element name="Attachments2" msprop:Generator_UserColumnName="Attachments2" msprop:Generator_ColumnPropNameInTable="Attachments2Column" msprop:Generator_ColumnPropNameInRow="Attachments2" msprop:Generator_ColumnVarNameInTable="columnAttachments2" type="xs:string" minOccurs="0" />
             </xs:sequence>
           </xs:complexType>
         </xs:element>
@@ -37,6 +37,13 @@
             <xs:sequence>
               <xs:element name="Value" msprop:Generator_ColumnPropNameInTable="ValueColumn" msprop:Generator_ColumnPropNameInRow="Value" msprop:Generator_UserColumnName="Value" msprop:Generator_ColumnVarNameInTable="columnValue" type="xs:string" minOccurs="0" />
               <xs:element name="Text" msprop:Generator_ColumnPropNameInTable="TextColumn" msprop:Generator_ColumnPropNameInRow="Text" msprop:Generator_UserColumnName="Text" msprop:Generator_ColumnVarNameInTable="columnText" type="xs:string" minOccurs="0" />
+            </xs:sequence>
+          </xs:complexType>
+        </xs:element>
+        <xs:element name="Files" msprop:Generator_RowEvHandlerName="FilesRowChangeEventHandler" msprop:Generator_RowDeletedName="FilesRowDeleted" msprop:Generator_RowDeletingName="FilesRowDeleting" msprop:Generator_RowEvArgName="FilesRowChangeEvent" msprop:Generator_TablePropName="Files" msprop:Generator_RowChangedName="FilesRowChanged" msprop:Generator_RowChangingName="FilesRowChanging" msprop:Generator_TableClassName="FilesDataTable" msprop:Generator_RowClassName="FilesRow" msprop:Generator_TableVarName="tableFiles" msprop:Generator_UserTableName="Files">
+          <xs:complexType>
+            <xs:sequence>
+              <xs:element name="Field" msprop:Generator_ColumnPropNameInRow="Field" msprop:Generator_ColumnPropNameInTable="FieldColumn" msprop:Generator_ColumnVarNameInTable="columnField" msprop:Generator_UserColumnName="Field" type="xs:string" minOccurs="0" />
             </xs:sequence>
           </xs:complexType>
         </xs:element>
