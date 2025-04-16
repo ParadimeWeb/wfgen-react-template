@@ -147,6 +147,7 @@ function ReadonlyView(props: Omit<FileFieldProps, 'mode'> & { mode: 'field' | 'f
     const { isArchive } = useFormInitQuery();
     const field = useFieldContext();
     const { form } = useWfgFormContext();
+    const { state: { values: { __ZipFiles: [ZipFiles] } } } = form;
 
     return (
         <form.Subscribe 
@@ -161,8 +162,8 @@ function ReadonlyView(props: Omit<FileFieldProps, 'mode'> & { mode: 'field' | 'f
                         {...readonlyFieldProps}
                     >
                         {files.length > 0 ? 
-                        isArchive && mode === 'zip' ?
-                        <ZipFileCard field={fields[0]} /> :
+                        isArchive && mode === 'zip' && ZipFiles[fields[0]] ?
+                        <ZipFileCard field={fields[0]} value={field.state.value as string} zipFiles={ZipFiles} maxFileNameLength={maxFileNameLength} /> :
                         <TagGroup className={styles.tagGroup}>
                             {files.map(([_, fu]) => {
                                 const Key = fu.get('Key')!;

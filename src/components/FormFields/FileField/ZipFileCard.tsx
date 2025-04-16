@@ -1,11 +1,14 @@
-import { Caption1, Card, CardHeader, Link, makeStyles, Tag, TagGroup, tokens } from "@fluentui/react-components";
+import { Caption1, Card, CardHeader, Link, makeStyles, Tag, TagGroup, tokens, Tooltip } from "@fluentui/react-components";
 import { FileTypeIcon } from "./FileTypeIcon";
 import { useTranslation } from "react-i18next";
 import { useRef } from "react";
-import { useWfgFormContext } from "../../../hooks/useWfgFormContext";
+import type { DataRow } from "../../../types";
 
 type ZipFileCardProps = {
     field: string
+    value: string
+    zipFiles: DataRow
+    maxFileNameLength: number
 };
 
 const useStyles = makeStyles({
@@ -32,14 +35,13 @@ const useStyles = makeStyles({
 });
 
 export const ZipFileCard = (props: ZipFileCardProps) => {
-    const { field } = props;
+    const { field, zipFiles, value, maxFileNameLength } = props;
     const styles = useStyles();
     const linkRef = useRef<HTMLAnchorElement>(null);
     const { t } = useTranslation();
-    const { form: { state: { values: { Table1: [Table1], __ZipFiles: [ZipFiles] } } } } = useWfgFormContext();
-    const zipFile = new URLSearchParams(Table1[field] as string);
+    const zipFile = new URLSearchParams(value);
     const href = zipFile.get('Path')!;
-    const files = new URLSearchParams(ZipFiles[field] as string);
+    const files = new URLSearchParams(zipFiles[field] as string);
     const names = files.getAll('Name');
     return (
         <Card
@@ -53,8 +55,16 @@ export const ZipFileCard = (props: ZipFileCardProps) => {
             }}
         >
             <TagGroup className={styles.tagGroup} role="list">
-                {files.getAll('Key').map((_, i) => (
-                    <Tag key={`ziptag-${i}`} appearance="outline" icon={<FileTypeIcon fileName={names[i]} size={20} />}>{names[i]}</Tag>
+                {files.getAll('Key').map((_, i) => names[i].length > maxFileNameLength ? (
+                    <Tooltip relationship="label" content={names[i]}>
+                        <Tag key={`ziptag-${i}`} appearance="outline" icon={<FileTypeIcon fileName={names[i]} size={20} />}>
+                            {names[i].substring(0, names[i].length - (names[i].length - maxFileNameLength))}&hellip;
+                        </Tag>
+                    </Tooltip>
+                ) : (
+                    <Tag key={`ziptag-${i}`} appearance="outline" icon={<FileTypeIcon fileName={names[i]} size={20} />}>
+                        {names[i]}
+                    </Tag>
                 ))}
             </TagGroup>
             <CardHeader 

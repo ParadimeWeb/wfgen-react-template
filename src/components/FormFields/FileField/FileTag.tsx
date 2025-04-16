@@ -32,7 +32,7 @@ type FileTagProps = {
     value?: string
     file: TFile
     onUploaded?: (result: TFile) => void 
-    maxFileNameLength: number; 
+    maxFileNameLength: number
 } & Pick<InteractionTagProps, "value" | "size" | "disabled"> & Pick<InteractionTagPrimaryProps, "onClick" | "hasSecondaryAction">;
 
 export const fileIconSize = new Map<TagSize, FileTypeIconSize>([
