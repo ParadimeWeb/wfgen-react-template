@@ -22,10 +22,10 @@ export const CommentsDrawer = ({ field }: { field: AnyFieldApi }) => {
             >
                 {t('Comments')}
             </DrawerHeaderTitle>
-            {!isArchive && <form.AppField name="__Comments" children={field => <field.NewCommentForm />} />}
+            {!isArchive && <form.AppField name="__Comments" mode="array" children={field => <field.NewCommentForm />} />}
         </DrawerHeader>
         <DrawerBody>
-            <form.AppField name="__Comments" children={field => <field.Comments />} />
+            <form.AppField name="__Comments" mode="array" children={field => <field.Comments />} />
         </DrawerBody>
     </>);
 };

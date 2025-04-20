@@ -7,8 +7,9 @@ import type { Comment } from "../../types";
 import { CommentAddRegular } from "@fluentui/react-icons";
 import { useTranslation } from "react-i18next";
 import { useFieldContext } from "../../hooks/formContext";
+import { useWfgFormContext } from "../../hooks/useWfgFormContext";
 
-export default () => {
+function View() {
     const { t } = useTranslation();
     const { currentUser, configuration } = useFormInitQuery();
     const comments = useFieldContext<Comment[]>();
@@ -46,28 +47,28 @@ export default () => {
                     }
                 };
                 return (<>
-                    <Field 
-                        hint={t('Shift-Enter for a new line')} 
-                        validationMessage={field.state.meta.isTouched && field.state.meta.errors.length > 0 ? t(field.state.meta.errors.join(', '), { field: '', length: 6, actual: field.state.value.length }) : null}
-                    >
-                        <Textarea
-                            resize="vertical"
-                            onKeyDown={event => {
-                                if (event.key === "Enter") {
-                                    if (!event.shiftKey) {
-                                        event.preventDefault();
-                                        addComment();
+                    <div className="">
+                        <Field 
+                            hint={t('Shift-Enter for a new line')} 
+                            validationMessage={field.state.meta.isTouched && field.state.meta.errors.length > 0 ? t(field.state.meta.errors.join(', '), { field: '', length: 6, actual: field.state.value.length }) : null}
+                        >
+                            <Textarea
+                                resize="vertical"
+                                onKeyDown={event => {
+                                    if (event.key === "Enter") {
+                                        if (!event.shiftKey) {
+                                            event.preventDefault();
+                                            addComment();
+                                        }
                                     }
-                                }
-                            }}
-                            value={field.state.value}
-                            onChange={(e) => field.handleChange(e.target.value)}
-                        />
-                    </Field>
-                    <commentForm.Subscribe
-                        selector={(state) => [state.canSubmit, state.isSubmitting]}
-                        children={([canSubmit, isSubmitting]) => (
-                            <div>
+                                }}
+                                value={field.state.value}
+                                onChange={(e) => field.handleChange(e.target.value)}
+                            />
+                        </Field>
+                        <commentForm.Subscribe
+                            selector={(state) => [state.canSubmit, state.isSubmitting]}
+                            children={([canSubmit, isSubmitting]) => (
                                 <Button
                                     disabled={!canSubmit || isSubmitting}
                                     appearance="transparent"
@@ -76,12 +77,17 @@ export default () => {
                                 >
                                     {t('Add Comment')}
                                 </Button>
-                            </div>
-                        )}
-                    />
-
+                            )}
+                        />
+                    </div>
                 </>);
             }}
         />
     );
 };
+
+export default () => {
+    const { isArchive } = useFormInitQuery();
+    const { printForm: { state: { values: { open: isPrintView } } } } = useWfgFormContext();
+    return !isArchive && !isPrintView ? <View /> : null;
+}

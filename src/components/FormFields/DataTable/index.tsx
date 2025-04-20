@@ -1,12 +1,15 @@
-import { Table, TableBody, TableCell, TableHeader, TableHeaderCell, TableRow, useTableColumnSizing_unstable, useTableFeatures, type DrawerBodyProps, type DrawerHeaderTitleProps, type OverlayDrawerProps, type TableColumnDefinition, type TableColumnSizingOptions, type TableRowData } from "@fluentui/react-components";
+import { Button, DialogContent, DialogTitle, DrawerBody, DrawerHeaderTitle, Table, TableBody, TableCell, TableHeader, TableHeaderCell, TableRow, ToolbarButton, useTableColumnSizing_unstable, useTableFeatures, type DialogProps, type OverlayDrawerProps, type TableColumnDefinition, type TableColumnSizingOptions, type TableRowData } from "@fluentui/react-components";
 import { useFieldContext } from "../../../hooks/formContext";
 import type { DataRow } from "../../../types";
 import { useForm } from "@tanstack/react-form";
 import type { ComponentType } from "react";
-import { DataTableDrawer } from "./Drawer";
+import { DataTableDrawer } from "../../Drawers/DataTable";
 import { CellActions, NoRowsCellActions } from "./CellActions";
 import { useWfgFormContext } from "../../../hooks/useWfgFormContext";
 import { useFormInitQuery } from "../../../hooks/useFormInitQuery";
+import { DataTableDialog } from "../../Dialogs/DataTable";
+import { NextRegular, PreviousRegular } from "@fluentui/react-icons";
+import { useTranslation } from "react-i18next";
 
 type RowProps = {
     item: DataRow
@@ -15,24 +18,34 @@ type RowProps = {
     columnSizing_unstable: ReturnType<typeof useTableFeatures<DataRow>>['columnSizing_unstable']
     CellActionsComponent: ComponentType
 };
-type DataTableProps = {
+type _DataTableProps = {
     columnsDef: TableColumnDefinition<DataRow>[]
     columnSizingOptions: TableColumnSizingOptions
     TableCellComponent: ComponentType<RowProps>
-    DrawerBodyComponent: ComponentType<DrawerBodyProps & { index: number }>
-    DrawerHeaderTitle: ComponentType<DrawerHeaderTitleProps & { index: number }>
-    drawerProps?: OverlayDrawerProps
+    DetailsBodyComponent: ComponentType<{ index: number }>
+    DetailsTitleComponent: ComponentType<{ index: number }>
     defaultItem?: DataRow
 };
+type DataTableProps = 
+    | {
+        detailsFormType: 'drawer'
+        detailsFormProps?: OverlayDrawerProps
+        
+    } & _DataTableProps
+    | {
+        detailsFormType: 'dialog'
+        detailsFormProps?: DialogProps
+    } & _DataTableProps;
 
 function View(props: DataTableProps) {
-    const { columnsDef, columnSizingOptions, TableCellComponent, DrawerBodyComponent, DrawerHeaderTitle, drawerProps = {}, defaultItem = {} } = props;
+    const { columnsDef, columnSizingOptions, detailsFormType, TableCellComponent, DetailsBodyComponent, DetailsTitleComponent, detailsFormProps = {}, defaultItem = {} } = props;
     const { printForm: { state: { values: { open: isPrintView } } } } = useWfgFormContext();
+    const { t } = useTranslation();
     const { isArchive } = useFormInitQuery();
     const field = useFieldContext<DataRow[]>();
     const tableForm = useForm({
         defaultValues: {
-            isDrawerOpen: false,
+            isDetailsFormOpen: false,
             selectedIndex: -1,
             columns: columnsDef
         }
@@ -48,6 +61,30 @@ function View(props: DataTableProps) {
         ]
     );
     const rows = getRows();
+    function onAction(type: 'add' | 'remove' | 'close') {
+        if (type === 'add') {
+            const index = tableForm.getFieldValue('selectedIndex');
+            tableForm.setFieldValue('selectedIndex', index + 1);
+            field.insertValue(index + 1, {...defaultItem});
+            return;
+        }
+        if (type === 'remove') {
+            const index = tableForm.getFieldValue('selectedIndex');
+            field.removeValue(index);
+            if ((rows.length - 1) === index) {
+                tableForm.setFieldValue('selectedIndex', index - 1);
+                tableForm.setFieldValue('isDetailsFormOpen', index > 0);
+                return;
+            }
+            return;
+        }
+        tableForm.setFieldValue('isDetailsFormOpen', false); 
+        tableForm.resetField('selectedIndex'); 
+    }
+    function onNextPrev(index: number) {
+        tableForm.setFieldValue('selectedIndex', index); 
+        field.replaceValue(index, {...rows[index].item});
+    }
 
     return (<>
         <Table ref={tableRef} {...columnSizing_unstable.getTableProps()} noNativeElements>
@@ -62,7 +99,7 @@ function View(props: DataTableProps) {
                         <TableCell rowSpan={columns.length}>
                             <NoRowsCellActions
                                 onClick={() => {
-                                    tableForm.setFieldValue('isDrawerOpen', true);
+                                    tableForm.setFieldValue('isDetailsFormOpen', true);
                                     tableForm.setFieldValue('selectedIndex', 0);
                                     field.pushValue({...defaultItem});
                                 }}
@@ -88,19 +125,19 @@ function View(props: DataTableProps) {
                                                     if (type === 'add') {
                                                         tableForm.setFieldValue('selectedIndex', index + 1);
                                                         field.insertValue(index + 1, {...defaultItem});
-                                                        tableForm.setFieldValue('isDrawerOpen', true);
+                                                        tableForm.setFieldValue('isDetailsFormOpen', true);
                                                         return;
                                                     }
                                                     if (type === 'edit') {
                                                         tableForm.setFieldValue('selectedIndex', index);
                                                         field.replaceValue(index, {...item});
-                                                        tableForm.setFieldValue('isDrawerOpen', true);
+                                                        tableForm.setFieldValue('isDetailsFormOpen', true);
                                                         return;
                                                     }
                                                     field.removeValue(index);
-                                                    if (tableForm.getFieldValue('isDrawerOpen') && (rows.length - 1) === index) {
+                                                    if (tableForm.getFieldValue('isDetailsFormOpen') && (rows.length - 1) === index) {
                                                         tableForm.setFieldValue('selectedIndex', index - 1);
-                                                        tableForm.setFieldValue('isDrawerOpen', index > 0);
+                                                        tableForm.setFieldValue('isDetailsFormOpen', index > 0);
                                                     }
                                                 }}
                                             />
@@ -114,36 +151,35 @@ function View(props: DataTableProps) {
             </TableBody>
         </Table>
         <tableForm.Subscribe 
-            selector={s => s.values.isDrawerOpen}
-            children={(isDrawerOpen) => (
-                <DataTableDrawer 
-                    {...drawerProps} 
-                    open={isDrawerOpen} 
-                    onOpenChange={(_, data) => { tableForm.setFieldValue('isDrawerOpen', data.open); }}
-                    onAction={(type) => { 
-                        if (type === 'add') {
-                            const index = tableForm.getFieldValue('selectedIndex');
-                            tableForm.setFieldValue('selectedIndex', index + 1);
-                            field.insertValue(index + 1, {...defaultItem});
-                            return;
-                        }
-                        if (type === 'remove') {
-                            const index = tableForm.getFieldValue('selectedIndex');
-                            field.removeValue(index);
-                            if ((rows.length - 1) === index) {
-                                tableForm.setFieldValue('selectedIndex', index - 1);
-                                tableForm.setFieldValue('isDrawerOpen', index > 0);
-                                return;
-                            }
-                            return;
-                        }
-                        tableForm.setFieldValue('isDrawerOpen', false); 
-                        tableForm.resetField('selectedIndex'); 
-                    }}
-                    DrawerHeaderTitle={() => <tableForm.Subscribe selector={s => s.values.selectedIndex} children={(selectedIndex) => <DrawerHeaderTitle index={selectedIndex} />} />}
-                    DrawerBody={() => <tableForm.Subscribe selector={s => s.values.selectedIndex} children={(selectedIndex) => <DrawerBodyComponent index={selectedIndex} />} />}
-                />
-            )}
+            selector={s => s.values.isDetailsFormOpen}
+            children={(isDetailsFormOpen) => {
+                if (detailsFormType === 'dialog') {
+                    return (
+                        <DataTableDialog 
+                            {...detailsFormProps as DialogProps}
+                            open={isDetailsFormOpen}
+                            onOpenChange={(_, data) => { tableForm.setFieldValue('isDetailsFormOpen', data.open); if (!data.open) { tableForm.resetField('selectedIndex'); } }}
+                            onAction={onAction}
+                            NextButton={() => <tableForm.Subscribe selector={s => s.values.selectedIndex} children={(selectedIndex) => <Button aria-label={t('Next')} icon={<NextRegular />} disabled={rows.length === selectedIndex + 1} onClick={() => { onNextPrev(selectedIndex + 1); }} />} />}
+                            PrevButton={() => <tableForm.Subscribe selector={s => s.values.selectedIndex} children={(selectedIndex) => <Button aria-label={t('Prev')} icon={<PreviousRegular />} disabled={selectedIndex < 1} onClick={() => { onNextPrev(selectedIndex - 1); }} />} />}
+                            DialogTitle={() => <tableForm.Subscribe selector={s => s.values.selectedIndex} children={(selectedIndex) => <DialogTitle><DetailsTitleComponent index={selectedIndex} /></DialogTitle>} />}
+                            DialogContent={() => <tableForm.Subscribe selector={s => s.values.selectedIndex} children={(selectedIndex) => <DialogContent><DetailsBodyComponent index={selectedIndex} /></DialogContent>} />}
+                        />
+                    );
+                }
+                return (
+                    <DataTableDrawer 
+                        {...detailsFormProps as OverlayDrawerProps} 
+                        open={isDetailsFormOpen} 
+                        onOpenChange={(_, data) => { tableForm.setFieldValue('isDetailsFormOpen', data.open); if (!data.open) { tableForm.resetField('selectedIndex'); } }}
+                        onAction={onAction}
+                        NextButton={() => <tableForm.Subscribe selector={s => s.values.selectedIndex} children={(selectedIndex) => <ToolbarButton aria-label={t('Next')} icon={<NextRegular />} disabled={rows.length === selectedIndex + 1} onClick={() => { onNextPrev(selectedIndex + 1); }} />} />}
+                        PrevButton={() => <tableForm.Subscribe selector={s => s.values.selectedIndex} children={(selectedIndex) => <ToolbarButton aria-label={t('Prev')} icon={<PreviousRegular />} disabled={selectedIndex < 1} onClick={() => { onNextPrev(selectedIndex - 1); }} />} />}
+                        DrawerHeaderTitle={() => <tableForm.Subscribe selector={s => s.values.selectedIndex} children={(selectedIndex) => <DrawerHeaderTitle><DetailsTitleComponent index={selectedIndex} /></DrawerHeaderTitle>} />}
+                        DrawerBody={() => <tableForm.Subscribe selector={s => s.values.selectedIndex} children={(selectedIndex) => <DrawerBody><DetailsBodyComponent index={selectedIndex} /></DrawerBody>} />}
+                    />
+                );
+            }}
         />
     </>);
 }

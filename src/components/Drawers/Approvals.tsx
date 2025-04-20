@@ -22,7 +22,7 @@ export const ApprovalsDrawer = ({ field }: { field: AnyFieldApi }) => {
             </DrawerHeaderTitle>
         </DrawerHeader>
         <DrawerBody>
-            <form.AppField name="__Approvals" children={field => <field.Approvals />} />
+            <form.AppField name="__Approvals" mode="array" children={field => <field.Approvals />} />
         </DrawerBody>
     </>);
 };

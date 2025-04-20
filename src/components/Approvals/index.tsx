@@ -8,20 +8,26 @@ import { useFieldContext } from "../../hooks/formContext";
 
 const useStyles = makeStyles({
     root: {
-        width: 'unset'
+        width: 'unset',
+        marginRight: 'unset',
+        marginLeft: 'unset'
     }
 });
 export default () => {
     const styles = useStyles();
     const approvals = useFieldContext<Approval[]>();
-    return approvals.state.value.map((approval, index) => {
-        return (
-            <Fragment key={index}>
-                <Divider>{t(approval.Role)}</Divider>
-                <Chat className={styles.root}>
-                    <ApprovalChatMessage approval={approval} />
-                </Chat>
-            </Fragment>
-        );
-    });
+    return (
+        <div>
+            {approvals.state.value.map((approval, index) => {
+                return (
+                    <Fragment key={index}>
+                        <Divider>{t(approval.Role)}</Divider>
+                        <Chat className={styles.root}>
+                            <ApprovalChatMessage approval={approval} />
+                        </Chat>
+                    </Fragment>
+                );
+            })}
+        </div>
+    );
 };

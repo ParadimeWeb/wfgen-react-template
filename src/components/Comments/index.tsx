@@ -6,7 +6,9 @@ import { useFieldContext } from "../../hooks/formContext";
 
 const useStyles = makeStyles({
     root: {
-        width: 'unset'
+        width: 'unset',
+        marginRight: 'unset',
+        marginLeft: 'unset'
     }
 });
 export default () => {

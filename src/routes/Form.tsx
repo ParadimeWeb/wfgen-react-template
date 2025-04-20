@@ -1,4 +1,4 @@
-import { createTableColumn, DrawerBody, DrawerHeaderTitle, makeStyles, Option, Radio, TableCell, TableRow } from "@fluentui/react-components";
+import { createTableColumn, makeStyles, Option, Radio, TableCell } from "@fluentui/react-components";
 import { styleHelpers } from "../styles";
 import { FormFooter } from "../components/Form/Footer";
 import { employeesQueryOptions } from "../queryOptions";
@@ -10,9 +10,12 @@ import { type } from "arktype";
 import { csvToSet, setToCsv } from "../utils";
 import { type DataRow, type Table1 } from "../types";
 import { t } from "i18next";
+import { SectionDivider } from "../components/SectionDivider";
+import { useEffect, useRef } from "react";
 
 const useStyles = makeStyles({
     row: styleHelpers.row(),
+    row2: styleHelpers.row(2)
 });
 
 export function Form() {
@@ -23,7 +26,8 @@ export function Form() {
     return (
         <WfgFormProvider ctx={{ form, printForm }} autoSaveInterval={60000}>
             <FormHeader />
-            <FormContent>
+            <FormContent printProps={{ showComments: true, showApprovals: true }}>
+                <SectionDivider noTopPadding>Information</SectionDivider>
                 <div className={styles.row}>
                     <form.AppField 
                         name="Table1[0].FirstName"
@@ -149,6 +153,7 @@ export function Form() {
                         }
                     />
                 </div>
+                <SectionDivider>Gridview example (Dialog)</SectionDivider>
                 <div className={styles.row}>
                     <form.AppField 
                         name="SomeOtherTable"
@@ -193,25 +198,32 @@ export function Form() {
                                         </>);
                                     }}
                                     defaultItem={{ Field1: 'Default Value', Field2: null }}
-                                    DrawerHeaderTitle={(props) => {
+                                    detailsFormType="dialog"
+                                    DetailsTitleComponent={(props) => {
                                         const { index } = props;
                                         return (
-                                            <DrawerHeaderTitle>This is the title {index}</DrawerHeaderTitle>
+                                            <>This is the title {index}</>
                                         );
                                     }}
-                                    DrawerBodyComponent={(props) => {
+                                    DetailsBodyComponent={(props) => {
                                         const { index } = props;
+                                        const inputFocusRef = useRef<HTMLInputElement>(null);
+                                        useEffect(() => {
+                                            if (inputFocusRef.current) {
+                                                inputFocusRef.current.focus();
+                                            }
+                                        }, []);
                                         return (
-                                            <DrawerBody>
+                                            <>
                                                 <form.AppField 
                                                     name={`SomeOtherTable[${index}].Field1`}
-                                                    children={(field) => <field.TextField />}
+                                                    children={(field) => <field.TextField input={{ ref: inputFocusRef }} />}
                                                 />
                                                 <form.AppField 
                                                     name={`SomeOtherTable[${index}].Field2`}
                                                     children={(field) => <field.TextField />}
                                                 />
-                                            </DrawerBody>
+                                            </>
                                         );
                                     }}
                                 />
@@ -219,6 +231,96 @@ export function Form() {
                             
                         }}
                     />
+                </div>
+                <SectionDivider>Gridview example (Drawer)</SectionDivider>
+                <div className={styles.row}>
+                    <form.AppField 
+                        name="SomeOtherTable"
+                        mode="array"
+                        children={(field) => {
+                            return (
+                                <field.DataTable
+                                    columnsDef={[
+                                        createTableColumn<DataRow>({
+                                            columnId: "Field1",
+                                            renderHeaderCell: () => t('Field 1')
+                                        }),
+                                        createTableColumn<DataRow>({
+                                            columnId: "Field2",
+                                            renderHeaderCell: () => t('Field 2')
+                                        })
+                                    ]}
+                                    columnSizingOptions={{
+                                        Field1: {
+                                            minWidth: 200,
+                                            defaultWidth: 300
+                                        }
+                                    }}
+                                    TableCellComponent={(props) => {
+                                        const { index, columnSizing_unstable, CellActionsComponent } = props;
+                                        return (<>
+                                            <form.Subscribe 
+                                                selector={s => s.values.SomeOtherTable[index].Field1}
+                                                children={value => (
+                                                    <TableCell {...columnSizing_unstable.getTableCellProps("Field1")}>
+                                                        {value}
+                                                        {<CellActionsComponent />}
+                                                    </TableCell>
+                                                )}
+                                            />
+                                            <form.Subscribe 
+                                                selector={s => s.values.SomeOtherTable[index].Field2}
+                                                children={value => (
+                                                    <TableCell>{value}</TableCell>
+                                                )}
+                                            />
+                                        </>);
+                                    }}
+                                    defaultItem={{ Field1: 'Default Value', Field2: null }}
+                                    detailsFormType="drawer"
+                                    DetailsTitleComponent={(props) => {
+                                        const { index } = props;
+                                        return (
+                                            <>This is the title {index}</>
+                                        );
+                                    }}
+                                    DetailsBodyComponent={(props) => {
+                                        const { index } = props;
+                                        const inputFocusRef = useRef<HTMLInputElement>(null);
+                                        useEffect(() => {
+                                            if (inputFocusRef.current) {
+                                                inputFocusRef.current.focus();
+                                            }
+                                        }, []);
+                                        return (
+                                            <>
+                                                <form.AppField 
+                                                    name={`SomeOtherTable[${index}].Field1`}
+                                                    children={(field) => <field.TextField input={{ ref: inputFocusRef }} />}
+                                                />
+                                                <form.AppField 
+                                                    name={`SomeOtherTable[${index}].Field2`}
+                                                    children={(field) => <field.TextField />}
+                                                />
+                                            </>
+                                        );
+                                    }}
+                                />
+                            );
+                            
+                        }}
+                    />
+                </div>
+                <SectionDivider>Comments</SectionDivider>
+                <div className={styles.row2}>
+                    <form.AppField name="__Comments" mode="array" children={field => <field.NewCommentForm />} />
+                </div>
+                <div className={styles.row}>
+                    <form.AppField name="__Comments" mode="array" children={field => <field.Comments />} />
+                </div>
+                <SectionDivider>Approvals</SectionDivider>
+                <div className={styles.row}>
+                    <form.AppField name="__Approvals" mode="array" children={field => <field.Approvals />} />
                 </div>
             </FormContent>
             <FormFooter />

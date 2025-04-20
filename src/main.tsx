@@ -60,7 +60,13 @@ const archiveRoute = createRoute({
     component: Form
 });
 
-const routeTree = rootRoute.addChildren([formRoute, archiveRoute]);
+const archiveRouteV9 = createRoute({
+    getParentRoute: () => rootRoute,
+    path: '/wfgen/workflow/data/files/$aspx',
+    component: Form
+});
+
+const routeTree = rootRoute.addChildren([formRoute, archiveRoute, archiveRouteV9]);
 
 const router = createRouter({
     routeTree,

@@ -19,15 +19,24 @@ const useStyles = makeStyles({
     }
 });
 type FormContentProps = {
-    children: React.ReactNode;
-    className?: string;
+    children: React.ReactNode
+    className?: string
+    printProps?: {
+        showComments?: boolean
+        showApprovals?: boolean
+    }
 };
 
 const PrintView = (props: FormContentProps) => {
     const {
         children,
-        className
+        className,
+        printProps = {
+            showApprovals: false,
+            showComments: false
+        }
     } = props;
+    const { showApprovals = false, showComments = false } = printProps;
     const styles = useStyles();
     const { t } = useTranslation();
     const { configuration, currentUser, timeZoneInfo, isArchive } = useFormInitQuery();
@@ -37,14 +46,18 @@ const PrintView = (props: FormContentProps) => {
     return (
         <main className={mergeClasses('wfg-main', styles.main, className)}>
             {children}
+            {showApprovals && approvals.length > 0 ?
             <form.AppField 
                 name="__Approvals"
-                children={field => approvals.length > 0 ? <><Divider>Approvals</Divider><field.Approvals /></> : null}
-            />
+                children={field => <><Divider>Approvals</Divider><field.Approvals /></>}
+            /> 
+            : null}
+            {showComments && comments.length > 0 ?
             <form.AppField 
                 name="__Comments"
-                children={(field) => comments.length > 0 ? <><Divider>Comments</Divider><field.Comments /></> : null}
+                children={(field) => <><Divider>Comments</Divider><field.Comments /></>}
             />
+            : null}
             <div>
                 <Divider alignContent="end">
                     <Caption1 className={styles.colorNeutralForeground4}>
