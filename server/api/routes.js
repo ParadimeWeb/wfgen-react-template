@@ -26,6 +26,7 @@ router.post("/Default.aspx", async (req, res) => {
     const action = body.__WFGENACTION;
     switch (action) {
         case "ASYNC_INIT":
+            await new Promise((resolve) => setTimeout(resolve, 5000));
             json = initData;
             break;
         case "ASYNC_GetUsers":

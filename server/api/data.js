@@ -214,11 +214,11 @@ export const initData = {
         "ActivityItems": [],
         "SomeOtherTable": [
             {
-                "Field1": "",
-                "Field2": null
+                "Field1": "This is field 1",
+                "Field2": "Field 2 is not null here"
             },
             {
-                "Field1": "",
+                "Field1": "Another field 1",
                 "Field2": null
             }
         ],

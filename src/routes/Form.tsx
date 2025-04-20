@@ -1,4 +1,4 @@
-import { makeStyles, Option, Radio } from "@fluentui/react-components";
+import { createTableColumn, makeStyles, Option, Radio, TableCell, TableRow } from "@fluentui/react-components";
 import { styleHelpers } from "../styles";
 import { FormFooter } from "../components/Form/Footer";
 import { employeesQueryOptions } from "../queryOptions";
@@ -8,7 +8,9 @@ import { FormHeader } from "../components/Form/Header";
 import { FormContent } from "../components/Form/Content";
 import { type } from "arktype";
 import { csvToSet, setToCsv } from "../utils";
-import type { Table1 } from "../types";
+import { type DataRow, type Table1 } from "../types";
+import { type RowProps } from "../components/FormFields/DataTable";
+import { t } from "i18next";
 
 const useStyles = makeStyles({
     row: styleHelpers.row(),
@@ -146,6 +148,56 @@ export function Form() {
                                 <Radio value="N" label="No" />
                             </field.RadioGroup>
                         }
+                    />
+                </div>
+                <div className={styles.row}>
+                    <form.AppField 
+                        name="SomeOtherTable"
+                        children={(field) => {
+                            return (
+                                <field.DataTable
+                                    columnsDef={[
+                                        createTableColumn<DataRow>({
+                                            columnId: "Field1",
+                                            renderHeaderCell: () => t('Field 1')
+                                        }),
+                                        createTableColumn<DataRow>({
+                                            columnId: "Field2",
+                                            renderHeaderCell: () => t('Field 2')
+                                        })
+                                    ]}
+                                    columnSizingOptions={{
+                                        Field1: {
+                                            minWidth: 200,
+                                            defaultWidth: 300
+                                        },
+                                        Field2: {
+                                            minWidth: 150,
+                                            defaultWidth: 200
+                                        }
+                                    }}
+                                    RowComponent={(props) => {
+                                        const { item, columnSizing_unstable, renderActions } = props;
+                                        return (
+                                            <TableRow>
+                                                <TableCell {...columnSizing_unstable.getTableCellProps("Field1")}>
+                                                    {item.Field1}
+                                                    {renderActions()}
+                                                </TableCell>
+                                                <TableCell {...columnSizing_unstable.getTableCellProps("Field2")}>{item.Field2}</TableCell>
+                                            </TableRow>
+                                        );
+                                    }}
+                                    DetailsComponent={(props) => {
+                                        const { index } = props;
+                                        return (
+                                            <div>Details for index: {index}</div>
+                                        );
+                                    }}
+                                />
+                            );
+                            
+                        }}
                     />
                 </div>
             </FormContent>

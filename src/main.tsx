@@ -14,7 +14,7 @@ import { createRootRouteWithContext, createRoute, createRouter, RouterProvider }
 import { initQueryOptions } from "./queryOptions";
 import { Root } from "./routes/Root";
 import { Form } from "./routes/Form";
-import { PendingComponent } from "./components/PendingComponent";
+import { FormSkeleton } from "./components/Form/Skeleton";
 
 dayjs.extend(localeData);
 dayjs.extend(localizedFormat);
@@ -68,7 +68,7 @@ const router = createRouter({
     defaultPreload: 'intent',
     defaultPreloadStaleTime: 0,
     scrollRestoration: true,
-    defaultPendingComponent: PendingComponent
+    defaultPendingComponent: FormSkeleton
 });
 
 declare module "@tanstack/react-router" {

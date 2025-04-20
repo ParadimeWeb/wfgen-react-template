@@ -73,14 +73,6 @@ const useStyles = makeStyles({
         whiteSpace: 'pre-wrap'
     }
 });
-function readableBytes(bytes: number, locale: string) {
-    if (bytes < 1) return '0 {{bytes}}';
-    let numberFormat = new Intl.NumberFormat(locale, { maximumFractionDigits: 2 });
-    let i = Math.floor(Math.log(bytes) / Math.log(1024)),
-    sizes = ['{{bytes}}', '{{kiloBytes}}', '{{megaBytes}}', '{{gigaBytes}}'],
-    readableNumber = bytes / Math.pow(1024, i);
-    return `${numberFormat.format(readableNumber)} ${sizes[i]}`;
-}
 
 type FileFieldProps = {
     fieldProps?: FieldProps
@@ -209,7 +201,6 @@ function View(props: Omit<FileFieldProps, 'mode'> & { mode: 'field' | 'fields' |
     } = props;
     const styles = useStyles();
     const { t } = useTranslation();
-    const { locale } = useFormInitQuery();
     const { form } = useWfgFormContext();
     const field = useFieldContext<DataRow[] | string>();
     const fileInput = useRef<HTMLInputElement | null>(null);
@@ -217,46 +208,6 @@ function View(props: Omit<FileFieldProps, 'mode'> & { mode: 'field' | 'fields' |
         defaultValues: {
             isDragOver: false,
             files: [] as TFile[]
-        },
-        onSubmit: ({ value: { files: fileUploads } }) => {
-            if (mode === 'fields') {
-                fileUploads.forEach((fuRes, i) => {
-                    const fu = new URLSearchParams();
-                    fu.set("Key", availableFields[i]);
-                    fu.set("Name", fuRes.Name);
-                    fu.set("Path", fuRes.Path!);
-                    form.setFieldValue(`Table1[0].${availableFields[i]}`, fu.toString());
-                    field.pushValue({ Field: availableFields[i] });
-                });
-                uploadForm.reset();
-                return;
-            }
-            if (mode === 'zip') {
-                const fu = new URLSearchParams();
-                const names = files.length > 0 ? files[0][1].getAll('Name') : [];
-                const paths = files.length > 0 ? files[0][1].getAll('Path') : [];
-                let i = 0;
-                for (; i < names.length; i++) {
-                    fu.append('Key', `Zip${i}`);
-                    fu.append('Path', paths[i]);
-                    fu.append('Name', names[i]);
-                }
-                fileUploads.forEach((fuRes, index) => {
-                    fu.append("Key", `Zip${i + index}`);
-                    fu.append("Path", fuRes.Path!);
-                    fu.append("Name", fuRes.Name);
-                });
-                console.log(fu.toString());
-                field.handleChange(fu.toString());
-                uploadForm.reset();
-                return;
-            }
-            const fu = new URLSearchParams();
-            fu.set("Key", fields[0]);
-            fu.set("Path", fileUploads[0].Path!);
-            fu.set("Name", fileUploads[0].Name);
-            field.handleChange(fu.toString());
-            uploadForm.reset();
         }
     });
     const availableFields = mode === 'fields' ? fields.filter(f => !values.has(f)) : [];
@@ -272,44 +223,69 @@ function View(props: Omit<FileFieldProps, 'mode'> & { mode: 'field' | 'fields' |
                         name="files"
                         validators={{
                             onChange: ({ value }) => {
-                                const errorFiles = value.filter(f => f.Error !== undefined);
-                                if (errorFiles.length > 0) {
-                                    return errorFiles.map(f => t(f.Error!, { name: f.Name }));
-                                }
-
+                                if (mode !== 'fields') return undefined;
+                                    
                                 const uploadFiles = value.filter(f => { return f.File !== undefined; });
-                                if (uploadFiles.length > 0) {
-                                    if (mode === 'fields' && uploadFiles.length > availableFields.length) {
-                                        return [t('A maximum of {{count, number}} files can be uploaded. Delete some files to try again.', { count: fields.length })];
-                                    }
-                            
-                                    let contentLength = 0;
-                                    for (let i = 0; i < uploadFiles.length; i++) { 
-                                        contentLength += uploadFiles[0].File!.size;
-                                    }
-                                    if (contentLength > maxAllowedContentLength) {
-                                        const sizes = { bytes: t('bytes'), kiloBytes: t('kiloBytes'), megaBytes: t('megaBytes'), gigaBytes: t('gigaBytes') };
-                                        return [t('A maximum content size of {{max}} can be uploaded at one time. Failed to upload {{actual}}.', { 
-                                            max: t(readableBytes(maxAllowedContentLength, locale), sizes),
-                                            actual: t(readableBytes(contentLength, locale), sizes)
-                                        })];
-                                    }
-                                    return undefined;
+                                if (uploadFiles.length > availableFields.length) {
+                                    uploadForm.reset();
+                                    return [t('A maximum of {{count, number}} files can be uploaded. Delete some files to try again.', { count: fields.length })];
                                 }
 
-                                if (fileInput?.current) {
+                                return undefined;
+                            },
+                            onSubmit: ({ value }) => {
+                                if (value.some(f => f.File !== undefined)) return undefined;
+
+                                if (fileInput?.current) { 
                                     fileInput.current.value = '';
                                 }
-                                uploadForm.handleSubmit();
+                                if (mode === 'fields') {
+                                    value.forEach((fuRes, i) => {
+                                        const fu = new URLSearchParams();
+                                        fu.set("Key", availableFields[i]);
+                                        fu.set("Name", fuRes.Name);
+                                        fu.set("Path", fuRes.Path!);
+                                        form.setFieldValue(`Table1[0].${availableFields[i]}`, fu.toString());
+                                        field.pushValue({ Field: availableFields[i] });
+                                    });
+                                    uploadForm.resetField('files');
+                                    return undefined;
+                                }
+                                if (mode === 'zip') {
+                                    const fu = new URLSearchParams();
+                                    const names = files.length > 0 ? files[0][1].getAll('Name') : [];
+                                    const paths = files.length > 0 ? files[0][1].getAll('Path') : [];
+                                    let i = 0;
+                                    for (; i < names.length; i++) {
+                                        fu.append('Key', `Zip${i}`);
+                                        fu.append('Path', paths[i]);
+                                        fu.append('Name', names[i]);
+                                    }
+                                    value.forEach((fuRes, index) => {
+                                        fu.append("Key", `Zip${i + index}`);
+                                        fu.append("Path", fuRes.Path!);
+                                        fu.append("Name", fuRes.Name);
+                                    });
+                                    field.handleChange(fu.toString());
+                                    uploadForm.resetField('files');
+                                    return undefined;
+                                }
+                                const fu = new URLSearchParams();
+                                fu.set("Key", fields[0]);
+                                fu.set("Path", value[0].Path!);
+                                fu.set("Name", value[0].Name);
+                                field.handleChange(fu.toString());
+                                uploadForm.resetField('files');
+
                                 return undefined;
                             }
                         }}
                         children={uploadFilesField => {
-                            const fileTags: TFile[] = [
+                            const fileTags = [
                                 ...files.flatMap(([_, fu]) => { 
                                     const names = fu.getAll('Name');
                                     const paths = fu.getAll('Path');
-                                    return fu.getAll('Key').map((Key, i) => ({ Key, Name: names[i], Path: paths[i] }));
+                                    return fu.getAll('Key').map((Key, i) => ({ Key, Name: names[i], Path: paths[i] } as TFile));
                                 }),
                                 ...uploadFilesField.state.value
                             ];
@@ -386,9 +362,10 @@ function View(props: Omit<FileFieldProps, 'mode'> & { mode: 'field' | 'fields' |
                                                         size={tagSize} 
                                                         disabled={disabled}
                                                         maxFileNameLength={maxFileNameLength}
+                                                        maxAllowedContentLength={maxAllowedContentLength}
                                                         onUploaded={(f) => {
-                                                            console.log(i - uploadFilesStartIndex, f);
                                                             uploadFilesField.replaceValue(i - uploadFilesStartIndex, { ...f });
+                                                            uploadForm.handleSubmit();
                                                         }}
                                                         onClick={() => {
                                                             downloadFile(f.Key, f.Path!);
