@@ -1,4 +1,4 @@
-import { createTableColumn, makeStyles, Option, Radio, TableCell, TableRow } from "@fluentui/react-components";
+import { createTableColumn, DrawerBody, DrawerHeaderTitle, makeStyles, Option, Radio, TableCell, TableRow } from "@fluentui/react-components";
 import { styleHelpers } from "../styles";
 import { FormFooter } from "../components/Form/Footer";
 import { employeesQueryOptions } from "../queryOptions";
@@ -9,7 +9,6 @@ import { FormContent } from "../components/Form/Content";
 import { type } from "arktype";
 import { csvToSet, setToCsv } from "../utils";
 import { type DataRow, type Table1 } from "../types";
-import { type RowProps } from "../components/FormFields/DataTable";
 import { t } from "i18next";
 
 const useStyles = makeStyles({
@@ -153,6 +152,7 @@ export function Form() {
                 <div className={styles.row}>
                     <form.AppField 
                         name="SomeOtherTable"
+                        mode="array"
                         children={(field) => {
                             return (
                                 <field.DataTable
@@ -170,28 +170,48 @@ export function Form() {
                                         Field1: {
                                             minWidth: 200,
                                             defaultWidth: 300
-                                        },
-                                        Field2: {
-                                            minWidth: 150,
-                                            defaultWidth: 200
                                         }
                                     }}
-                                    RowComponent={(props) => {
-                                        const { item, columnSizing_unstable, renderActions } = props;
-                                        return (
-                                            <TableRow>
-                                                <TableCell {...columnSizing_unstable.getTableCellProps("Field1")}>
-                                                    {item.Field1}
-                                                    {renderActions()}
-                                                </TableCell>
-                                                <TableCell {...columnSizing_unstable.getTableCellProps("Field2")}>{item.Field2}</TableCell>
-                                            </TableRow>
-                                        );
+                                    TableCellComponent={(props) => {
+                                        const { index, columnSizing_unstable, CellActionsComponent } = props;
+                                        return (<>
+                                            <form.Subscribe 
+                                                selector={s => s.values.SomeOtherTable[index].Field1}
+                                                children={value => (
+                                                    <TableCell {...columnSizing_unstable.getTableCellProps("Field1")}>
+                                                        {value}
+                                                        {<CellActionsComponent />}
+                                                    </TableCell>
+                                                )}
+                                            />
+                                            <form.Subscribe 
+                                                selector={s => s.values.SomeOtherTable[index].Field2}
+                                                children={value => (
+                                                    <TableCell>{value}</TableCell>
+                                                )}
+                                            />
+                                        </>);
                                     }}
-                                    DetailsComponent={(props) => {
+                                    defaultItem={{ Field1: 'Default Value', Field2: null }}
+                                    DrawerHeaderTitle={(props) => {
                                         const { index } = props;
                                         return (
-                                            <div>Details for index: {index}</div>
+                                            <DrawerHeaderTitle>This is the title {index}</DrawerHeaderTitle>
+                                        );
+                                    }}
+                                    DrawerBodyComponent={(props) => {
+                                        const { index } = props;
+                                        return (
+                                            <DrawerBody>
+                                                <form.AppField 
+                                                    name={`SomeOtherTable[${index}].Field1`}
+                                                    children={(field) => <field.TextField />}
+                                                />
+                                                <form.AppField 
+                                                    name={`SomeOtherTable[${index}].Field2`}
+                                                    children={(field) => <field.TextField />}
+                                                />
+                                            </DrawerBody>
                                         );
                                     }}
                                 />

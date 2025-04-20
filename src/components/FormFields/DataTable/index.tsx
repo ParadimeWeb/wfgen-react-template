@@ -1,74 +1,34 @@
-import { Button, Table, TableBody, TableCell, TableCellActions, TableCellLayout, TableHeader, TableHeaderCell, TableRow, tokens, useTableColumnSizing_unstable, useTableFeatures, type OverlayDrawerProps, type TableColumnDefinition, type TableColumnSizingOptions, type TableRowData } from "@fluentui/react-components";
+import { Table, TableBody, TableCell, TableHeader, TableHeaderCell, TableRow, useTableColumnSizing_unstable, useTableFeatures, type DrawerBodyProps, type DrawerHeaderTitleProps, type OverlayDrawerProps, type TableColumnDefinition, type TableColumnSizingOptions, type TableRowData } from "@fluentui/react-components";
 import { useFieldContext } from "../../../hooks/formContext";
 import type { DataRow } from "../../../types";
-import { useForm, type AnyFieldApi, type AnyFormApi } from "@tanstack/react-form";
+import { useForm } from "@tanstack/react-form";
 import type { ComponentType } from "react";
-import { AddFilled, AddRegular, bundleIcon, DeleteFilled, DeleteRegular, EditFilled, EditRegular, OpenFilled, OpenRegular } from "@fluentui/react-icons";
-import { useTranslation } from "react-i18next";
-import { useFormInitQuery } from "../../../hooks/useFormInitQuery";
 import { DataTableDrawer } from "./Drawer";
+import { CellActions, NoRowsCellActions } from "./CellActions";
+import { useWfgFormContext } from "../../../hooks/useWfgFormContext";
+import { useFormInitQuery } from "../../../hooks/useFormInitQuery";
 
-const EditIcon = bundleIcon(EditFilled, EditRegular);
-const AddIcon = bundleIcon(AddFilled, AddRegular);
-const DeleteIcon = bundleIcon(DeleteFilled, DeleteRegular);
-const ViewIcon = bundleIcon(OpenFilled, OpenRegular);
-
-export type RowProps = {
+type RowProps = {
     item: DataRow
     index: number
     rows: TableRowData<DataRow>[]
     columnSizing_unstable: ReturnType<typeof useTableFeatures<DataRow>>['columnSizing_unstable']
-    renderActions: () => JSX.Element
+    CellActionsComponent: ComponentType
 };
-export type DetailsProps = {
-    index: number
-};
-export type DataTableProps = {
+type DataTableProps = {
     columnsDef: TableColumnDefinition<DataRow>[]
     columnSizingOptions: TableColumnSizingOptions
-    RowComponent: ComponentType<RowProps>
-    DetailsComponent: ComponentType<DetailsProps>
+    TableCellComponent: ComponentType<RowProps>
+    DrawerBodyComponent: ComponentType<DrawerBodyProps & { index: number }>
+    DrawerHeaderTitle: ComponentType<DrawerHeaderTitleProps & { index: number }>
     drawerProps?: OverlayDrawerProps
+    defaultItem?: DataRow
 };
 
-const Actions = (props: { form: AnyFormApi, index: number }) => {
-    const { form, index } = props;
-    const { isArchive } = useFormInitQuery();
-    const { t } = useTranslation();
-    return (
-        <TableCellActions>
-            <Button 
-                icon={isArchive ? <ViewIcon /> : <EditIcon />} 
-                appearance="subtle" 
-                aria-label={isArchive ? t('View') : t('Edit')}
-                onClick={() => {
-                    form.setFieldValue('isDrawerOpen', true);
-                    form.setFieldValue('selectedIndex', index);
-                }}
-            />
-            <Button 
-                icon={<AddIcon />} 
-                appearance="subtle" 
-                aria-label={t('Add')} 
-                onClick={() => {
-                    form.setFieldValue('isDrawerOpen', true);
-                    form.setFieldValue('selectedIndex', index);
-                }} 
-            />
-            <Button 
-                icon={<DeleteIcon color={tokens.colorPaletteRedForeground1} />} 
-                appearance="subtle" 
-                aria-label={t('Delete')} 
-                onClick={() => {
-                    
-                }} 
-            />
-        </TableCellActions>
-    );
-}
 function View(props: DataTableProps) {
-    const { columnsDef, columnSizingOptions, RowComponent, DetailsComponent, drawerProps = {} } = props;
-    const { t } = useTranslation();
+    const { columnsDef, columnSizingOptions, TableCellComponent, DrawerBodyComponent, DrawerHeaderTitle, drawerProps = {}, defaultItem = {} } = props;
+    const { printForm: { state: { values: { open: isPrintView } } } } = useWfgFormContext();
+    const { isArchive } = useFormInitQuery();
     const field = useFieldContext<DataRow[]>();
     const tableForm = useForm({
         defaultValues: {
@@ -97,16 +57,60 @@ function View(props: DataTableProps) {
                 </TableRow>
             </TableHeader>
             <TableBody>
-                {rows.length === 0 ? (
+                {!isPrintView && !isArchive && rows.length === 0 ? (
                     <TableRow>
-                        <TableCell colSpan={columns.length}>
-                            <TableCellLayout>
-                                <Button aria-label={t('Add')} icon={<AddIcon />} appearance="subtle" onClick={() => {}}>{t('Add first item')}</Button>
-                            </TableCellLayout>
+                        <TableCell rowSpan={columns.length}>
+                            <NoRowsCellActions
+                                onClick={() => {
+                                    tableForm.setFieldValue('isDrawerOpen', true);
+                                    tableForm.setFieldValue('selectedIndex', 0);
+                                    field.pushValue({...defaultItem});
+                                }}
+                            />
                         </TableCell>
                     </TableRow>
                 ) : null}
-                {rows.map(({ item }, index, rows) => <RowComponent key={`datatablerow-${index}`} index={index} item={item} rows={rows} columnSizing_unstable={columnSizing_unstable} renderActions={() => <Actions form={tableForm} index={index} />} />)}
+                {rows.map(({ item }, index, rows) => (
+                    <tableForm.Subscribe 
+                        key={`datatablerow-${index}`} 
+                        selector={s => s.values.selectedIndex}
+                        children={(selectedIndex) => {
+                            return (
+                                <TableRow appearance={selectedIndex === index ? 'brand' : 'none'}>
+                                    <TableCellComponent 
+                                        index={index} 
+                                        item={item} 
+                                        rows={rows} 
+                                        columnSizing_unstable={columnSizing_unstable} 
+                                        CellActionsComponent={() => isPrintView ? null : (
+                                            <CellActions
+                                                onClick={(type) => {
+                                                    if (type === 'add') {
+                                                        tableForm.setFieldValue('selectedIndex', index + 1);
+                                                        field.insertValue(index + 1, {...defaultItem});
+                                                        tableForm.setFieldValue('isDrawerOpen', true);
+                                                        return;
+                                                    }
+                                                    if (type === 'edit') {
+                                                        tableForm.setFieldValue('selectedIndex', index);
+                                                        field.replaceValue(index, {...item});
+                                                        tableForm.setFieldValue('isDrawerOpen', true);
+                                                        return;
+                                                    }
+                                                    field.removeValue(index);
+                                                    if (tableForm.getFieldValue('isDrawerOpen') && (rows.length - 1) === index) {
+                                                        tableForm.setFieldValue('selectedIndex', index - 1);
+                                                        tableForm.setFieldValue('isDrawerOpen', index > 0);
+                                                    }
+                                                }}
+                                            />
+                                        )} 
+                                    />
+                                </TableRow>
+                            );
+                        }}
+                    />
+                ))}
             </TableBody>
         </Table>
         <tableForm.Subscribe 
@@ -114,9 +118,30 @@ function View(props: DataTableProps) {
             children={(isDrawerOpen) => (
                 <DataTableDrawer 
                     {...drawerProps} 
-                    form={tableForm} 
                     open={isDrawerOpen} 
-                    details={<tableForm.Subscribe selector={s => s.values.selectedIndex} children={(selectedIndex) => <DetailsComponent index={selectedIndex} />} />}
+                    onOpenChange={(_, data) => { tableForm.setFieldValue('isDrawerOpen', data.open); }}
+                    onAction={(type) => { 
+                        if (type === 'add') {
+                            const index = tableForm.getFieldValue('selectedIndex');
+                            tableForm.setFieldValue('selectedIndex', index + 1);
+                            field.insertValue(index + 1, {...defaultItem});
+                            return;
+                        }
+                        if (type === 'remove') {
+                            const index = tableForm.getFieldValue('selectedIndex');
+                            field.removeValue(index);
+                            if ((rows.length - 1) === index) {
+                                tableForm.setFieldValue('selectedIndex', index - 1);
+                                tableForm.setFieldValue('isDrawerOpen', index > 0);
+                                return;
+                            }
+                            return;
+                        }
+                        tableForm.setFieldValue('isDrawerOpen', false); 
+                        tableForm.resetField('selectedIndex'); 
+                    }}
+                    DrawerHeaderTitle={() => <tableForm.Subscribe selector={s => s.values.selectedIndex} children={(selectedIndex) => <DrawerHeaderTitle index={selectedIndex} />} />}
+                    DrawerBody={() => <tableForm.Subscribe selector={s => s.values.selectedIndex} children={(selectedIndex) => <DrawerBodyComponent index={selectedIndex} />} />}
                 />
             )}
         />
