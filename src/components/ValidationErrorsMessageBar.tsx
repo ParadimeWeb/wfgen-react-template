@@ -14,9 +14,10 @@ export const ValidationErrorsMessageBar = () => {
     const { form } = useWfgFormContext();
     return (
         <form.Subscribe 
-            selector={s => s.submissionAttempts}
+            selector={s => s.canSubmit}
             children={() => {
                 const errors = form.getAllErrors();
+                console.log('ValidationErrorsMessageBar', errors);
                 const count = Object.keys(errors.fields).length;
                 if (count < 1) {
                     return null;

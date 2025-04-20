@@ -134,7 +134,7 @@ function View(props: NumberFieldProps) {
                                         contentAfter={style === 'currency' ? <Text size={400}>{currencySign}</Text> : style === 'percent' ? <Text size={400}>{percentSign}</Text> : <NumberRowRegular />}
                                         value={formattedField.state.value}
                                         onBlur={() => {
-                                            if (form.state.isValid && value !== null) {
+                                            if (value !== null) {
                                                 if (!Number.isInteger(value)) {
                                                     if (style === 'percent') {
                                                         field.setValue(Math.round(value)/100);
