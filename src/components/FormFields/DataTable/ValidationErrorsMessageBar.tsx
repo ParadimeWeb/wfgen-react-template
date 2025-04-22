@@ -13,10 +13,9 @@ export const ValidationErrorsMessageBar = (props: { form: DataRowForm }) => {
     const { t } = useTranslation();
     return (
         <form.Subscribe 
-            selector={s => s.canSubmit}
-            children={(errorMap) => {
+            selector={s => s.errorMap}
+            children={() => {
                 const errors = form.getAllErrors();
-                console.log('ValidationErrorsMessageBar', errorMap);
                 const count = Object.keys(errors.fields).length;
                 if (count < 1) {
                     return null;

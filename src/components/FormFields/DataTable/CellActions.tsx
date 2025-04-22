@@ -2,6 +2,7 @@ import { useTranslation } from "react-i18next";
 import { useFormInitQuery } from "../../../hooks/useFormInitQuery";
 import { Button, TableCellActions, tokens } from "@fluentui/react-components";
 import { AddFilled, AddRegular, bundleIcon, DeleteFilled, DeleteRegular, EditFilled, EditRegular, OpenFilled, OpenRegular } from "@fluentui/react-icons";
+import type { Action } from ".";
 
 const EditIcon = bundleIcon(EditFilled, EditRegular);
 const AddIcon = bundleIcon(AddFilled, AddRegular);
@@ -9,13 +10,13 @@ const DeleteIcon = bundleIcon(DeleteFilled, DeleteRegular);
 const ViewIcon = bundleIcon(OpenFilled, OpenRegular);
 
 export type CellActionsProps = {
-    onClick: (type: 'edit' | 'add' | 'remove') => void
+    onClick: (type: Action) => void
 };
 export const NoRowsCellActions = (props: CellActionsProps) => {
     const { onClick } = props;
     const { t } = useTranslation();
     return (
-        <Button aria-label={t('Add')} icon={<AddIcon />} onClick={() => { onClick('add'); }}>{t('Add first item')}</Button>
+        <Button aria-label={t('Add')} icon={<AddIcon />} onClick={() => { onClick('add_cell'); }}>{t('Add first item')}</Button>
     );
 }
 export const CellActions = (props: CellActionsProps) => {
@@ -35,13 +36,13 @@ export const CellActions = (props: CellActionsProps) => {
                 icon={<AddIcon />} 
                 appearance="subtle" 
                 aria-label={t('Add')} 
-                onClick={() => { onClick('add'); }} 
+                onClick={() => { onClick('add_cell'); }} 
             />
             <Button 
                 icon={<DeleteIcon color={tokens.colorPaletteRedForeground1} />} 
                 appearance="subtle" 
                 aria-label={t('Delete')} 
-                onClick={() => { onClick('remove'); }} 
+                onClick={() => { onClick('remove_cell'); }} 
             />
             </>}
         </TableCellActions>

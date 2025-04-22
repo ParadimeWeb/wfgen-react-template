@@ -178,23 +178,13 @@ export function Form() {
                                         }
                                     }}
                                     TableCellComponent={(props) => {
-                                        const { index, columnSizing_unstable, CellActionsComponent } = props;
+                                        const { item, columnSizing_unstable, CellActionsComponent } = props;
                                         return (<>
-                                            <form.Subscribe 
-                                                selector={s => s.values.SomeOtherTable[index].Field1}
-                                                children={value => (
-                                                    <TableCell {...columnSizing_unstable.getTableCellProps("Field1")}>
-                                                        {value}
-                                                        {<CellActionsComponent />}
-                                                    </TableCell>
-                                                )}
-                                            />
-                                            <form.Subscribe 
-                                                selector={s => s.values.SomeOtherTable[index].Field2}
-                                                children={value => (
-                                                    <TableCell>{value}</TableCell>
-                                                )}
-                                            />
+                                            <TableCell {...columnSizing_unstable.getTableCellProps("Field1")}>
+                                                {item.Field1}
+                                                {<CellActionsComponent />}
+                                            </TableCell>
+                                            <TableCell>{item.Field2}</TableCell>
                                         </>);
                                     }}
                                     defaultItem={{ Field1: 'Default Value', Field2: null }}
@@ -206,7 +196,7 @@ export function Form() {
                                         );
                                     }}
                                     DetailsBodyComponent={(props) => {
-                                        const { index, form } = props;
+                                        const { form } = props;
                                         const inputFocusRef = useRef<HTMLInputElement>(null);
                                         useEffect(() => {
                                             if (inputFocusRef.current) {
@@ -216,14 +206,14 @@ export function Form() {
                                         return (
                                             <>
                                                 <form.AppField 
-                                                    name="row.Field1"
+                                                    name="Field1"
                                                     validators={{
                                                         onSubmit: type("string > 0")
                                                     }}
                                                     children={(field) => <field.TextField input={{ ref: inputFocusRef }} />}
                                                 />
                                                 <form.AppField 
-                                                    name="row.Field2"
+                                                    name="Field2"
                                                     children={(field) => <field.TextField />}
                                                 />
                                             </>
@@ -260,23 +250,13 @@ export function Form() {
                                         }
                                     }}
                                     TableCellComponent={(props) => {
-                                        const { index, columnSizing_unstable, CellActionsComponent } = props;
+                                        const { columnSizing_unstable, CellActionsComponent, item } = props;
                                         return (<>
-                                            <form.Subscribe 
-                                                selector={s => s.values.SomeOtherTable[index].Field1}
-                                                children={value => (
-                                                    <TableCell {...columnSizing_unstable.getTableCellProps("Field1")}>
-                                                        {value}
-                                                        {<CellActionsComponent />}
-                                                    </TableCell>
-                                                )}
-                                            />
-                                            <form.Subscribe 
-                                                selector={s => s.values.SomeOtherTable[index].Field2}
-                                                children={value => (
-                                                    <TableCell>{value}</TableCell>
-                                                )}
-                                            />
+                                            <TableCell {...columnSizing_unstable.getTableCellProps("Field1")}>
+                                                {item.Field1}
+                                                {<CellActionsComponent />}
+                                            </TableCell>
+                                            <TableCell>{item.Field2}</TableCell>
                                         </>);
                                     }}
                                     defaultItem={{ Field1: 'Default Value', Field2: null }}
@@ -288,7 +268,7 @@ export function Form() {
                                         );
                                     }}
                                     DetailsBodyComponent={(props) => {
-                                        const { index, form } = props;
+                                        const { form } = props;
                                         const inputFocusRef = useRef<HTMLInputElement>(null);
                                         useEffect(() => {
                                             if (inputFocusRef.current) {
@@ -298,14 +278,17 @@ export function Form() {
                                         return (
                                             <>
                                                 <form.AppField 
-                                                    name="row.Field1"
+                                                    name="Field1"
                                                     validators={{
                                                         onSubmit: type("string > 0")
                                                     }}
                                                     children={(field) => <field.TextField input={{ ref: inputFocusRef }} />}
                                                 />
                                                 <form.AppField 
-                                                    name="row.Field2"
+                                                    name="Field2"
+                                                    validators={{
+                                                        onSubmit: type("string > 0")
+                                                    }}
                                                     children={(field) => <field.TextField />}
                                                 />
                                             </>
