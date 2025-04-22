@@ -1,7 +1,6 @@
 import { Button, DialogContent, DialogTitle, DrawerBody, DrawerHeaderTitle, Table, TableBody, TableCell, TableHeader, TableHeaderCell, TableRow, ToolbarButton, useTableColumnSizing_unstable, useTableFeatures, type DialogProps, type OverlayDrawerProps, type TableColumnDefinition, type TableColumnSizingOptions, type TableRowData } from "@fluentui/react-components";
 import { useFieldContext } from "../../../hooks/formContext";
 import type { DataRow } from "../../../types";
-import { useForm } from "@tanstack/react-form";
 import type { ComponentType } from "react";
 import { DataTableDrawer } from "../../Drawers/DataTable";
 import { CellActions, NoRowsCellActions } from "./CellActions";
@@ -10,6 +9,8 @@ import { useFormInitQuery } from "../../../hooks/useFormInitQuery";
 import { DataTableDialog } from "../../Dialogs/DataTable";
 import { NextRegular, PreviousRegular } from "@fluentui/react-icons";
 import { useTranslation } from "react-i18next";
+import { useAppForm } from "../../../hooks/useWfgForm";
+import { useForm } from "@tanstack/react-form";
 
 type RowProps = {
     item: DataRow
@@ -18,11 +19,17 @@ type RowProps = {
     columnSizing_unstable: ReturnType<typeof useTableFeatures<DataRow>>['columnSizing_unstable']
     CellActionsComponent: ComponentType
 };
+function useWfgDataRowForm(defaultValues: { index: number, row: DataRow }) {
+    return useAppForm({
+        defaultValues
+    });
+}
+export type DataRowForm = ReturnType<typeof useWfgDataRowForm>;
 type _DataTableProps = {
     columnsDef: TableColumnDefinition<DataRow>[]
     columnSizingOptions: TableColumnSizingOptions
     TableCellComponent: ComponentType<RowProps>
-    DetailsBodyComponent: ComponentType<{ index: number }>
+    DetailsBodyComponent: ComponentType<{ index: number, form: DataRowForm }>
     DetailsTitleComponent: ComponentType<{ index: number }>
     defaultItem?: DataRow
 };
@@ -50,6 +57,17 @@ function View(props: DataTableProps) {
             columns: columnsDef
         }
     });
+    function createWfgDataRowForm(defaultValues: { index: number, row: DataRow }) {
+        return useAppForm({
+            defaultValues,
+            onSubmit: ({ value: { index, row } }) => {
+                console.log('onSubmit', row);
+                field.replaceValue(index, {...row});
+                tableForm.setFieldValue('isDetailsFormOpen', false); 
+                tableForm.resetField('selectedIndex');
+            }
+        });
+    }
     const { columns } = tableForm.state.values;
     const { getRows, columnSizing_unstable, tableRef } = useTableFeatures(
         {
@@ -78,8 +96,9 @@ function View(props: DataTableProps) {
             }
             return;
         }
-        tableForm.setFieldValue('isDetailsFormOpen', false); 
-        tableForm.resetField('selectedIndex'); 
+        tableForm.handleSubmit();
+        // tableForm.setFieldValue('isDetailsFormOpen', false); 
+        // tableForm.resetField('selectedIndex');
     }
     function onNextPrev(index: number) {
         tableForm.setFieldValue('selectedIndex', index); 
@@ -163,7 +182,22 @@ function View(props: DataTableProps) {
                             NextButton={() => <tableForm.Subscribe selector={s => s.values.selectedIndex} children={(selectedIndex) => <Button aria-label={t('Next')} icon={<NextRegular />} disabled={rows.length === selectedIndex + 1} onClick={() => { onNextPrev(selectedIndex + 1); }} />} />}
                             PrevButton={() => <tableForm.Subscribe selector={s => s.values.selectedIndex} children={(selectedIndex) => <Button aria-label={t('Prev')} icon={<PreviousRegular />} disabled={selectedIndex < 1} onClick={() => { onNextPrev(selectedIndex - 1); }} />} />}
                             DialogTitle={() => <tableForm.Subscribe selector={s => s.values.selectedIndex} children={(selectedIndex) => <DialogTitle><DetailsTitleComponent index={selectedIndex} /></DialogTitle>} />}
-                            DialogContent={() => <tableForm.Subscribe selector={s => s.values.selectedIndex} children={(selectedIndex) => <DialogContent><DetailsBodyComponent index={selectedIndex} /></DialogContent>} />}
+                            DialogContent={() => {
+                                return (
+                                    <tableForm.Subscribe 
+                                        selector={s => s.values.selectedIndex} 
+                                        children={(selectedIndex) => {
+                                            const rowForm = useWfgDataRowForm({
+                                                index: selectedIndex,
+                                                row: { ...rows[selectedIndex].item }
+                                            });
+                                            return (
+                                                <DialogContent><DetailsBodyComponent index={selectedIndex} form={rowForm} /></DialogContent>
+                                            );
+                                        }}
+                                    />
+                                );
+                            }}
                         />
                     );
                 }
@@ -173,10 +207,37 @@ function View(props: DataTableProps) {
                         open={isDetailsFormOpen} 
                         onOpenChange={(_, data) => { tableForm.setFieldValue('isDetailsFormOpen', data.open); if (!data.open) { tableForm.resetField('selectedIndex'); } }}
                         onAction={onAction}
+                        DrawerForm={({ children: Child }) => {
+                            return (
+                                <tableForm.Subscribe 
+                                    selector={s => s.values.selectedIndex} 
+                                    children={(selectedIndex) => {
+                                        if (selectedIndex < 0) return null;
+                                        console.log('DrawerForm', selectedIndex);
+                                        const rowForm = createWfgDataRowForm({
+                                            index: selectedIndex,
+                                            row: { ...rows[selectedIndex].item }
+                                        });
+                                        return <Child form={rowForm} index={selectedIndex} />
+                                    }} 
+                                />
+                            );
+                        }}
                         NextButton={() => <tableForm.Subscribe selector={s => s.values.selectedIndex} children={(selectedIndex) => <ToolbarButton aria-label={t('Next')} icon={<NextRegular />} disabled={rows.length === selectedIndex + 1} onClick={() => { onNextPrev(selectedIndex + 1); }} />} />}
                         PrevButton={() => <tableForm.Subscribe selector={s => s.values.selectedIndex} children={(selectedIndex) => <ToolbarButton aria-label={t('Prev')} icon={<PreviousRegular />} disabled={selectedIndex < 1} onClick={() => { onNextPrev(selectedIndex - 1); }} />} />}
-                        DrawerHeaderTitle={() => <tableForm.Subscribe selector={s => s.values.selectedIndex} children={(selectedIndex) => <DrawerHeaderTitle><DetailsTitleComponent index={selectedIndex} /></DrawerHeaderTitle>} />}
-                        DrawerBody={() => <tableForm.Subscribe selector={s => s.values.selectedIndex} children={(selectedIndex) => <DrawerBody><DetailsBodyComponent index={selectedIndex} /></DrawerBody>} />}
+                        DrawerHeaderTitle={({ form, index }) => {
+                            return (
+                                <DrawerHeaderTitle>
+                                    <DetailsTitleComponent index={index} />
+                                    
+                                </DrawerHeaderTitle>
+                            );
+                        }}
+                        DrawerBody={({ form, index }) => {
+                            return (
+                                <DrawerBody><DetailsBodyComponent form={form} index={index} /></DrawerBody>
+                            );
+                        }}
                     />
                 );
             }}

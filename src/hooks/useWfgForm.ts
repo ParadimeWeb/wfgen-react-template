@@ -21,7 +21,7 @@ const Approvals = lazy(() => import('../components/Approvals'));
 const NewCommentForm = lazy(() => import('../components/Comments/NewCommentForm'));
 const DataTable = lazy(() => import('../components/FormFields/DataTable'));
 
-const { useAppForm } = createFormHook({
+export const { useAppForm } = createFormHook({
     fieldContext,
     formContext,
     fieldComponents: {

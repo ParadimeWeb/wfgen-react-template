@@ -1,23 +1,22 @@
-import { Button, makeStyles, MessageBar, MessageBarActions, MessageBarBody, MessageBarTitle, shorthands } from "@fluentui/react-components";
-import { InfoRegular } from "@fluentui/react-icons";
+import { makeStyles, MessageBar, MessageBarBody, MessageBarTitle, shorthands } from "@fluentui/react-components";
 import { useTranslation } from "react-i18next";
-import { useWfgFormContext } from "../hooks/useWfgFormContext";
+import type { DataRowForm } from ".";
 
 const useStyles = makeStyles({
     root: {
         ...shorthands.borderWidth(0)
     }
 });
-export const ValidationErrorsMessageBar = () => {
+export const ValidationErrorsMessageBar = (props: { form: DataRowForm }) => {
+    const { form } = props;
     const styles = useStyles();
     const { t } = useTranslation();
-    const { form } = useWfgFormContext();
     return (
         <form.Subscribe 
             selector={s => s.canSubmit}
-            children={() => {
+            children={(errorMap) => {
                 const errors = form.getAllErrors();
-                // console.log('ValidationErrorsMessageBar', errors);
+                console.log('ValidationErrorsMessageBar', errorMap);
                 const count = Object.keys(errors.fields).length;
                 if (count < 1) {
                     return null;
@@ -32,13 +31,6 @@ export const ValidationErrorsMessageBar = () => {
                             <MessageBarTitle>{t('Validation Error')}</MessageBarTitle>
                             {t('{{count}} validation error', { count })}
                         </MessageBarBody>
-                        <MessageBarActions>
-                            <Button 
-                                appearance="transparent" 
-                                icon={<InfoRegular />}
-                                onClick={() => { form.setFieldValue('Table1[0].FORM_ACTION', 'ERROR_VALIDATION'); }}
-                            />
-                        </MessageBarActions>
                     </MessageBar>
                 );
             }}

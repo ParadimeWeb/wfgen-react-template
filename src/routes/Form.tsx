@@ -206,7 +206,7 @@ export function Form() {
                                         );
                                     }}
                                     DetailsBodyComponent={(props) => {
-                                        const { index } = props;
+                                        const { index, form } = props;
                                         const inputFocusRef = useRef<HTMLInputElement>(null);
                                         useEffect(() => {
                                             if (inputFocusRef.current) {
@@ -216,11 +216,14 @@ export function Form() {
                                         return (
                                             <>
                                                 <form.AppField 
-                                                    name={`SomeOtherTable[${index}].Field1`}
+                                                    name="row.Field1"
+                                                    validators={{
+                                                        onSubmit: type("string > 0")
+                                                    }}
                                                     children={(field) => <field.TextField input={{ ref: inputFocusRef }} />}
                                                 />
                                                 <form.AppField 
-                                                    name={`SomeOtherTable[${index}].Field2`}
+                                                    name="row.Field2"
                                                     children={(field) => <field.TextField />}
                                                 />
                                             </>
@@ -285,7 +288,7 @@ export function Form() {
                                         );
                                     }}
                                     DetailsBodyComponent={(props) => {
-                                        const { index } = props;
+                                        const { index, form } = props;
                                         const inputFocusRef = useRef<HTMLInputElement>(null);
                                         useEffect(() => {
                                             if (inputFocusRef.current) {
@@ -295,11 +298,14 @@ export function Form() {
                                         return (
                                             <>
                                                 <form.AppField 
-                                                    name={`SomeOtherTable[${index}].Field1`}
+                                                    name="row.Field1"
+                                                    validators={{
+                                                        onSubmit: type("string > 0")
+                                                    }}
                                                     children={(field) => <field.TextField input={{ ref: inputFocusRef }} />}
                                                 />
                                                 <form.AppField 
-                                                    name={`SomeOtherTable[${index}].Field2`}
+                                                    name="row.Field2"
                                                     children={(field) => <field.TextField />}
                                                 />
                                             </>
