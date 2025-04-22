@@ -7,7 +7,6 @@ import { CellActions, NoRowsCellActions } from "./CellActions";
 import { useWfgFormContext } from "../../../hooks/useWfgFormContext";
 import { useFormInitQuery } from "../../../hooks/useFormInitQuery";
 import { DataTableDialog } from "../../Dialogs/DataTable";
-import { useTranslation } from "react-i18next";
 import { useAppForm } from "../../../hooks/useWfgForm";
 import { useForm } from "@tanstack/react-form";
 import { ValidationErrorsMessageBar } from "./ValidationErrorsMessageBar";
@@ -49,7 +48,6 @@ type DataTableProps =
 function View(props: DataTableProps) {
     const { columnsDef, columnSizingOptions, detailsFormType, TableCellComponent, DetailsBodyComponent, DetailsTitleComponent, detailsFormProps = {}, defaultItem = {} } = props;
     const { printForm: { state: { values: { open: isPrintView } } } } = useWfgFormContext();
-    const { t } = useTranslation();
     const { isArchive } = useFormInitQuery();
     const field = useFieldContext<DataRow[]>();
     const dtForm = useForm({
