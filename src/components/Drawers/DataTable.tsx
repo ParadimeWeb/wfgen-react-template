@@ -3,13 +3,14 @@ import { AddRegular, ArrowResetRegular, DeleteRegular, Dismiss24Regular, NextReg
 import type { ComponentType } from "react";
 import { useTranslation } from "react-i18next";
 import { useFormInitQuery } from "../../hooks/useFormInitQuery";
-import type { Action, DataRowForm } from "../FormFields/DataTable";
+import type { RowAction } from "../../types";
+import type { DataRowForm } from "../../hooks/useWfgForm";
 
 type DataTableDrawerProps = {
     DrawerForm: ComponentType<{ children: ComponentType<{ form: DataRowForm, index: number, count: number }> }>
     DrawerHeaderTitle: ComponentType<DrawerHeaderTitleProps & { form: DataRowForm, index: number }>
     DrawerBody: ComponentType<DrawerBodyProps & { form: DataRowForm, index: number }>
-    onAction: (type: Action, index: number) => void
+    onAction: (type: RowAction, index: number) => void
 } & Partial<OverlayDrawerProps>;
 const useStyles = makeStyles({
     header: {

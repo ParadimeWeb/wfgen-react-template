@@ -29,6 +29,7 @@ export const CloseIconButton = forwardRef<HTMLButtonElement | HTMLAnchorElement>
         />
     ) : (
         <Tooltip 
+            withArrow
             content={t('Close')}
             relationship="label"
             positioning="below"

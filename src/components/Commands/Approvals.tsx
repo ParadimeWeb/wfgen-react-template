@@ -59,7 +59,7 @@ export const ApprovalsIconButton = forwardRef<HTMLButtonElement | HTMLAnchorElem
                         selector={s => s.values.__Approvals?.length ?? 0}
                         children={count => {
                             return (
-                                <Tooltip content={t('Approvals')} relationship="label" positioning="below">
+                                <Tooltip content={t('Approvals')} relationship="label" positioning="below" withArrow>
                                     <ToolbarButton 
                                         ref={ref}
                                         className={styles.badgeButton}

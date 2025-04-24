@@ -2,7 +2,7 @@ import { createTableColumn, makeStyles, Option, Radio, TableCell } from "@fluent
 import { styleHelpers } from "../styles";
 import { FormFooter } from "../components/Form/Footer";
 import { employeesQueryOptions } from "../queryOptions";
-import { useWfgPrintForm, useWfgForm } from "../hooks/useWfgForm";
+import { createWfgContext } from "../hooks/useWfgForm";
 import { WfgFormProvider } from "../components/Form/Provider";
 import { FormHeader } from "../components/Form/Header";
 import { FormContent } from "../components/Form/Content";
@@ -20,11 +20,11 @@ const useStyles = makeStyles({
 
 export function Form() {
     const styles = useStyles();
-    const form = useWfgForm();
-    const printForm = useWfgPrintForm();
-    
+    const ctx = createWfgContext();
+    const { form } = ctx;
+
     return (
-        <WfgFormProvider ctx={{ form, printForm }} autoSaveInterval={60000}>
+        <WfgFormProvider ctx={ctx} autoSaveInterval={60000}>
             <FormHeader />
             <FormContent printProps={{ showComments: true, showApprovals: true }}>
                 <SectionDivider noTopPadding>Information</SectionDivider>

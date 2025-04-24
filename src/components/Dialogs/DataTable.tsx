@@ -3,13 +3,14 @@ import { AddRegular, ArrowResetRegular, DeleteRegular, NextRegular, PreviousRegu
 import type { ComponentType } from "react";
 import { useTranslation } from "react-i18next";
 import { useFormInitQuery } from "../../hooks/useFormInitQuery";
-import type { Action, DataRowForm } from "../FormFields/DataTable";
+import type { RowAction } from "../../types";
+import type { DataRowForm } from "../../hooks/useWfgForm";
 
 type DataTableDialogProps = {
     DialogForm: ComponentType<{ children: ComponentType<{ form: DataRowForm, index: number, count: number }> }>
     DialogTitle: ComponentType<DialogTitleProps & { form: DataRowForm, index: number }>
     DialogContent: ComponentType<DialogContentProps & { form: DataRowForm, index: number }>
-    onAction: (type: Action, index: number) => void
+    onAction: (type: RowAction, index: number) => void
 } & Partial<DialogProps>;
 
 export const DataTableDialog = (props: DataTableDialogProps) => {

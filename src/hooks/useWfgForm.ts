@@ -1,12 +1,13 @@
-import { createFormHook, useForm } from "@tanstack/react-form";
+import { createFormHook, useForm, type AnyFieldApi } from "@tanstack/react-form";
 import { type } from "arktype";
 import { useMutation } from "@tanstack/react-query";
-import type { WfgFormData } from "../types";
-import { useFormInitQuery } from "./useFormInitQuery";
 import { useTranslation } from "react-i18next";
+import { lazy } from "react";
+import type { TableRowData } from "@fluentui/react-components";
 import { postWithFormData } from "../utils";
 import { fieldContext, formContext } from "./formContext";
-import { lazy } from "react";
+import type { DataRow, RowAction, WfgFormData } from "../types";
+import { useFormInitQuery } from "./useFormInitQuery";
 
 const TextField = lazy(() => import('../components/FormFields/TextField'));
 const RadioGroup = lazy(() => import('../components/FormFields/RadioGroup'));
@@ -21,7 +22,7 @@ const Approvals = lazy(() => import('../components/Approvals'));
 const NewCommentForm = lazy(() => import('../components/Comments/NewCommentForm'));
 const DataTable = lazy(() => import('../components/FormFields/DataTable'));
 
-export const { useAppForm } = createFormHook({
+const { useAppForm } = createFormHook({
     fieldContext,
     formContext,
     fieldComponents: {
@@ -41,7 +42,7 @@ export const { useAppForm } = createFormHook({
     formComponents: {}
 });
 
-export function useWfgForm() {
+function useWfgForm() {
     const { wfgFormData } = useFormInitQuery();
 
     const { mutateAsync } = useMutation({
@@ -71,7 +72,7 @@ export function useWfgForm() {
     });
 }
 
-export function useWfgPrintForm() {
+function useWfgPrintForm() {
     const { t } = useTranslation();
     const { numberParser, numberFormat } = useFormInitQuery();
     const form = useForm({
@@ -101,5 +102,36 @@ export function useWfgPrintForm() {
     return form;
 }
 
+function useWfgValidationForm() {
+    return useForm({
+        defaultValues: {
+            errors: [] as [string, string][]
+        }
+    });
+}
+
+export function createWfgContext() {
+    return {
+        form: useWfgForm(),
+        printForm: useWfgPrintForm(),
+        validationForm: useWfgValidationForm()
+    };
+}
+
+export function useWfgDataRowForm(field: AnyFieldApi, rows: TableRowData<DataRow>[], onAction: (type: RowAction, index?: number, item?: DataRow) => void, index: number) {
+    return useAppForm({
+        defaultValues: { ...rows[index].item },
+        onSubmitMeta: { close: false },
+        onSubmit: ({ meta, value }) => {
+            field.replaceValue(index, { ...value });
+            if (meta.close) {
+                onAction('close');
+            }
+        }
+    });
+}
+
 export type WfgForm = ReturnType<typeof useWfgForm>;
 export type WfgPrintForm = ReturnType<typeof useWfgPrintForm>;
+export type WfgValidationForm = ReturnType<typeof useWfgValidationForm>;
+export type DataRowForm = ReturnType<typeof useWfgDataRowForm>;

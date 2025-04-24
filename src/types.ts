@@ -1,5 +1,5 @@
 import { type } from "arktype";
-import type { WfgForm, WfgPrintForm } from "./hooks/useWfgForm";
+import type { WfgForm, WfgPrintForm, WfgValidationForm } from "./hooks/useWfgForm";
 
 const Directory = type("'WORKFLOWGEN' | 'CENTRIC_BRANDS' | 'CUSTOMERS'");
 export type Directory = typeof Directory.infer;
@@ -79,6 +79,7 @@ const User = DataRow.merge({
     IsActive: "boolean",
 });
 export type User = typeof User.infer;
+export type RowAction = 'add_form' | 'add_cell' | 'remove_form' | 'remove_cell' | 'edit' | 'open' | 'close' | 'next' | 'prev';
 
 export const TimeZoneInfo = type({
     Name: "string",
@@ -110,8 +111,9 @@ export const WfgFormData = DataSet.merge({
 export type WfgFormData = typeof WfgFormData.infer;
 
 export type WfgFormContext = {
-    form: WfgForm;
-    printForm: WfgPrintForm;
+    form: WfgForm
+    printForm: WfgPrintForm
+    validationForm: WfgValidationForm
 };
 
 export const QueryResult = type({

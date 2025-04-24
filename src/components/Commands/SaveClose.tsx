@@ -44,7 +44,7 @@ export const SaveCloseIconButton = forwardRef<HTMLButtonElement | HTMLAnchorElem
 
     return isPending ? 
         <Spinner size="tiny" /> : 
-        <Tooltip content={t('Save and Close')} relationship="label" positioning="below">
+        <Tooltip content={t('Save and Close')} relationship="label" positioning="below" withArrow>
             <ToolbarButton 
                 ref={ref}
                 disabled={isMutating}

@@ -2,7 +2,7 @@ import { useTranslation } from "react-i18next";
 import { useFormInitQuery } from "../../../hooks/useFormInitQuery";
 import { Button, TableCellActions, tokens } from "@fluentui/react-components";
 import { AddFilled, AddRegular, bundleIcon, DeleteFilled, DeleteRegular, EditFilled, EditRegular, OpenFilled, OpenRegular } from "@fluentui/react-icons";
-import type { Action } from ".";
+import type { RowAction } from "../../../types";
 
 const EditIcon = bundleIcon(EditFilled, EditRegular);
 const AddIcon = bundleIcon(AddFilled, AddRegular);
@@ -10,7 +10,7 @@ const DeleteIcon = bundleIcon(DeleteFilled, DeleteRegular);
 const ViewIcon = bundleIcon(OpenFilled, OpenRegular);
 
 export type CellActionsProps = {
-    onClick: (type: Action) => void
+    onClick: (type: RowAction) => void
 };
 export const NoRowsCellActions = (props: CellActionsProps) => {
     const { onClick } = props;

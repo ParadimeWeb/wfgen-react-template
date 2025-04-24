@@ -2,7 +2,7 @@ import type { AnyFieldApi } from "@tanstack/react-form";
 import { useTranslation } from "react-i18next";
 import { dialogStyles, redTheme } from "./styles";
 import { Text, Button, DialogActions, DialogBody, DialogContent, DialogSurface, DialogTitle, FluentProvider, MessageBar, MessageBarBody, MessageBarTitle, makeStyles, tokens } from "@fluentui/react-components";
-import { ArkError } from "arktype";
+import { useWfgFormContext } from "../../hooks/useWfgFormContext";
 
 const useStyles = makeStyles({
     root: {
@@ -27,10 +27,9 @@ const useStyles = makeStyles({
 export const ErrorDialogSurface = ({ field, formAction }: { field: AnyFieldApi, formAction: string }) => {
     const styles = useStyles();
     const { t } = useTranslation();
-    const errors = field.form.getAllErrors();
-    const fieldErrors = Object.keys(errors.fields);
+    const { validationForm } = useWfgFormContext();
     
-    if (fieldErrors.length > 0 && ['SUBMIT', 'VALIDATION'].some(v => v === formAction) && errors.form.errors.length < 1) {
+    if (['SUBMIT', 'VALIDATION'].some(v => v === formAction)) {
         return (
             <FluentProvider theme={redTheme}>
                 <DialogSurface className={styles.dialogSurface}>
@@ -39,19 +38,7 @@ export const ErrorDialogSurface = ({ field, formAction }: { field: AnyFieldApi, 
                         <DialogContent className={styles.root}>
                             <Text block>{t('You need to fix these issues first')}</Text>
                             <div className={styles.container}>
-                                {fieldErrors.map((field, index) => {
-                                    if (errors.fields[field].errors[0] instanceof ArkError) {
-                                        const error = errors.fields[field].errors[0];
-                                        return (
-                                            <MessageBar key={`validationError-${index}`} intent="error">
-                                                <MessageBarBody>
-                                                    <MessageBarTitle>{t(field)}</MessageBarTitle>
-                                                    {t(error.message)}
-                                                </MessageBarBody>
-                                            </MessageBar>
-                                        );
-                                    }
-                                    const error = errors.fields[field].errors as string[];
+                                {validationForm.state.values.errors.map((error, index) => {
                                     return (
                                         <MessageBar key={`validationError-${index}`} intent="error">
                                             <MessageBarBody>
@@ -77,6 +64,7 @@ export const ErrorDialogSurface = ({ field, formAction }: { field: AnyFieldApi, 
         );
     }
 
+    const errors = field.form.getAllErrors();
     const error = errors.form.errors.length > 0 ? errors.form.errors[0].error : formAction;
     return (
         <FluentProvider theme={redTheme}>

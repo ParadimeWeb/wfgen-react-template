@@ -160,7 +160,7 @@ function FormActionDialogSurface({ form, field, formAction }: { form: WfgForm, f
                                 </Button>
                                 <Button
                                     disabled={isPending || isSubmitting}
-                                    icon={isPending || isSubmitting ? <Spinner size="tiny" /> : null}
+                                    icon={isPending ? <Spinner size="tiny" /> : null}
                                     appearance="primary"
                                     onClick={async () => { actionForm.handleSubmit(); }}
                                 >

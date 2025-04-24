@@ -1,6 +1,6 @@
 import { makeStyles, MessageBar, MessageBarBody, MessageBarTitle, shorthands } from "@fluentui/react-components";
 import { useTranslation } from "react-i18next";
-import type { DataRowForm } from ".";
+import type { DataRowForm } from "../../../hooks/useWfgForm";
 
 const useStyles = makeStyles({
     root: {

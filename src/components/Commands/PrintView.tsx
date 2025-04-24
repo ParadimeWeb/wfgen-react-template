@@ -23,7 +23,7 @@ const PrintViewToolbarIconButton = forwardRef<HTMLButtonElement | HTMLAnchorElem
     const { printForm: form } = useWfgFormContext();
 
     return (
-        <Tooltip content={t('Print View')} relationship="label" positioning="below">
+        <Tooltip content={t('Print View')} relationship="label" positioning="below" withArrow>
             <ToolbarButton
                 ref={ref}
                 icon={<PrintRegular />} 

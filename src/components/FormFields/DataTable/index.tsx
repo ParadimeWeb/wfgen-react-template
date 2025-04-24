@@ -1,49 +1,15 @@
-import { DialogContent, DialogTitle, DrawerBody, DrawerHeaderTitle, Table, TableBody, TableCell, TableHeader, TableHeaderCell, TableRow, useTableColumnSizing_unstable, useTableFeatures, type DialogProps, type OverlayDrawerProps, type TableColumnDefinition, type TableColumnSizingOptions, type TableRowData } from "@fluentui/react-components";
+import { DialogContent, DialogTitle, DrawerBody, DrawerHeaderTitle, Table, TableBody, TableCell, TableHeader, TableHeaderCell, TableRow, useTableColumnSizing_unstable, useTableFeatures, type DialogProps, type OverlayDrawerProps } from "@fluentui/react-components";
 import { useFieldContext } from "../../../hooks/formContext";
-import type { DataRow } from "../../../types";
-import type { ComponentType } from "react";
+import type { DataRow, RowAction } from "../../../types";
 import { DataTableDrawer } from "../../Drawers/DataTable";
 import { CellActions, NoRowsCellActions } from "./CellActions";
 import { useWfgFormContext } from "../../../hooks/useWfgFormContext";
 import { useFormInitQuery } from "../../../hooks/useFormInitQuery";
 import { DataTableDialog } from "../../Dialogs/DataTable";
-import { useAppForm } from "../../../hooks/useWfgForm";
 import { useForm } from "@tanstack/react-form";
 import { ValidationErrorsMessageBar } from "./ValidationErrorsMessageBar";
-
-type RowProps = {
-    item: DataRow
-    index: number
-    rows: TableRowData<DataRow>[]
-    columnSizing_unstable: ReturnType<typeof useTableFeatures<DataRow>>['columnSizing_unstable']
-    CellActionsComponent: ComponentType
-};
-function useWfgDataRowForm(defaultValues: DataRow) {
-    return useAppForm({
-        defaultValues,
-        onSubmitMeta: { close: false }
-    });
-}
-export type Action = 'add_form' | 'add_cell' | 'remove_form' | 'remove_cell' | 'edit' | 'open' | 'close' | 'next' | 'prev';
-export type DataRowForm = ReturnType<typeof useWfgDataRowForm>;
-type _DataTableProps = {
-    columnsDef: TableColumnDefinition<DataRow>[]
-    columnSizingOptions: TableColumnSizingOptions
-    TableCellComponent: ComponentType<RowProps>
-    DetailsBodyComponent: ComponentType<{ index: number, form: DataRowForm }>
-    DetailsTitleComponent: ComponentType<{ index: number }>
-    defaultItem?: DataRow
-};
-type DataTableProps = 
-    | {
-        detailsFormType: 'drawer'
-        detailsFormProps?: OverlayDrawerProps
-        
-    } & _DataTableProps
-    | {
-        detailsFormType: 'dialog'
-        detailsFormProps?: DialogProps
-    } & _DataTableProps;
+import type { DataTableProps } from "./types";
+import { useWfgDataRowForm } from "../../../hooks/useWfgForm";
 
 function View(props: DataTableProps) {
     const { columnsDef, columnSizingOptions, detailsFormType, TableCellComponent, DetailsBodyComponent, DetailsTitleComponent, detailsFormProps = {}, defaultItem = {} } = props;
@@ -68,19 +34,8 @@ function View(props: DataTableProps) {
         ]
     );
     const rows = getRows();
-    function createWfgDataRowForm(index: number) {
-        return useAppForm({
-            defaultValues: { ...rows[index].item },
-            onSubmitMeta: { close: false },
-            onSubmit: ({ meta, value }) => {
-                field.replaceValue(index, { ...value });
-                if (meta.close) {
-                    onAction('close');
-                }
-            }
-        });
-    }
-    const actionMap = new Map<Action, (index?: number, item?: DataRow) => void>([
+    
+    const actionMap = new Map<RowAction, (index?: number, item?: DataRow) => void>([
         ['add_form', () => {
             dtForm.setFieldValue('selectedIndex', (value) => {
                 const index = value + 1;
@@ -136,7 +91,7 @@ function View(props: DataTableProps) {
             });
         }]
     ]);
-    const onAction = (type: Action, index?: number, item?: DataRow) => {
+    const onAction = (type: RowAction, index?: number, item?: DataRow) => {
         console.log('onAction', type, index, item);
          actionMap.get(type)?.call(null, index, item);
     }
@@ -206,7 +161,7 @@ function View(props: DataTableProps) {
                                         selector={s => s.values.selectedIndex}
                                         children={(selectedIndex) => {
                                             if (selectedIndex < 0) return null;
-                                            const drForm = createWfgDataRowForm(selectedIndex);
+                                            const drForm = useWfgDataRowForm(field, rows, onAction, selectedIndex);
                                             return (
                                                 <Child form={drForm} index={selectedIndex} count={rows.length} />
                                             );
@@ -249,7 +204,7 @@ function View(props: DataTableProps) {
                                     selector={s => s.values.selectedIndex}
                                     children={(selectedIndex) => {
                                         if (selectedIndex < 0) return null;
-                                        const drForm = createWfgDataRowForm(selectedIndex);
+                                        const drForm = useWfgDataRowForm(field, rows, onAction, selectedIndex);
                                         return (
                                             <Child form={drForm} index={selectedIndex} count={rows.length} />
                                         );

@@ -42,18 +42,25 @@ export const SubmitIconButton = forwardRef<HTMLButtonElement | HTMLAnchorElement
     const isMutating = useIsMutating({ mutationKey: ['save'], exact: true }) > 0;
 
     return (
-        <form.Field 
-            name="Table1[0].FORM_ACTION"
-            children={field => {
+        <form.Subscribe 
+            selector={s => s.canSubmit}
+            children={canSubmit => {
                 return (
-                    <Tooltip content={t('Submit')} relationship="label" positioning="below">
-                        <ToolbarButton
-                            ref={ref}
-                            disabled={isMutating}
-                            icon={<SendRegular />} 
-                            onClick={() => { field.handleChange("CONFIRM_SUBMIT"); }}
-                        />
-                    </Tooltip>
+                    <form.Field 
+                        name="Table1[0].FORM_ACTION"
+                        children={field => {
+                            return (
+                                <Tooltip content={t('Submit')} relationship="label" positioning="below" withArrow>
+                                    <ToolbarButton
+                                        ref={ref}
+                                        disabled={isMutating || !canSubmit}
+                                        icon={<SendRegular />} 
+                                        onClick={() => { field.handleChange("CONFIRM_SUBMIT"); }}
+                                    />
+                                </Tooltip>
+                            );
+                        }}
+                    />
                 );
             }}
         />
@@ -65,17 +72,24 @@ export const SubmitMenuItem = () => {
     const isMutating = useIsMutating({ mutationKey: ['save'], exact: true }) > 0;
 
     return (
-        <form.Field 
-            name="Table1[0].FORM_ACTION"
-            children={field => {
+        <form.Subscribe 
+            selector={s => s.canSubmit}
+            children={canSubmit => {
                 return (
-                    <MenuItem 
-                        disabled={isMutating}
-                        icon={<SendRegular />} 
-                        onClick={async () => { field.handleChange("CONFIRM_SUBMIT"); }}
-                    >
-                        {t('Submit')}
-                    </MenuItem>
+                    <form.Field 
+                        name="Table1[0].FORM_ACTION"
+                        children={field => {
+                            return (
+                                <MenuItem 
+                                    disabled={isMutating || !canSubmit}
+                                    icon={<SendRegular />} 
+                                    onClick={async () => { field.handleChange("CONFIRM_SUBMIT"); }}
+                                >
+                                    {t('Submit')}
+                                </MenuItem>
+                            );
+                        }}
+                    />
                 );
             }}
         />

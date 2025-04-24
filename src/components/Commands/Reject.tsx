@@ -71,6 +71,7 @@ export const RejectIconButton = forwardRef<HTMLButtonElement | HTMLAnchorElement
             children={field => {
                 return (
                     <Tooltip 
+                        withArrow
                         content={t('Reject')}
                         relationship="label"
                         positioning="below"

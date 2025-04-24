@@ -59,7 +59,7 @@ export const CommentsIconButton = forwardRef<HTMLButtonElement | HTMLAnchorEleme
                         selector={s => s.values.__Comments.length}
                         children={count => {
                             return (
-                                <Tooltip content={t('Comments')} relationship="label" positioning="below">
+                                <Tooltip content={t('Comments')} relationship="label" positioning="below" withArrow>
                                     <ToolbarButton 
                                         ref={ref}
                                         className={styles.badgeButton}
