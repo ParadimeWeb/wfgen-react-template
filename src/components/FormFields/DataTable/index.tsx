@@ -36,15 +36,15 @@ function View(props: DataTableProps) {
     const rows = getRows();
     
     const actionMap = new Map<RowAction, (index?: number, item?: DataRow) => void>([
-        ['add_form', () => {
+        ['add_form', (index) => {
             dtForm.setFieldValue('selectedIndex', (value) => {
-                const index = value + 1;
-                field.insertValue(index + 1, { ...defaultItem });
-                return index;
+                const insertIndex = (index === undefined ? value : index) + 1;
+                field.insertValue(insertIndex, { ...defaultItem });
+                return insertIndex;
             });
         }],
-        ['add_cell', () => {
-            onAction('add_form');
+        ['add_cell', (index) => {
+            onAction('add_form', index);
             onAction('open');
         }],
         ['remove_form', (index) => {
@@ -93,7 +93,7 @@ function View(props: DataTableProps) {
     ]);
     const onAction = (type: RowAction, index?: number, item?: DataRow) => {
         console.log('onAction', type, index, item);
-         actionMap.get(type)?.call(null, index, item);
+        actionMap.get(type)?.call(null, index, item);
     }
 
     return (<>
