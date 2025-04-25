@@ -1,8 +1,9 @@
 import type { AvatarProps } from "@fluentui/react-components";
 import type { MutationFunction } from "@tanstack/react-query";
 import type { AxiosRequestConfig, AxiosResponse } from "axios";
-import type { ActionResult, Directory, WfgFormData } from "./types";
+import type { ActionResult, Directory, Table1, WfgFormData } from "./types";
 import axios from "axios";
+import type { WfgForm } from "./hooks/useWfgForm";
 
 function createFormHiddenInput(id: string, value: string, form?: HTMLFormElement) {
     const input = document.createElement('input');
@@ -71,6 +72,32 @@ export function csvToSet(value: string | null) {
 }
 export function setToCsv(value: Set<string>) {
     return [...value].join(',');
+}
+export function makeReadonly(form: WfgForm, field: string, condition: boolean) {
+    form.setFieldValue('Table1[0].FORM_FIELDS_READONLY', v => {
+        const FORM_FIELDS_READONLY = v as Table1['FORM_FIELDS_READONLY'];
+        const set = csvToSet(FORM_FIELDS_READONLY ?? '');
+        if (condition) {
+            set.add(field);
+        }
+        else {
+            set.delete(field);
+        }
+        return setToCsv(set);
+    });
+}
+export function makeRequired(form: WfgForm, field: string, condition: boolean) {
+    form.setFieldValue('Table1[0].FORM_FIELDS_REQUIRED', v => {
+        const FORM_FIELDS_REQUIRED = v as Table1['FORM_FIELDS_REQUIRED'];
+        const set = csvToSet(FORM_FIELDS_REQUIRED ?? '');
+        if (condition) {
+            set.add(field);
+        }
+        else {
+            set.delete(field);
+        }
+        return setToCsv(set);
+    });
 }
 
 export class NumberParser {

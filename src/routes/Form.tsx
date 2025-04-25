@@ -7,7 +7,7 @@ import { WfgFormProvider } from "../components/Form/Provider";
 import { FormHeader } from "../components/Form/Header";
 import { FormContent } from "../components/Form/Content";
 import { type } from "arktype";
-import { csvToSet, setToCsv } from "../utils";
+import { csvToSet, makeReadonly, setToCsv } from "../utils";
 import { type DataRow, type Table1 } from "../types";
 import { t } from "i18next";
 import { SectionDivider } from "../components/SectionDivider";
@@ -32,7 +32,7 @@ export function Form() {
                     <form.AppField 
                         name="Table1[0].FirstName"
                         validators={{
-                            onSubmit: type("string > 3")
+                            onSubmit: form.getFieldValue('Table1[0].LastName') === 'Make at least 3' ? type("string > 3") : type("string > 0")
                         }}
                         children={(field) => {
                             return <field.TextField />
@@ -45,17 +45,7 @@ export function Form() {
                         }}
                         listeners={{
                             onBlur: ({ value }) => {
-                                form.setFieldValue('Table1[0].FORM_FIELDS_READONLY', v => {
-                                    const FORM_FIELDS_READONLY = v as Table1['FORM_FIELDS_READONLY'];
-                                    const set = csvToSet(FORM_FIELDS_READONLY ?? '');
-                                    if (value === 'Make readonly') {
-                                        set.add('FirstName');
-                                    }
-                                    else {
-                                        set.delete('FirstName');
-                                    }
-                                    return setToCsv(set);
-                                });
+                                makeReadonly(form, 'FirstName', value === 'Make readonly');
                             }
                         }}
                         children={(field) => {
