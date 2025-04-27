@@ -155,7 +155,7 @@ export function Form() {
                         }}
                         children={(field) => {
                             return (
-                                <field.DataTable
+                                <field.DataGrid
                                     columnsDef={[
                                         createTableColumn<DataRow>({
                                             columnId: "Field1",
@@ -227,7 +227,7 @@ export function Form() {
                         mode="array"
                         children={(field) => {
                             return (
-                                <field.DataTable
+                                <field.DataGrid
                                     columnsDef={[
                                         createTableColumn<DataRow>({
                                             columnId: "Field1",

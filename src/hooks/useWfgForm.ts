@@ -20,7 +20,7 @@ const NumberField = lazy(() => import('../components/FormFields/NumberField'));
 const FileField = lazy(() => import('../components/FormFields/FileField'));
 const Approvals = lazy(() => import('../components/Approvals'));
 const NewCommentForm = lazy(() => import('../components/Comments/NewCommentForm'));
-const DataTable = lazy(() => import('../components/FormFields/DataTable'));
+const DataGrid = lazy(() => import('../components/FormFields/DataGrid'));
 
 const { useAppForm } = createFormHook({
     fieldContext,
@@ -37,7 +37,7 @@ const { useAppForm } = createFormHook({
         Comments,
         NewCommentForm,
         Approvals,
-        DataTable
+        DataGrid
     },
     formComponents: {}
 });

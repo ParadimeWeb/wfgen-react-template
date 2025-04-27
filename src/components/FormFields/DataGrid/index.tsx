@@ -1,10 +1,10 @@
 import { DialogContent, DialogTitle, DrawerBody, DrawerHeaderTitle, Field, Table, TableBody, TableHeader, TableHeaderCell, TableRow, useTableColumnSizing_unstable, useTableFeatures, type DialogProps, type OverlayDrawerProps } from "@fluentui/react-components";
 import { useFieldContext } from "../../../hooks/formContext";
 import type { DataRow, RowAction } from "../../../types";
-import { DataTableDrawer } from "../../Drawers/DataTable";
+import { DataGridDrawer } from "../../Drawers/DataGrid";
 import { CellActions, NoRowsCellActions } from "./CellActions";
 import { useWfgFormContext } from "../../../hooks/useWfgFormContext";
-import { DataTableDialog } from "../../Dialogs/DataTable";
+import { DataGridDialog } from "../../Dialogs/DataGrid";
 import { useForm } from "@tanstack/react-form";
 import { ValidationErrorsMessageBar } from "./ValidationErrorsMessageBar";
 import type { DataTableProps } from "./types";
@@ -151,7 +151,7 @@ function View(props: DataTableProps) {
             children={(isDetailsFormOpen) => {
                 if (detailsFormType === 'dialog') {
                     return (
-                        <DataTableDialog 
+                        <DataGridDialog 
                             {...detailsFormProps as DialogProps}
                             open={isDetailsFormOpen}
                             onOpenChange={(_, data) => {
@@ -174,9 +174,9 @@ function View(props: DataTableProps) {
                                 );
                             }}
                             DialogTitle={(props) => {
-                                const { form, index } = props;
+                                const { form, index, ...dialogTitleProps } = props;
                                 return (
-                                    <DialogTitle>
+                                    <DialogTitle {...dialogTitleProps}>
                                         <DetailsTitleComponent index={index} />
                                         <ValidationErrorsMessageBar form={form} />
                                     </DialogTitle>
@@ -194,7 +194,7 @@ function View(props: DataTableProps) {
                     );
                 }
                 return (
-                    <DataTableDrawer 
+                    <DataGridDrawer 
                         {...detailsFormProps as OverlayDrawerProps}
                         open={isDetailsFormOpen}
                         onOpenChange={(_, data) => {
@@ -226,9 +226,9 @@ function View(props: DataTableProps) {
                             );
                         }}
                         DrawerBody={(props) => {
-                            const { form, index } = props;
+                            const { form, index, ...drawerBodyProps } = props;
                             return (
-                                <DrawerBody>
+                                <DrawerBody {...drawerBodyProps}>
                                     <DetailsBodyComponent form={form} index={index} />
                                 </DrawerBody>
                             );

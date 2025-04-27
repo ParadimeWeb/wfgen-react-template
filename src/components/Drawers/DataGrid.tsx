@@ -1,4 +1,4 @@
-import { Button, DrawerHeader, DrawerHeaderNavigation, makeStyles, OverlayDrawer, tokens, Toolbar, ToolbarButton, ToolbarDivider, Tooltip, type DrawerBodyProps, type DrawerHeaderTitleProps, type OverlayDrawerProps } from "@fluentui/react-components";
+import { Button, DrawerFooter, DrawerHeader, DrawerHeaderNavigation, makeStyles, OverlayDrawer, tokens, Toolbar, ToolbarButton, Tooltip, type DrawerBodyProps, type DrawerHeaderTitleProps, type OverlayDrawerProps } from "@fluentui/react-components";
 import { AddRegular, ArrowResetRegular, DeleteRegular, Dismiss24Regular, NextRegular, PreviousRegular, SaveArrowRightRegular, SaveRegular } from "@fluentui/react-icons";
 import type { ComponentType } from "react";
 import { useTranslation } from "react-i18next";
@@ -16,9 +16,16 @@ const useStyles = makeStyles({
     header: {
         display: "flex",
         justifyContent: "space-between",
+    },
+    body: {
+        flex: 'unset'
+    },
+    spacer: {
+        display: 'flex',
+        flexGrow: 1
     }
 });
-export const DataTableDrawer = (props: DataTableDrawerProps) => {
+export const DataGridDrawer = (props: DataTableDrawerProps) => {
     const { DrawerForm, DrawerHeaderTitle, DrawerBody, onAction, ...drawerProps } = props;
     const styles = useStyles();
     const { t } = useTranslation();
@@ -43,32 +50,6 @@ export const DataTableDrawer = (props: DataTableDrawerProps) => {
                                     <Tooltip relationship="label" content={t('Next')} withArrow>
                                         <ToolbarButton icon={<NextRegular />} disabled={count === index + 1} onClick={() => { onAction('next', index); }} />
                                     </Tooltip>
-                                    {isArchive ? null : <>
-                                    <ToolbarDivider />
-                                    <form.Subscribe 
-                                        selector={s => s.isDirty}
-                                        children={(isDirty) => {
-                                            return (<>
-                                                <Tooltip relationship="label" content={t('Save')} withArrow>
-                                                    <ToolbarButton disabled={!isDirty} icon={<SaveRegular />} onClick={() => { form.handleSubmit(); }} />
-                                                </Tooltip>
-                                                <Tooltip relationship="label" content={t('Save and close')} withArrow>
-                                                    <ToolbarButton disabled={!isDirty} icon={<SaveArrowRightRegular />} onClick={() => { form.handleSubmit({ close: true }); }} />
-                                                </Tooltip>
-                                                <Tooltip relationship="label" content={t('Reset')} withArrow>
-                                                    <ToolbarButton disabled={!isDirty} icon={<ArrowResetRegular />} onClick={() => { form.reset(); }} />
-                                                </Tooltip>
-                                            </>);
-                                        }}
-                                    />
-                                    <ToolbarDivider />
-                                    <Tooltip relationship="label" content={t('Add another')} withArrow>
-                                        <ToolbarButton icon={<AddRegular />} onClick={() => { onAction('add_form', index); }} />
-                                    </Tooltip>
-                                    <Tooltip relationship="label" content={t('Delete')} withArrow>
-                                        <ToolbarButton icon={<DeleteRegular color={tokens.colorPaletteRedForeground1} />} onClick={() => { onAction('remove_form', index); }} />
-                                    </Tooltip>
-                                    </>}
                                 </Toolbar>
                                 <Button 
                                     appearance="subtle"
@@ -81,7 +62,30 @@ export const DataTableDrawer = (props: DataTableDrawerProps) => {
                             </DrawerHeaderNavigation>
                             <DrawerHeaderTitle form={form} index={index} />
                         </DrawerHeader>
-                        <DrawerBody form={form} index={index} />
+                        <DrawerBody className={styles.body} form={form} index={index} />
+                        {isArchive ? null : (
+                            <DrawerFooter>
+                                <form.Subscribe 
+                                    selector={s => [s.isDirty, s.canSubmit]}
+                                    children={([isDirty, canSubmit]) => {
+                                        return (<>
+                                            <Button appearance="primary" disabled={!isDirty || !canSubmit} icon={<SaveArrowRightRegular />} onClick={() => { form.handleSubmit({ close: true }); }}>{t('Save and close')}</Button>
+                                            <Button appearance="primary" disabled={!isDirty || !canSubmit} icon={<SaveRegular />} onClick={() => { form.handleSubmit(); }}>{t('Save')}</Button>
+                                            <Tooltip relationship="label" content={t('Reset')} withArrow>
+                                                <Button disabled={!isDirty} icon={<ArrowResetRegular />} onClick={() => { form.reset(); }} />
+                                            </Tooltip>
+                                        </>);
+                                    }}
+                                />
+                                <div className={styles.spacer}></div>
+                                <Tooltip relationship="label" content={t('Add another')} withArrow>
+                                    <Button icon={<AddRegular />} onClick={() => { onAction('add_form', index); }} />
+                                </Tooltip>
+                                <Tooltip relationship="label" content={t('Delete')} withArrow>
+                                    <Button icon={<DeleteRegular color={tokens.colorPaletteRedForeground1} />} onClick={() => { onAction('remove_form', index); }} />
+                                </Tooltip>
+                            </DrawerFooter>
+                        )}
                     </>);
                 }}
             />
