@@ -1,8 +1,9 @@
 import { useTranslation } from "react-i18next";
 import { useFormInitQuery } from "../../../hooks/useFormInitQuery";
 import { Button, TableCellActions, tokens } from "@fluentui/react-components";
-import { AddFilled, AddRegular, bundleIcon, DeleteFilled, DeleteRegular, EditFilled, EditRegular, OpenFilled, OpenRegular } from "@fluentui/react-icons";
+import { AddFilled, AddRegular, AddSquareRegular, bundleIcon, DeleteFilled, DeleteRegular, EditFilled, EditRegular, OpenFilled, OpenRegular } from "@fluentui/react-icons";
 import type { RowAction } from "../../../types";
+import { useWfgFormContext } from "../../../hooks/useWfgFormContext";
 
 const EditIcon = bundleIcon(EditFilled, EditRegular);
 const AddIcon = bundleIcon(AddFilled, AddRegular);
@@ -15,8 +16,11 @@ export type CellActionsProps = {
 export const NoRowsCellActions = (props: CellActionsProps) => {
     const { onClick } = props;
     const { t } = useTranslation();
+    const { isArchive } = useFormInitQuery();
+    const { printForm: { state: { values: { open: isPrintView } } } } = useWfgFormContext();
+    if (isArchive || isPrintView) return null;
     return (
-        <Button aria-label={t('Add')} icon={<AddIcon />} onClick={() => { onClick('add_cell'); }}>{t('Add first item')}</Button>
+        <Button appearance="subtle" size="small" aria-label={t('Add')} icon={<AddSquareRegular />} onClick={() => { onClick('add_cell'); }} />
     );
 }
 export const CellActions = (props: CellActionsProps) => {

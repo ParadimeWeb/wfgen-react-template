@@ -103,7 +103,6 @@ export function Form() {
                         name="Files"
                         validators={{
                             onSubmit: ({ value }) => {
-                                console.log('onSubmit', value);
                                 return value.find(f => f.Field === 'File2') ? undefined : 'Required File2';
                             }
                         }}
@@ -148,6 +147,12 @@ export function Form() {
                     <form.AppField 
                         name="SomeOtherTable"
                         mode="array"
+                        validators={{
+                            onSubmit: ({value}) => {
+                                console.log('SomeOtherTable', value);
+                                return value.length > 0 ? undefined : t('You need at least one item');
+                            }
+                        }}
                         children={(field) => {
                             return (
                                 <field.DataTable
@@ -218,7 +223,7 @@ export function Form() {
                 <SectionDivider>Gridview example (Drawer)</SectionDivider>
                 <div className={styles.row}>
                     <form.AppField 
-                        name="SomeOtherTable"
+                        name="SomeOtherTable2"
                         mode="array"
                         children={(field) => {
                             return (

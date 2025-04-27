@@ -1,20 +1,20 @@
-import { DialogContent, DialogTitle, DrawerBody, DrawerHeaderTitle, Table, TableBody, TableCell, TableHeader, TableHeaderCell, TableRow, useTableColumnSizing_unstable, useTableFeatures, type DialogProps, type OverlayDrawerProps } from "@fluentui/react-components";
+import { DialogContent, DialogTitle, DrawerBody, DrawerHeaderTitle, Field, Table, TableBody, TableHeader, TableHeaderCell, TableRow, useTableColumnSizing_unstable, useTableFeatures, type DialogProps, type OverlayDrawerProps } from "@fluentui/react-components";
 import { useFieldContext } from "../../../hooks/formContext";
 import type { DataRow, RowAction } from "../../../types";
 import { DataTableDrawer } from "../../Drawers/DataTable";
 import { CellActions, NoRowsCellActions } from "./CellActions";
 import { useWfgFormContext } from "../../../hooks/useWfgFormContext";
-import { useFormInitQuery } from "../../../hooks/useFormInitQuery";
 import { DataTableDialog } from "../../Dialogs/DataTable";
 import { useForm } from "@tanstack/react-form";
 import { ValidationErrorsMessageBar } from "./ValidationErrorsMessageBar";
 import type { DataTableProps } from "./types";
 import { useWfgDataRowForm } from "../../../hooks/useWfgForm";
+import { useTranslation } from "react-i18next";
 
 function View(props: DataTableProps) {
     const { columnsDef, columnSizingOptions, detailsFormType, TableCellComponent, DetailsBodyComponent, DetailsTitleComponent, detailsFormProps = {}, defaultItem = {} } = props;
     const { printForm: { state: { values: { open: isPrintView } } } } = useWfgFormContext();
-    const { isArchive } = useFormInitQuery();
+    const { t } = useTranslation();
     const field = useFieldContext<DataRow[]>();
     const dtForm = useForm({
         defaultValues: {
@@ -97,51 +97,55 @@ function View(props: DataTableProps) {
     }
 
     return (<>
-        <Table ref={tableRef} {...columnSizing_unstable.getTableProps()} noNativeElements>
-            <TableHeader>
-                <TableRow>
-                    {columns.map((column) => (<TableHeaderCell key={column.columnId} {...columnSizing_unstable.getTableHeaderCellProps(column.columnId)}>{column.renderHeaderCell()}</TableHeaderCell>))}
-                </TableRow>
-            </TableHeader>
-            <TableBody>
-                {!isPrintView && !isArchive && rows.length === 0 ? (
+        <Field
+            validationState={field.state.meta.errors.length > 0 ? "error" : "warning"}
+            validationMessage={field.state.meta.isTouched && field.state.meta.errors.length > 0 ? t(field.state.meta.errors[0]) : rows.length === 0 ? t('The table is empty') : null}
+        >
+            <Table ref={tableRef} {...columnSizing_unstable.getTableProps()} noNativeElements>
+                <TableHeader>
                     <TableRow>
-                        <TableCell rowSpan={columns.length}>
-                            <NoRowsCellActions
-                                onClick={(type) => {
-                                    onAction(type, 0);
-                                }}
-                            />
-                        </TableCell>
+                        {columns.map((column, index) => (
+                            <TableHeaderCell key={column.columnId} {...columnSizing_unstable.getTableHeaderCellProps(column.columnId)}>
+                                {column.renderHeaderCell()}
+                                {index > 0 ? null :
+                                <NoRowsCellActions 
+                                    onClick={(type) => {
+                                        onAction(type, -1);
+                                    }}
+                                />}
+                            </TableHeaderCell>
+                        ))}
                     </TableRow>
-                ) : null}
-                {rows.map(({ item }, index, rows) => (
-                    <dtForm.Subscribe 
-                        key={`datatablerow-${index}`} 
-                        selector={s => s.values.selectedIndex}
-                        children={(selectedIndex) => {
-                            return (
-                                <TableRow appearance={selectedIndex === index ? 'brand' : 'none'}>
-                                    <TableCellComponent 
-                                        index={index} 
-                                        item={item} 
-                                        rows={rows} 
-                                        columnSizing_unstable={columnSizing_unstable} 
-                                        CellActionsComponent={() => isPrintView ? null : (
-                                            <CellActions
-                                                onClick={(type) => {
-                                                    onAction(type, index, item);
-                                                }}
-                                            />
-                                        )} 
-                                    />
-                                </TableRow>
-                            );
-                        }}
-                    />
-                ))}
-            </TableBody>
-        </Table>
+                </TableHeader>
+                <TableBody>
+                    {rows.map(({ item }, index, rows) => (
+                        <dtForm.Subscribe 
+                            key={`datatablerow-${index}`} 
+                            selector={s => s.values.selectedIndex}
+                            children={(selectedIndex) => {
+                                return (
+                                    <TableRow appearance={selectedIndex === index ? 'brand' : 'none'}>
+                                        <TableCellComponent 
+                                            index={index} 
+                                            item={item} 
+                                            rows={rows} 
+                                            columnSizing_unstable={columnSizing_unstable} 
+                                            CellActionsComponent={() => isPrintView ? null : (
+                                                <CellActions
+                                                    onClick={(type) => {
+                                                        onAction(type, index, item);
+                                                    }}
+                                                />
+                                            )} 
+                                        />
+                                    </TableRow>
+                                );
+                            }}
+                        />
+                    ))}
+                </TableBody>
+            </Table>
+        </Field>
         <dtForm.Subscribe 
             selector={s => s.values.isDetailsFormOpen}
             children={(isDetailsFormOpen) => {

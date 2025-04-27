@@ -222,6 +222,7 @@ export const initData = {
                 "Field2": null
             }
         ],
+        "SomeOtherTable2": [],
         "ComplexItem": [],
         "Currency": [
             { "code":"USD","name":"United States Dollar","rate":1.297690}

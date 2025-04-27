@@ -30,9 +30,14 @@ export const Root = () => {
         };
     }, []);
 
-    return <>
+    if (import.meta.env.DEV) {
+        return <>
+            <Outlet />
+            <ReactQueryDevtools />
+            <TanStackRouterDevtools />
+        </>;
+    }
+    return (
         <Outlet />
-        <ReactQueryDevtools />
-        <TanStackRouterDevtools />
-    </>;
+    );
 }
