@@ -4,7 +4,7 @@ import viteReact from "@vitejs/plugin-react";
 
 export const config = {
   env: "DEV",
-  // url: "http://localhost",
+  // url: "http://eforms.local",
   url: "http://localhost:5173",
   process: "FLUENTUI_TEMPLATE",
   processVersion: 1,

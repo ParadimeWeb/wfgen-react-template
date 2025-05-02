@@ -20,7 +20,7 @@ namespace FluentUITemplate
             formData.CreateFilesTable("Files");
             AddApproval("approver");
 
-            return new string[] { formData.SomeOtherTable.TableName };
+            return new string[] { formData.SomeOtherTable.TableName, formData.SomeOtherTable2.TableName };
         }
 
         protected void Page_Load(object sender, EventArgs e)

@@ -1,0 +1,2 @@
+import{b9 as t,ba as a,bb as i,bc as r}from"./index-BACowgRs.js";const s=e=>(t(a),i({groupper:{tabbability:u(e==null?void 0:e.tabBehavior)},focusable:{ignoreKeydown:e==null?void 0:e.ignoreDefaultKeydown}})),u=e=>{switch(e){case"unlimited":return r.Unlimited;case"limited":return r.Limited;case"limited-trap-focus":return r.LimitedTrapFocus;default:return}};export{s as u};
+//# sourceMappingURL=useFocusableGroup-DAgWwH1b.js.map

@@ -18,7 +18,7 @@ export default () => {
         <Chat className={styles.root}>
             {comments.state.value.map((comment, i) => {
                 const CommentChatMessage = commentChatMessages.get(comment.Type)!;
-                return <CommentChatMessage key={i} comment={comment} />;
+                return <CommentChatMessage key={`comment_${i}`} comment={comment} onDelete={() => { comments.removeValue(i); }} />;
             })}
         </Chat>
     );

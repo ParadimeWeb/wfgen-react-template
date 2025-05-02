@@ -39,7 +39,7 @@ function View() {
                             Created: dayjs().toISOString(),
                             ProcessInstId: configuration.WF_PROCESS_INST_ID,
                             ProcessName: configuration.WF_PROCESS_NAME,
-                            ActivityInstId: configuration.WF_ACTIVITY_ID,
+                            ActivityInstId: configuration.WF_ACTIVITY_INST_ID,
                             ActivityName: configuration.WF_ACTIVITY_NAME,
                             Comment: field.state.value
                         });
