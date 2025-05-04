@@ -42,8 +42,17 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="Advantys.My">
+      <HintPath>..\wfgen-aspx\WebServer\bin\Release\Advantys.My.dll</HintPath>
+    </Reference>
+    <Reference Include="Advantys.Security">
+      <HintPath>..\wfgen-aspx\WebServer\bin\Release\Advantys.Security.dll</HintPath>
+    </Reference>
     <Reference Include="Elmah">
       <HintPath>..\wfgen-aspx\Web.UI.WebForms\bin\Debug\Elmah.dll</HintPath>
+    </Reference>
+    <Reference Include="jose-jwt">
+      <HintPath>..\wfgen-aspx\WebServer\bin\Release\jose-jwt.dll</HintPath>
     </Reference>
     <Reference Include="Microsoft.CSharp" />
     <Reference Include="Newtonsoft.Json, Version=13.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
@@ -52,6 +61,9 @@
     </Reference>
     <Reference Include="ParadimeWeb.WorkflowGen.Web.UI.WebForms">
       <HintPath>..\wfgen-aspx\Web.UI.WebForms\bin\Debug\ParadimeWeb.WorkflowGen.Web.UI.WebForms.dll</HintPath>
+    </Reference>
+    <Reference Include="ParadimeWeb.WorkflowGen.WebServer">
+      <HintPath>..\wfgen-aspx\WebServer\bin\Release\ParadimeWeb.WorkflowGen.WebServer.dll</HintPath>
     </Reference>
     <Reference Include="System.Web.DynamicData" />
     <Reference Include="System.Web.Entity" />
