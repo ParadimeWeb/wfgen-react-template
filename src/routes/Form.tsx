@@ -149,7 +149,6 @@ export function Form() {
                         mode="array"
                         validators={{
                             onSubmit: ({value}) => {
-                                console.log('SomeOtherTable', value);
                                 return value.length > 0 ? undefined : t('You need at least one item');
                             }
                         }}
@@ -289,6 +288,62 @@ export function Form() {
                                             </>
                                         );
                                     }}
+                                />
+                            );
+                            
+                        }}
+                    />
+                </div>
+                <SectionDivider>Gridview example (Inline)</SectionDivider>
+                <div className={styles.row}>
+                    <form.AppField 
+                        name="SomeOtherTable3"
+                        mode="array"
+                        children={(field) => {
+                            return (
+                                <field.DataGrid
+                                    columnsDef={[
+                                        createTableColumn<DataRow>({
+                                            columnId: "Field1",
+                                            renderHeaderCell: () => t('Field 1')
+                                        }),
+                                        createTableColumn<DataRow>({
+                                            columnId: "Field2",
+                                            renderHeaderCell: () => t('Field 2')
+                                        })
+                                    ]}
+                                    columnSizingOptions={{
+                                        Field1: {
+                                            minWidth: 200,
+                                            defaultWidth: 300
+                                        }
+                                    }}
+                                    TableCellComponent={(props) => {
+                                        const { columnSizing_unstable, CellActionsComponent, index } = props;
+                                        return (<>
+                                            <TableCell {...columnSizing_unstable.getTableCellProps("Field1")}>
+                                                <form.AppField 
+                                                    name={`SomeOtherTable3[${index}].Field1`}
+                                                    validators={{
+                                                        onSubmit: type("string > 0")
+                                                    }}
+                                                    children={(field) => <field.TextField fieldProps={{ label: null }} />}
+                                                />
+                                                {<CellActionsComponent />}
+                                            </TableCell>
+                                            <TableCell>
+                                                <form.AppField 
+                                                    name={`SomeOtherTable3[${index}].Field2`}
+                                                    validators={{
+                                                        onSubmit: type("string > 0")
+                                                    }}
+                                                    children={(field) => <field.TextField fieldProps={{ label: null }} />}
+                                                />
+                                            </TableCell>
+                                        </>);
+                                    }}
+                                    defaultItem={{ Field1: 'Default Value', Field2: null }}
+                                    detailsFormType="inline"
                                 />
                             );
                             

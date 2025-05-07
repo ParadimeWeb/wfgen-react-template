@@ -223,6 +223,7 @@ export const initData = {
             }
         ],
         "SomeOtherTable2": [],
+        "SomeOtherTable3": [],
         "ComplexItem": [],
         "Currency": [
             { "code":"USD","name":"United States Dollar","rate":1.297690}

@@ -4,8 +4,9 @@ import viteReact from "@vitejs/plugin-react";
 
 export const config = {
   env: "DEV",
-  // url: "http://eforms.local",
-  url: "http://localhost:5173",
+  url: "https://wfgtest.centricbrands.com/wfgen",
+  // url: "http://eforms.dev.centricbrands.com/wfgen",
+  // url: "http://localhost:5173/wfgen",
   process: "FLUENTUI_TEMPLATE",
   processVersion: 1,
   sourceMap: true,
@@ -56,7 +57,7 @@ export default defineConfig({
     '__APP_VERSION__': JSON.stringify(process.env.npm_package_version)
   },
   plugins: [viteReact(), writeToAspxFile(config), transformIndexHtml(config)],
-  base: `${config.url}/wfgen/wfapps/webforms/${config.process}/V${config.processVersion}/${config.outDir}/`,
+  base: `${config.url}/wfapps/webforms/${config.process}/V${config.processVersion}/${config.outDir}/`,
   build: {
     outDir: config.outDir,
     sourcemap: config.sourceMap,

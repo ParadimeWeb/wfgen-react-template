@@ -5,11 +5,13 @@ import { useIsMutating, useMutation, useQueryClient } from "@tanstack/react-quer
 import { useWfgFormContext } from "../../hooks/useWfgFormContext";
 import { forwardRef } from "react";
 import { postWithFormData } from "../../utils";
+import { useFormInitQuery } from "../../hooks/useFormInitQuery";
 
 export const SaveCloseButton = forwardRef<HTMLButtonElement | HTMLAnchorElement>((_, ref) => {
     const queryClient = useQueryClient();
     const { t } = useTranslation();
     const { form } = useWfgFormContext();
+    const { closeForm } = useFormInitQuery();
     const { isPending, mutate } = useMutation({
         mutationKey: ['save'],
         mutationFn: postWithFormData
@@ -23,9 +25,7 @@ export const SaveCloseButton = forwardRef<HTMLButtonElement | HTMLAnchorElement>
             onClick={() => {
                 queryClient.cancelQueries({ queryKey: ['autosave'] });
                 mutate(form.state.values, {
-                    onSuccess: () => {
-                        console.log('TODO: Close the form');
-                    }
+                    onSuccess: closeForm
                 });
             }}
         >
@@ -36,6 +36,7 @@ export const SaveCloseIconButton = forwardRef<HTMLButtonElement | HTMLAnchorElem
     const queryClient = useQueryClient();
     const { t } = useTranslation();
     const { form } = useWfgFormContext();
+    const { closeForm } = useFormInitQuery();
     const { mutate, isPending } = useMutation({
         mutationKey: ['save'],
         mutationFn: postWithFormData
@@ -52,9 +53,7 @@ export const SaveCloseIconButton = forwardRef<HTMLButtonElement | HTMLAnchorElem
                 onClick={() => {
                     queryClient.cancelQueries({ queryKey: ['autosave'] });
                     mutate(form.state.values, {
-                        onSuccess: () => {
-                            console.log('TODO: Close the form');
-                        }
+                        onSuccess: closeForm
                     });
                 }}
             />
@@ -64,6 +63,7 @@ export const SaveCloseMenuItem = () => {
     const queryClient = useQueryClient();
     const { t } = useTranslation();
     const { form } = useWfgFormContext();
+    const { closeForm } = useFormInitQuery();
     const { mutate, isPending } = useMutation({
         mutationKey: ['save'],
         mutationFn: postWithFormData
@@ -77,9 +77,7 @@ export const SaveCloseMenuItem = () => {
             onClick={() => {
                 queryClient.cancelQueries({ queryKey: ['autosave'] });
                 mutate(form.state.values, {
-                    onSuccess: () => {
-                        console.log('TODO: Close the form');
-                    }
+                    onSuccess: closeForm
                 });
             }}
         >

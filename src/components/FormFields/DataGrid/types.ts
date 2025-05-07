@@ -14,17 +14,25 @@ export type _DataTableProps = {
     columnsDef: TableColumnDefinition<DataRow>[]
     columnSizingOptions: TableColumnSizingOptions
     TableCellComponent: ComponentType<RowProps>
-    DetailsBodyComponent: ComponentType<{ index: number, form: DataRowForm }>
-    DetailsTitleComponent: ComponentType<{ index: number }>
+    detailsFormType: 'drawer' | 'dialog' | 'inline'
+    detailsFormProps?: OverlayDrawerProps | DialogProps
+    DetailsBodyComponent?: ComponentType<{ index: number, form: DataRowForm }>
+    DetailsTitleComponent?: ComponentType<{ index: number }>
     defaultItem?: DataRow
 };
 export type DataTableProps = 
     | {
         detailsFormType: 'drawer'
         detailsFormProps?: OverlayDrawerProps
-        
+        DetailsBodyComponent: ComponentType<{ index: number, form: DataRowForm }>
+        DetailsTitleComponent: ComponentType<{ index: number }>
     } & _DataTableProps
     | {
         detailsFormType: 'dialog'
         detailsFormProps?: DialogProps
+        DetailsBodyComponent: ComponentType<{ index: number, form: DataRowForm }>
+        DetailsTitleComponent: ComponentType<{ index: number }>
+    } & _DataTableProps
+    | {
+        detailsFormType: 'inline'
     } & _DataTableProps;

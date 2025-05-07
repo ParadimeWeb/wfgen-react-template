@@ -92,7 +92,6 @@ function View(props: DataTableProps) {
         }]
     ]);
     const onAction = (type: RowAction, index?: number, item?: DataRow) => {
-        console.log('onAction', type, index, item);
         actionMap.get(type)?.call(null, index, item);
     }
 
@@ -124,7 +123,7 @@ function View(props: DataTableProps) {
                             selector={s => s.values.selectedIndex}
                             children={(selectedIndex) => {
                                 return (
-                                    <TableRow appearance={selectedIndex === index ? 'brand' : 'none'}>
+                                    <TableRow appearance={detailsFormType !== 'inline' && selectedIndex === index ? 'brand' : 'none'}>
                                         <TableCellComponent 
                                             index={index} 
                                             item={item} 
@@ -132,6 +131,7 @@ function View(props: DataTableProps) {
                                             columnSizing_unstable={columnSizing_unstable} 
                                             CellActionsComponent={() => isPrintView ? null : (
                                                 <CellActions
+                                                    commands={new Set(detailsFormType !== 'inline' ? ['add', 'delete', 'edit'] : ['add', 'delete'])}
                                                     onClick={(type) => {
                                                         onAction(type, index, item);
                                                     }}
@@ -146,6 +146,7 @@ function View(props: DataTableProps) {
                 </TableBody>
             </Table>
         </Field>
+        {detailsFormType !== 'inline' ?
         <dtForm.Subscribe 
             selector={s => s.values.isDetailsFormOpen}
             children={(isDetailsFormOpen) => {
@@ -236,7 +237,7 @@ function View(props: DataTableProps) {
                     />
                 );
             }}
-        />
+        /> : null}
     </>);
 }
 export default (props: DataTableProps) => {

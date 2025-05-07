@@ -3,16 +3,18 @@ import { DismissRegular } from "@fluentui/react-icons";
 import { useIsMutating } from "@tanstack/react-query";
 import { forwardRef } from "react";
 import { useTranslation } from "react-i18next";
+import { useFormInitQuery } from "../../hooks/useFormInitQuery";
 
 export const CloseButton = forwardRef<HTMLButtonElement | HTMLAnchorElement>((_, ref) => {
     const { t } = useTranslation();
     const isMutating = useIsMutating({ mutationKey: ['save'], exact: true }) > 0;
+    const { closeForm } = useFormInitQuery();
     return (
         <ToolbarButton
             disabled={isMutating}
             ref={ref}
             icon={<DismissRegular />}
-            onClick={() => { console.log('close'); }}
+            onClick={closeForm}
         >
             {t('Close')}
         </ToolbarButton>
@@ -21,6 +23,7 @@ export const CloseButton = forwardRef<HTMLButtonElement | HTMLAnchorElement>((_,
 export const CloseIconButton = forwardRef<HTMLButtonElement | HTMLAnchorElement>((_, ref) => {
     const { t } = useTranslation();
     const isMutating = useIsMutating({ mutationKey: ['save'], exact: true }) > 0;
+    const { closeForm } = useFormInitQuery();
     return isMutating ? (
         <ToolbarButton 
             disabled
@@ -37,7 +40,7 @@ export const CloseIconButton = forwardRef<HTMLButtonElement | HTMLAnchorElement>
             <ToolbarButton
                 ref={ref}
                 icon={<DismissRegular />}
-                onClick={() => { console.log('close'); }}
+                onClick={closeForm}
             />
         </Tooltip>
     );
@@ -45,12 +48,12 @@ export const CloseIconButton = forwardRef<HTMLButtonElement | HTMLAnchorElement>
 export const CloseMenuItem = () => {
     const { t } = useTranslation();
     const isMutating = useIsMutating({ mutationKey: ['save'], exact: true }) > 0;
-
+    const { closeForm } = useFormInitQuery();
     return (
-        <MenuItem 
+        <MenuItem
             disabled={isMutating}
             icon={<DismissRegular />} 
-            onClick={() => { console.log('close'); }}
+            onClick={closeForm}
         >
             {t('Close')}
         </MenuItem>

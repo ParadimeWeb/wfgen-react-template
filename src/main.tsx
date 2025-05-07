@@ -9,7 +9,6 @@ import localizedFormat from "dayjs/plugin/localizedFormat";
 import relativeTime from "dayjs/plugin/relativeTime";
 import utc from "dayjs/plugin/utc";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import reportWebVitals from "./reportWebVitals";
 import { createRootRouteWithContext, createRoute, createRouter, RouterProvider } from "@tanstack/react-router";
 import { initQueryOptions } from "./queryOptions";
 import { Root } from "./routes/Root";
@@ -41,8 +40,7 @@ const rootRoute = createRootRouteWithContext<{
         }
     },
     errorComponent: (error) => <div>Error!<div>{error.error.message}</div></div>,
-    notFoundComponent: (props) => {
-        console.log(props);
+    notFoundComponent: () => {
         return <div>Not found</div>;
     },
     component: Root
@@ -95,8 +93,3 @@ if (!rootElement.innerHTML) {
         </StrictMode>
     );
 }
-
-// If you want to start measuring performance in your app, pass a function
-// to log results (for example: reportWebVitals(console.log))
-// or send to an analytics endpoint. Learn more: https://bit.ly/CRA-vitals
-reportWebVitals();

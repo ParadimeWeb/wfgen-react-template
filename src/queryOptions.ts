@@ -39,6 +39,17 @@ export const initQueryOptions = queryOptions({
         const rootUrl = absoluteBaseUrl.substring(0, absoluteBaseUrl.indexOf('/', absoluteBaseUrl.indexOf('//') + 2) + 1);
         const graphQLUrl = `${rootUrl}graphQL`;
         const delegatorUserId = currentUser.id !== assignee.id ? assignee.id : -1;
+        const closeFormUrl = `${rootUrl}show.aspx?QUERY=PROCESS_INSTANCE_FORM&ID_PROCESS_INST=${configuration.WF_PROCESS_INST_ID}&ID_USER_DELEGATOR=${delegatorUserId}`;
+        const closeForm = () => {
+            const parent = window.parent as any;
+            const topFrame = parent['WFGEN_TOP']; 
+            if (topFrame && typeof(topFrame.goToRequest) === 'function') {
+                topFrame.goToRequest();
+            }
+            else {
+                window.location.replace(closeFormUrl);
+            }
+        };
         
         return { 
             wfgFormData,
@@ -47,6 +58,8 @@ export const initQueryOptions = queryOptions({
             currentUser,
             rootUrl,
             graphQLUrl,
+            closeFormUrl,
+            closeForm,
             delegatorUserId,
             isArchive: commands.MAIN.includes('ARCHIVE'),
             commands,
