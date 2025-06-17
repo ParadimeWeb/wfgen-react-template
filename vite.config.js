@@ -8,6 +8,7 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 export const config = {
   env: "DEV",
+  saveMissingTranslationKeys: true,
   // url: "https://wfgtest.centricbrands.com",
   // url: "http://eforms.dev.centricbrands.com",
   url: "http://localhost:5173",
