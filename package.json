@@ -7,7 +7,7 @@
     "start": "vite --port 5173",
     "build": "vite build && tsc",
     "check": "tsc",
-    "check-circular": "madge --circular src/main.tsx",
+    "check-circular": "madge --circular wfgen/main.tsx",
     "serve": "vite preview",
     "test": "vitest run",
     "dev": "node server"

@@ -4,13 +4,13 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <link rel="icon" href="https://wfgtest.centricbrands.com/wfgen/wfapps/webforms/FLUENTUI_TEMPLATE/V1/build/favicon.png" />
+    <link rel="icon" href="http://localhost:5173/wfgen/wfapps/webforms/FLUENTUI_TEMPLATE/V1/build/favicon.png" />
     <meta name="theme-color" content="#000000" />
     <script>
       function __fallbackScript(e) { window.location.replace(e.target.src); }
     </script>
     <title>WorkflowGen React</title>
-    <script type="module" crossorigin="use-credentials" src="https://wfgtest.centricbrands.com/wfgen/wfapps/webforms/FLUENTUI_TEMPLATE/V1/build/assets/index-DImuVcwS.js"></script>
+    <script type="module" crossorigin src="http://localhost:5173/wfgen/wfapps/webforms/FLUENTUI_TEMPLATE/V1/build/assets/index-KjA38sw4.js"></script>
   </head>
   <style>
     :where(body) {

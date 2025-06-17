@@ -213,15 +213,7 @@ export const initData = {
         "ElementItems": [],
         "ActivityItems": [],
         "SomeOtherTable": [
-            {
-                "Field1": "This is field 1",
-                "Field2": "Field 2 is not null here"
-            },
-            {
-                "Field1": "Another field 1",
-                "Field2": null
-            }
-        ],
+            { IsVendorScoreCard: null, PO: null, FOB: null, GL: null, PCQty: null, Description: null, ReasonValue: null, ReasonText: null, Amount: null }],
         "SomeOtherTable2": [],
         "SomeOtherTable3": [],
         "ComplexItem": [],

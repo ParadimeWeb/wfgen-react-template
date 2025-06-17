@@ -1,12 +1,16 @@
+import path from "node:path";
+import { fileURLToPath } from "node:url";
 import { defineConfig } from "vite";
 import { readFile, writeFile } from 'fs';
 import viteReact from "@vitejs/plugin-react";
 
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
+
 export const config = {
   env: "DEV",
-  url: "https://wfgtest.centricbrands.com/wfgen",
-  // url: "http://eforms.dev.centricbrands.com/wfgen",
-  // url: "http://localhost:5173/wfgen",
+  // url: "https://wfgtest.centricbrands.com",
+  // url: "http://eforms.dev.centricbrands.com",
+  url: "http://localhost:5173",
   process: "FLUENTUI_TEMPLATE",
   processVersion: 1,
   sourceMap: true,
@@ -46,7 +50,7 @@ function transformIndexHtml(config) {
   return {
     name: 'transformIndexHtml',
     transformIndexHtml(html) {
-      return html.replace('crossorigin', 'crossorigin="use-credentials"').replace(/"[^"]*\/favicon\.ico"/, `"${config.url}/favicon.ico"`);
+      return html.replace(/"[^"]*\/favicon\.ico"/, `"${config.url}/favicon.ico"`);
     }
   };
 }
@@ -54,10 +58,11 @@ function transformIndexHtml(config) {
 export default defineConfig({
   define: {
     '__FORM_ENV': JSON.stringify(config.env),
-    '__APP_VERSION__': JSON.stringify(process.env.npm_package_version)
+    '__APP_VERSION__': JSON.stringify(process.env.npm_package_version),
+    '__SAVE_MISSING_TRANSLATION_KEYS': JSON.stringify(config.saveMissingTranslationKeys)
   },
   plugins: [viteReact(), writeToAspxFile(config), transformIndexHtml(config)],
-  base: `${config.url}/wfapps/webforms/${config.process}/V${config.processVersion}/${config.outDir}/`,
+  base: `${config.url}/wfgen/wfapps/webforms/${config.process}/V${config.processVersion}/${config.outDir}/`,
   build: {
     outDir: config.outDir,
     sourcemap: config.sourceMap,
@@ -66,5 +71,11 @@ export default defineConfig({
   test: {
     globals: true,
     environment: "jsdom",
+  },
+  resolve: {
+    alias: {
+      "@": path.resolve(__dirname, "./src"),
+      "@wfgen": path.resolve(__dirname, "./wfgen")
+    }
   }
 });
