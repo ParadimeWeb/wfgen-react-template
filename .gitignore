@@ -6,6 +6,9 @@
 # macos files
 .DS_Store
 
+# windows files
+Thumbs.db
+
 # User-specific files
 *.rsuser
 *.suo
